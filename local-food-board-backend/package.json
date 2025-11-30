@@ -4,9 +4,9 @@
   "description": "Local food board backend (TypeScript, Express, Sequelize+SQLite) with phone auth",
   "main": "dist/server.js",
   "scripts": {
-    "dev": "npx ts-node-dev --respawn --transpile-only src/server.js",
+    "dev": "npx ts-node-dev --respawn --transpile-only src/server.ts",
     "build": "tsc",
-    "start": "node dist/server.js",
+    "start": "npx ts-node dist/server.ts",
     "init-db": "npx ts-node src/scripts/initDB.ts"
   },
   "dependencies": {
