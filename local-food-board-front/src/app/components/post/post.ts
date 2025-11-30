@@ -1,12 +1,13 @@
 import { Component, Input } from '@angular/core';
 import { IPost } from '../../types/post';
-import { CurrencyPipe, DatePipe } from '@angular/common';
+import { CurrencyPipe, DatePipe, NgOptimizedImage } from '@angular/common';
 
 @Component({
   selector: 'app-post',
   imports: [
     CurrencyPipe,
-    DatePipe
+    DatePipe,
+    NgOptimizedImage
   ],
   templateUrl: './post.html',
   styleUrl: './post.scss',
