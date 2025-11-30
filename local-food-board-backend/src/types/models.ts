@@ -1,0 +1,63 @@
+// Интерфейс, описывающий структуру пользователя в базе данных
+export interface IUser {
+  id: string;               // Уникальный идентификатор пользователя
+  phone: string;            // Телефон пользователя (уникальный)
+  password: string | null;  // Хеш пароля (может быть null, если, например, пользователь зарегистрирован через соцсеть)
+  name: string | null;      // Имя пользователя (необязательное)
+  verified: boolean;        // Флаг подтверждения пользователя (например, по SMS)
+  createdAt: number;        // Временная метка создания пользователя (timestamp)
+}
+
+// Интерфейс для запроса регистрации нового пользователя
+export interface IUserRegisterRequest {
+  phone: string;            // Телефон для регистрации
+  password: string;         // Пароль для регистрации
+  name?: string;            // Имя пользователя (необязательное)
+}
+
+// Интерфейс для запроса логина пользователя
+export interface IUserLoginRequest {
+  phone: string;            // Телефон пользователя
+  password: string;         // Пароль пользователя
+}
+
+// Интерфейс для ответа после успешной аутентификации
+export interface IAuthResponse {
+  user: {                   // Данные пользователя
+    id: string;
+    phone: string;
+    name: string | null;
+  };
+  token: string;            // JWT токен для последующих запросов
+}
+
+// Интерфейс, описывающий структуру поста в базе данных
+export interface IPost {
+  id: string;               // Уникальный идентификатор поста
+  title: string;            // Заголовок поста
+  description?: string;     // Описание поста (необязательное)
+  price?: string;           // Цена (необязательное)
+  contact: string;          // Контактные данные автора
+  category?: string;        // Категория поста (необязательное)
+  district?: string;        // Район или локация (необязательное)
+  photos?: string[];        // Массив ссылок на фотографии (необязательное)
+  lat?: number | null;      // Широта (необязательное)
+  lon?: number | null;      // Долгота (необязательное)
+  notifyNeighbors?: boolean;// Флаг уведомления соседей (необязательное)
+  userId?: string | null;   // ID автора поста (необязательное)
+  createdAt: number;        // Временная метка создания поста
+}
+
+// Интерфейс для запроса на создание нового поста
+export interface IPostCreateRequest {
+  title: string;            // Заголовок поста
+  description?: string;     // Описание (необязательное)
+  price?: string;           // Цена (необязательное)
+  contact: string;          // Контактные данные автора
+  category?: string;        // Категория (необязательное)
+  district?: string;        // Район или локация (необязательное)
+  lat?: number;             // Широта (необязательное)
+  lon?: number;             // Долгота (необязательное)
+  notifyNeighbors?: boolean;// Уведомлять соседей (необязательное)
+  userId?: string;          // ID пользователя, который создаёт пост (необязательное, обычно берётся из токена)
+}

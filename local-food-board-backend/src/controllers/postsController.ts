@@ -1,0 +1,138 @@
+import { Request, Response } from 'express';
+import { nanoid } from 'nanoid';
+import { Post, User } from '../models';
+import { haversineDistance } from '../utils/geo';
+import { Op } from 'sequelize';
+import { IPostCreateRequest } from '../types/models';
+import { AuthRequest } from '../types/express';
+
+export const postsController = {
+  /**
+   * Создание нового поста
+   * @param req - AuthRequest, содержит тело запроса и объект user из authMiddleware
+   * @param res - Response
+   */
+  async create(req: AuthRequest, res: Response) {
+    try {
+      // Берем данные из тела запроса и приводим к типу IPostCreateRequest
+      const body = req.body as IPostCreateRequest;
+
+      // Получаем загруженные файлы через multer
+      const files = (req.files as Express.Multer.File[] | undefined) || [];
+      // Преобразуем их в массив путей для хранения в БД
+      const photos = files.map(f => `/uploads/${f.filename}`);
+
+      // Создаем пост в БД
+      const post = await Post.create({
+        id: nanoid(), // уникальный идентификатор
+        title: body.title,
+        description: body.description || '',
+        price: body.price || '',
+        contact: body.contact,
+        category: body.category || 'other',
+        district: body.district || '',
+        photos,
+        lat: body.lat ?? null,
+        lon: body.lon ?? null,
+        notifyNeighbors: !!body.notifyNeighbors, // приводим к boolean
+        userId: req.user?.id || null, // берем id пользователя из authMiddleware
+        createdAt: Date.now() // текущий timestamp
+      });
+
+      // Возвращаем созданный пост
+      res.json({ post });
+    } catch (err) {
+      console.error('Create post error', err);
+      res.status(500).json({ error: 'Internal server error' });
+    }
+  },
+
+  /**
+   * Получение списка постов с фильтрацией
+   * @param req - Request, query-параметры для фильтрации
+   * @param res - Response
+   */
+  async list(req: Request, res: Response) {
+    try {
+      // Деструктуризация параметров запроса
+      const { category, district, q, lat, lon, radius = '5000', limit = '50' } = req.query;
+      const where: any = {};
+
+      // Добавляем фильтры для запроса
+      if (category) where.category = category;
+      if (district) where.district = district;
+      if (q) where.title = { [Op.like]: `%${q}%` }; // поиск по подстроке
+
+      // Получаем посты из БД с сортировкой по дате создания
+      const posts = await Post.findAll({ where, order: [['createdAt', 'DESC']], limit: Number(limit) });
+
+      // Если переданы координаты lat/lon - вычисляем расстояние и фильтруем по radius
+      if (lat && lon) {
+        const latNum = Number(lat);
+        const lonNum = Number(lon);
+        const r = Number(radius);
+
+        const filtered = posts
+          .map(p => {
+            const plat = p.lat ?? 0;
+            const plon = p.lon ?? 0;
+            const dist = plat && plon ? haversineDistance(latNum, lonNum, plat, plon) : Infinity;
+            return { post: p, distance: dist };
+          })
+          .filter(x => x.distance <= r) // фильтруем по радиусу
+          .sort((a, b) => a.distance - b.distance) // сортируем по расстоянию
+          .map(x => ({ ...x.post.get(), distance: x.distance })); // добавляем distance к объекту поста
+
+        return res.json({ posts: filtered });
+      }
+
+      res.json({ posts });
+    } catch (err) {
+      console.error('List posts error', err);
+      res.status(500).json({ error: 'Internal server error' });
+    }
+  },
+
+  /**
+   * Получение поста по ID
+   * @param req - Request, содержит params.id
+   * @param res - Response
+   */
+  async getById(req: Request, res: Response) {
+    try {
+      const { id } = req.params;
+      // Находим пост по первичному ключу и подгружаем автора
+      const post = await Post.findByPk(id, { include: [{ model: User, as: 'user', attributes: ['id', 'phone', 'name'] }] });
+      if (!post) return res.status(404).json({ error: 'not found' });
+      res.json({ post });
+    } catch (err) {
+      console.error('Get post error', err);
+      res.status(500).json({ error: 'Internal server error' });
+    }
+  },
+
+  /**
+   * Удаление поста
+   * @param req - AuthRequest, содержит params.id и user из authMiddleware
+   * @param res - Response
+   */
+  async remove(req: AuthRequest, res: Response) {
+    try {
+      const { id } = req.params;
+      const post = await Post.findByPk(id);
+      if (!post) return res.status(404).json({ error: 'not found' });
+
+      // Разрешаем удаление только автору поста
+      if (post.userId && req.user?.id && post.userId !== req.user.id) {
+        return res.status(403).json({ error: 'forbidden' });
+      }
+
+      // Удаляем пост
+      await post.destroy();
+      res.json({ ok: true });
+    } catch (err) {
+      console.error('Remove post error', err);
+      res.status(500).json({ error: 'Internal server error' });
+    }
+  }
+};
