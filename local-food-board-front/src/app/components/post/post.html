@@ -1,0 +1,11 @@
+@if (data) {
+  <section>
+    <h3>{{ data.title }}</h3>
+    @if (data.photos.length && data.photos[0]) {
+      <img [ngSrc]="data.photos[0]" width="400" height="200"  />
+    }
+    <div>{{ data.price | currency: 'RUB' : 'symbol-narrow' : '.0-2' }}</div>
+    <div>{{ data.contact }}</div>
+    <div>{{ data.createdAt | date: 'shortDate' }}</div>
+  </section>
+}

@@ -1,0 +1,7 @@
+<app-search-bar></app-search-bar>
+  @for (item of posts; track item.id) {
+      <app-post [data]="item"></app-post>
+    } @empty {
+      <li>Ничего не найдено</li>
+    }
+
