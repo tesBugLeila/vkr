@@ -19,10 +19,11 @@ class Post extends Model<IPost, PostCreationAttributes> implements IPost {
   public id!: string;              // Уникальный идентификатор поста
   public title!: string;           // Заголовок поста
   public description!: string;     // Описание поста
-  public price!: string;           // Цена
+  public price!: number;           // Цена
   public contact!: string;         // Контактная информация
   public category!: string;        // Категория поста
   public district!: string;        // Район/местоположение
+
   public photos!: string[];        // Массив ссылок на фотографии
   public lat!: number | null;      // Широта (координата)
   public lon!: number | null;      // Долгота (координата)
@@ -40,7 +41,7 @@ Post.init(
     id: { type: DataTypes.STRING, primaryKey: true }, // Primary key
     title: { type: DataTypes.STRING, allowNull: false }, // Заголовок обязателен
     description: { type: DataTypes.TEXT, defaultValue: '' }, // Описание по умолчанию пустое
-    price: { type: DataTypes.STRING, defaultValue: '' }, // Цена по умолчанию пустая строка
+    price: { type: DataTypes.DECIMAL(10, 2), defaultValue: 0 }, // Цена по умолчанию 0
     contact: { type: DataTypes.STRING, allowNull: false }, // Контакт обязателен
     category: { type: DataTypes.STRING, defaultValue: 'other' }, // Категория по умолчанию "other"
     district: { type: DataTypes.STRING, defaultValue: '' }, // Район по умолчанию пустой

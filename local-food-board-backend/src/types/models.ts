@@ -12,7 +12,7 @@ export interface IUser {
 export interface IUserRegisterRequest {
   phone: string;            // Телефон для регистрации
   password: string;         // Пароль для регистрации
-  name?: string;            // Имя пользователя (необязательное)
+  name: string;            // Имя пользователя 
 }
 
 // Интерфейс для запроса логина пользователя
@@ -36,7 +36,7 @@ export interface IPost {
   id: string;               // Уникальный идентификатор поста
   title: string;            // Заголовок поста
   description?: string;     // Описание поста (необязательное)
-  price?: string;           // Цена (необязательное)
+  price: number;           // Цена 
   contact: string;          // Контактные данные автора
   category?: string;        // Категория поста (необязательное)
   district?: string;        // Район или локация (необязательное)
@@ -52,7 +52,7 @@ export interface IPost {
 export interface IPostCreateRequest {
   title: string;            // Заголовок поста
   description?: string;     // Описание (необязательное)
-  price?: string;           // Цена (необязательное)
+  price: number;           // Цена 
   contact: string;          // Контактные данные автора
   category?: string;        // Категория (необязательное)
   district?: string;        // Район или локация (необязательное)

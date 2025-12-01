@@ -18,8 +18,8 @@ interface UserCreationAttributes extends Optional<
 class User extends Model<IUser, UserCreationAttributes> implements IUser {
   public id!: string;              // Уникальный идентификатор пользователя
   public phone!: string;           // Телефон (логин)
-  public password!: string | null; // Хэш пароля (может быть null)
-  public name!: string | null;     // Имя пользователя (может быть null)
+  public password!: string; // Хэш пароля 
+  public name!: string;     // Имя пользователя 
   public verified!: boolean;       // Флаг подтверждения учетной записи
   public createdAt!: number;       // Время создания пользователя (timestamp)
 }

@@ -20,7 +20,7 @@ async function init() {
       id: 'post1',
       title: 'Домашние пирожки',
       description: 'Свежие пирожки, 10 штук',
-      price: '300',
+      price: 300,
       contact: '+70000000001',
       category: 'baked',
       district: 'Центр',

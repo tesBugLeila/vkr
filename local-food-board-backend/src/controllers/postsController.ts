@@ -27,13 +27,13 @@ export const postsController = {
         id: nanoid(), // уникальный идентификатор
         title: body.title,
         description: body.description || '',
-        price: body.price || '',
+        price: body.price ? Number(body.price) : 0,
         contact: body.contact,
         category: body.category || 'other',
         district: body.district || '',
         photos,
-        lat: body.lat ?? null,
-        lon: body.lon ?? null,
+        lat: body.lat ? Number(body.lat) : null,
+        lon: body.lon ? Number(body.lon) : null,
         notifyNeighbors: !!body.notifyNeighbors, // приводим к boolean
         userId: req.user?.id || null, // берем id пользователя из authMiddleware
         createdAt: Date.now() // текущий timestamp
