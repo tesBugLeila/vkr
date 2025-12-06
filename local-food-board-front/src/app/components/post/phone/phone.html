@@ -1,0 +1,8 @@
+@if (tel) {
+  <a href="tel:{{tel}}">{{ phone }}</a>
+} @else {
+  <div class="tooltip-container" (click)="loadPhone()">
+    {{ phone }}
+    <span class="tooltip-text">Показать телефон</span>
+  </div>
+}

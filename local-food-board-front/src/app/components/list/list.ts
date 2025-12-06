@@ -1,11 +1,10 @@
 import { Component, OnInit } from '@angular/core';
-import { SearchBar } from '../search-bar/search-bar';
 import { Post } from '../post/post';
 import { IPost } from '../../types/post';
 
 @Component({
   selector: 'app-list',
-  imports: [SearchBar, Post],
+  imports: [Post],
   templateUrl: './list.html',
   styleUrl: './list.scss',
   standalone: true,
@@ -29,7 +28,7 @@ export class List implements OnInit {
       createdAt: new Date(),
     },
     {
-      id: 'b32c4800-1b14-42aa-bd19-3b2fcbce17fa',
+      id: '1ee16996-b6df-4d79-953e-1bb8aa309233',
       title: 'Молоко домашнее 1 литр',
       description:
         'Lorem ipsum dolor sit amet, consectetur adipisicing elit. Deserunt distinctio eos incidunt inventore quaerat quia, quos velit. Est eum nemo nisi! Cumque dignissimos facilis fuga, illum laborum modi sed tenetur.',
@@ -45,7 +44,7 @@ export class List implements OnInit {
       createdAt: new Date(),
     },
     {
-      id: 'b32c4800-1b14-42aa-bd19-3b2fcbce17fa',
+      id: 'cf064ac3-b858-4e2b-afc4-815e5db497c9',
       title: 'Колбаса свинина говядина от местного производителя ',
       description:
         'Lorem ipsum dolor sit amet, consectetur adipisicing elit. Deserunt distinctio eos incidunt inventore quaerat quia, quos velit. Est eum nemo nisi! Cumque dignissimos facilis fuga, illum laborum modi sed tenetur.',
@@ -58,10 +57,10 @@ export class List implements OnInit {
       lon: 50.64128,
       notifyNeighbors: true,
       userId: 'ec361353-8fed-4ccf-b952-099153033a7b',
-      createdAt: new Date(),
+      createdAt: new Date("2025-12-06T03:24:00"),
     },
     {
-      id: 'b32c4800-1b14-42aa-bd19-3b2fcbce17fa',
+      id: 'e994fc6d-0bb8-419f-95a5-1f395a5f9c3b',
       title: 'Пельмени ручной лепки говядина ',
       description:
         'Lorem ipsum dolor sit amet, consectetur adipisicing elit. Deserunt distinctio eos incidunt inventore quaerat quia, quos velit. Est eum nemo nisi! Cumque dignissimos facilis fuga, illum laborum modi sed tenetur.',
@@ -74,10 +73,10 @@ export class List implements OnInit {
       lon: 50.64128,
       notifyNeighbors: true,
       userId: 'ec361353-8fed-4ccf-b952-099153033a7b',
-      createdAt: new Date(),
+      createdAt: new Date("2025-10-06T03:24:00"),
     },
     {
-      id: 'b32c4800-1b14-42aa-bd19-3b2fcbce17fa',
+      id: 'ddfbda06-42ff-4dbe-b490-87be5368e634',
       title: 'Семейная пасика Мёд (цена за 1 литр) ',
       description:
         'Lorem ipsum dolor sit amet, consectetur adipisicing elit. Deserunt distinctio eos incidunt inventore quaerat quia, quos velit. Est eum nemo nisi! Cumque dignissimos facilis fuga, illum laborum modi sed tenetur.',
@@ -90,7 +89,7 @@ export class List implements OnInit {
       lon: 50.624702,
       notifyNeighbors: true,
       userId: 'ec361353-8fed-4ccf-b952-099153033a7b',
-      createdAt: new Date(),
+      createdAt: new Date("1995-12-17T03:24:00"),
     },
   ];
   public ngOnInit() {}

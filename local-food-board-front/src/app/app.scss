@@ -1,20 +1,61 @@
 :host {
   display: block;
-  max-width: 950px;
-  padding: 0 100px;
   margin: 0 auto;
+  border-radius: 15px 15px 0 0;
+  max-width: 950px;
   @media screen and (max-width: 768px) {
     padding: 0 12px;
   }
   background-color: #e9e1d6;
   color: #333333;
 
+  header,
+  section,
+  app-search-bar,
+  footer {
+    padding: 0 100px;
+  }
+
   header {
-    display: flex;
-    justify-content: space-between;
-    .slogan {
-      margin-top: 18px;
-      width: 220px;
+    border-radius: 15px 15px 0 0;
+    background-color: #fefcf7;
+    .title {
+      display: flex;
+      justify-content: space-between;
+      .slogan {
+        margin-top: 18px;
+        width: 220px;
+        text-align: right;
+      }
+    }
+  }
+}
+
+::ng-deep {
+  button {
+    border: none;
+    border-radius: 6px;
+    padding: 8px 12px;
+    margin: 12px 0;
+    color: white;
+    font-weight: bold;
+    background-color: #d99064;
+  }
+  input,
+  select {
+    font-size: 16px;
+    color: #555555;
+    outline-style: none;
+    border: 1px solid rgba(0, 0, 0, 0.1);
+    outline-offset: 0;
+    background-color: transparent;
+    border-radius: 8px;
+    padding: 8px 12px;
+    &:not(:first-child) {
+      margin-left: 6px;
+    }
+    &:not(:last-child) {
+      margin-right: 6px;
     }
   }
 }

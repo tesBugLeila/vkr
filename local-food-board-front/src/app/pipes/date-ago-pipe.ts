@@ -1,7 +1,7 @@
 import { Pipe, PipeTransform } from '@angular/core';
 
 const ru: { [index: string]: string[] } = {
-  //       1     2     10
+  //       1     2     5
   year: ['год', 'годa', 'лет'],
   month: ['месяц', 'месяцa', 'месяцев'],
   week: ['неделя', 'недели', 'недель'],
@@ -21,7 +21,6 @@ export class DateAgoPipe implements PipeTransform {
     if (value) {
       const seconds = Math.floor((+new Date() - +new Date(value)) / 1000);
       if (seconds < 29)
-        // less than 30 seconds ago will show as 'Just now'
         return 'Только что';
       const intervals: { [key: string]: number } = {
         year: 31536000,
