@@ -43,7 +43,7 @@ export const usersController = {
         password: hashed,    // сохраняем хэш пароля
         name: name || null,
         verified: true,      // помечаем как верифицированного
-        createdAt: Date.now() // текущий timestamp
+        createdAt: new Date().toLocaleString('ru-RU')// текущий timestamp
       });
 
       // Генерируем JWT для аутентификации

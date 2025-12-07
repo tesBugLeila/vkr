@@ -5,7 +5,7 @@ export interface IUser {
   password: string | null;  // Хеш пароля (может быть null, если, например, пользователь зарегистрирован через соцсеть)
   name: string | null;      // Имя пользователя (необязательное)
   verified: boolean;        // Флаг подтверждения пользователя (например, по SMS)
-  createdAt: number;        // Временная метка создания пользователя (timestamp)
+  createdAt: string;        // Временная метка создания пользователя (timestamp)
 }
 
 // Интерфейс для запроса регистрации нового пользователя
@@ -44,8 +44,8 @@ export interface IPost {
   lat?: number | null;      // Широта (необязательное)
   lon?: number | null;      // Долгота (необязательное)
   notifyNeighbors?: boolean;// Флаг уведомления соседей (необязательное)
-  userId?: string | null;   // ID автора поста (необязательное)
-  createdAt: number;        // Временная метка создания поста
+  userId: string;   // ID автора поста 
+  createdAt: string;        // Временная метка создания поста
 }
 
 // Интерфейс для запроса на создание нового поста
@@ -59,5 +59,20 @@ export interface IPostCreateRequest {
   lat?: number;             // Широта (необязательное)
   lon?: number;             // Долгота (необязательное)
   notifyNeighbors?: boolean;// Уведомлять соседей (необязательное)
-  userId?: string;          // ID пользователя, который создаёт пост (необязательное, обычно берётся из токена)
+  userId?: string;          // ID пользователя, который создаёт пост (берётся из токена)
+}
+
+
+// Интерфейс для обновления поста (все поля опциональны)
+export interface IPostUpdateRequest {
+  title?: string;
+  description?: string;
+  price?: number;
+  contact?: string;
+  category?: string;
+  district?: string;
+  photos?: string[] | string;
+  lat?: number;
+  lon?: number;
+  notifyNeighbors?: boolean;
 }

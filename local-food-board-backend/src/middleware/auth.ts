@@ -42,7 +42,7 @@ export function authMiddleware(req: AuthRequest, res: Response, next: NextFuncti
     console.log('Данные токена (payload):', payload);
 
     // Добавляем поле user к запросу (ID пользователя)
-    req.user = payload.id;
+    req.user = { id: payload.id };
     console.log('ID пользователя установлен в запросе:', req.user);
 
     next();

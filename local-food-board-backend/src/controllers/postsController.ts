@@ -3,7 +3,7 @@ import { nanoid } from 'nanoid';
 import { Post, User } from '../models';
 import { haversineDistance } from '../utils/geo';
 import { Op } from 'sequelize';
-import { IPostCreateRequest } from '../types/models';
+import { IPostCreateRequest, IPostUpdateRequest } from '../types/models';
 import { AuthRequest } from '../types/express';
 
 export const postsController = {
@@ -34,9 +34,9 @@ export const postsController = {
         photos,
         lat: body.lat ? Number(body.lat) : null,
         lon: body.lon ? Number(body.lon) : null,
-        notifyNeighbors: !!body.notifyNeighbors, // приводим к boolean
+        notifyNeighbors: Boolean(body.notifyNeighbors),
         userId: req.user?.id || null, // берем id пользователя из authMiddleware
-        createdAt: Date.now() // текущий timestamp
+       createdAt: new Date().toLocaleString('ru-RU') //в каком формет
       });
 
       // Возвращаем созданный пост
@@ -110,6 +110,103 @@ export const postsController = {
       res.status(500).json({ error: 'Internal server error' });
     }
   },
+
+
+  /**
+   * Обновление существующего поста
+   * @param req - AuthRequest, содержит params.id, тело запроса и user из authMiddleware
+   * @param res - Response
+   */
+  async update(req: AuthRequest, res: Response) {
+    try {
+      const { id } = req.params;
+      const body = req.body as IPostUpdateRequest;
+
+      // Находим пост для обновления
+      const post = await Post.findByPk(id);
+      if (!post) {
+        return res.status(404).json({ error: 'Post not found' });
+      }
+
+      // Проверяем права доступа: только автор может редактировать
+      if (post.userId && req.user?.id && post.userId !== req.user.id) {
+        return res.status(403).json({ error: 'Forbidden: you can only edit your own posts' });
+      }
+
+      // Подготавливаем данные для обновления
+      const updateData: any = {};
+
+      // Текстовые поля (обновляем только если переданы)
+      if (body.title !== undefined) updateData.title = body.title;
+      if (body.description !== undefined) updateData.description = body.description || '';
+      if (body.contact !== undefined) updateData.contact = body.contact;
+      if (body.category !== undefined) updateData.category = body.category || 'other';
+      if (body.district !== undefined) updateData.district = body.district || '';
+      
+      // Числовые поля с проверкой
+      if (body.price !== undefined) {
+        const priceNum = Number(body.price);
+        updateData.price = isNaN(priceNum) ? 0 : priceNum;
+      }
+      
+      if (body.lat !== undefined) {
+        const latNum = Number(body.lat);
+        updateData.lat = isNaN(latNum) ? null : latNum;
+      }
+      
+      if (body.lon !== undefined) {
+        const lonNum = Number(body.lon);
+        updateData.lon = isNaN(lonNum) ? null : lonNum;
+      }
+      
+      // Boolean поле
+      if (body.notifyNeighbors !== undefined) {
+        updateData.notifyNeighbors = Boolean(body.notifyNeighbors);
+      }
+
+      // Обработка фотографий
+      const files = (req.files as Express.Multer.File[] | undefined) || [];
+      if (files.length > 0) {
+        // Если есть новые фото, заменяем все старые
+        const newPhotos = files.map(f => `/uploads/${f.filename}`);
+        updateData.photos = newPhotos;
+      } else if (body.photos !== undefined) {
+        // Если клиент явно отправил новый массив фото (например, через JSON)
+        if (typeof body.photos === 'string') {
+          try {
+            updateData.photos = JSON.parse(body.photos);
+          } catch {
+            updateData.photos = [];
+          }
+        } else if (Array.isArray(body.photos)) {
+          updateData.photos = body.photos;
+        }
+      }
+
+      // Обновляем пост (только если есть что обновлять)
+      if (Object.keys(updateData).length > 0) {
+        await post.update(updateData);
+        
+        // Обновляем объект поста для ответа
+        await post.reload();
+      }
+
+      // Возвращаем обновленный пост
+      res.json({ 
+        post,
+        message: 'Post updated successfully' 
+      });
+    } catch (err) {
+      console.error('Update post error', err);
+      res.status(500).json({ error: 'Internal server error' });
+    }
+  },
+
+
+
+ 
+
+
 
   /**
    * Удаление поста

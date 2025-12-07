@@ -28,8 +28,8 @@ class Post extends Model<IPost, PostCreationAttributes> implements IPost {
   public lat!: number | null;      // Широта (координата)
   public lon!: number | null;      // Долгота (координата)
   public notifyNeighbors!: boolean; // Уведомление соседей
-  public userId!: string | null;   // ID пользователя, автора поста
-  public createdAt!: number;       // Время создания (timestamp)
+  public userId!: string;   // ID пользователя, автора поста
+  public createdAt!: string;       // Время создания
 }
 
 /**

@@ -14,7 +14,7 @@ const storage = process.env.DATABASE_STORAGE || './database.sqlite';
 const sequelize = new Sequelize({
   dialect: 'sqlite',      // Указываем, что используем SQLite как СУБД
   storage,                // Путь к файлу базы данных (определен выше)
-  logging: false          // Отключаем логирование SQL запросов в консоль
+  logging: true          // Отключаем логирование SQL запросов в консоль
                           // В продакшене это улучшает производительность
 });
 
