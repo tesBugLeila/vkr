@@ -38,9 +38,21 @@
     padding: 8px 12px;
     margin: 12px 0;
     color: white;
-    font-weight: bold;
+    font-weight: 100;
     background-color: #d99064;
+    cursor: pointer;
+    background-position: center;
+    transition: background 0.8s;
   }
+  button:hover {
+    background: #d99064 radial-gradient(circle, transparent 1%, #e3baa3 1%) center/15000%;
+  }
+  button:active {
+    background-color: #d36a2c;
+    background-size: 100%;
+    transition: background 0s;
+  }
+
   input,
   select {
     font-size: 16px;
