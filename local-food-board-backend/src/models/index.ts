@@ -1,23 +1,26 @@
 import User from './User';
 import Post from './Post';
-import { Sequelize } from 'sequelize';
+import Report from './Report';
+import PasswordReset from './PasswordReset';
 
-/**
- * Настройка связей между моделями
- */
+// Связи User <-> Post
+User.hasMany(Post, { foreignKey: 'userId', as: 'posts' });
+Post.belongsTo(User, { foreignKey: 'userId', as: 'user' });
 
-// Связь "Пользователь —> Посты"
-// У одного пользователя может быть много постов
-User.hasMany(Post, { 
-  foreignKey: 'userId', // В таблице posts поле userId будет хранить ID пользователя
-});
+// Связи User <-> Report (кто пожаловался)
+User.hasMany(Report, { foreignKey: 'reporterId', as: 'myReports' });
+Report.belongsTo(User, { foreignKey: 'reporterId', as: 'reporter' });
 
-// Связь "Пост —> Пользователь"
-// Каждый пост принадлежит конкретному пользователю
-Post.belongsTo(User, { 
-  foreignKey: 'userId', // Поле userId связывает пост с пользователем
-  as: 'user',           // Псевдоним для включения пользователя через include в запросах
-});
+// Связи User <-> Report (на кого пожаловались)
+User.hasMany(Report, { foreignKey: 'reportedUserId', as: 'reportsAgainstMe' });
+Report.belongsTo(User, { foreignKey: 'reportedUserId', as: 'reportedUser' });
 
-// Экспорт моделей для использования в контроллерах и других частях приложения
-export { User, Post };
+// Связи Post <-> Report
+Post.hasMany(Report, { foreignKey: 'postId', as: 'reports' });
+Report.belongsTo(Post, { foreignKey: 'postId', as: 'post' });
+
+// Связи User <-> PasswordReset
+User.hasMany(PasswordReset, { foreignKey: 'userId' });
+PasswordReset.belongsTo(User, { foreignKey: 'userId', as: 'user' });
+
+export { User, Post, Report, PasswordReset };

@@ -1,69 +1,65 @@
-// Интерфейс, описывающий структуру пользователя в базе данных
 export interface IUser {
-  id: string;               // Уникальный идентификатор пользователя
-  phone: string;            // Телефон пользователя (уникальный)
-  password: string | null;  // Хеш пароля (может быть null, если, например, пользователь зарегистрирован через соцсеть)
-  name: string | null;      // Имя пользователя (необязательное)
-  verified: boolean;        // Флаг подтверждения пользователя (например, по SMS)
-  createdAt: string;        // Временная метка создания пользователя (timestamp)
+  id: string;
+  phone: string;
+  password: string;
+  name: string;
+  email?: string | null;
+  role: string;
+  isBlocked: boolean;
+  verified: boolean;
+  createdAt: string;
 }
 
-// Интерфейс для запроса регистрации нового пользователя
 export interface IUserRegisterRequest {
-  phone: string;            // Телефон для регистрации
-  password: string;         // Пароль для регистрации
-  name: string;            // Имя пользователя 
+  phone: string;
+  password: string;
+  name: string;
+  email?: string;
 }
 
-// Интерфейс для запроса логина пользователя
 export interface IUserLoginRequest {
-  phone: string;            // Телефон пользователя
-  password: string;         // Пароль пользователя
+  phone: string;
+  password: string;
 }
 
-// Интерфейс для ответа после успешной аутентификации
 export interface IAuthResponse {
-  user: {                   // Данные пользователя
+  user: {
     id: string;
     phone: string;
-    name: string | null;
+    name: string;
+    role: string;
   };
-  token: string;            // JWT токен для последующих запросов
+  token: string;
 }
 
-// Интерфейс, описывающий структуру поста в базе данных
 export interface IPost {
-  id: string;               // Уникальный идентификатор поста
-  title: string;            // Заголовок поста
-  description?: string;     // Описание поста (необязательное)
-  price: number;           // Цена 
-  contact: string;          // Контактные данные автора
-  category?: string;        // Категория поста (необязательное)
-  district?: string;        // Район или локация (необязательное)
-  photos?: string[];        // Массив ссылок на фотографии (необязательное)
-  lat?: number | null;      // Широта (необязательное)
-  lon?: number | null;      // Долгота (необязательное)
-  notifyNeighbors?: boolean;// Флаг уведомления соседей (необязательное)
-  userId: string;   // ID автора поста 
-  createdAt: string;        // Временная метка создания поста
+  id: string;
+  title: string;
+  description: string;
+  price: number;
+  contact: string;
+  category: string;
+  district: string;
+  photos: string[];
+  lat: number | null;
+  lon: number | null;
+  notifyNeighbors: boolean;
+  userId: string;
+  createdAt: string;
 }
 
-// Интерфейс для запроса на создание нового поста
 export interface IPostCreateRequest {
-  title: string;            // Заголовок поста
-  description?: string;     // Описание (необязательное)
-  price: number;           // Цена 
-  contact: string;          // Контактные данные автора
-  category?: string;        // Категория (необязательное)
-  district?: string;        // Район или локация (необязательное)
-  lat?: number;             // Широта (необязательное)
-  lon?: number;             // Долгота (необязательное)
-  notifyNeighbors?: boolean;// Уведомлять соседей (необязательное)
-  userId?: string;          // ID пользователя, который создаёт пост (берётся из токена)
+  title: string;
+  description: string;
+  price: number;
+  contact: string;
+  category?: string;
+  district?: string;
+  lat?: number;
+  lon?: number;
+  notifyNeighbors?: boolean;
 }
 
-
-// Интерфейс для обновления поста (все поля опциональны)
 export interface IPostUpdateRequest {
   title?: string;
   description?: string;
@@ -75,4 +71,26 @@ export interface IPostUpdateRequest {
   lat?: number;
   lon?: number;
   notifyNeighbors?: boolean;
+}
+
+export interface IReport {
+  id: string;
+  reporterId: string;
+  reportedUserId: string;
+  postId?: string | null;
+  reason: string;
+  description: string;
+  status: string;
+  adminComment?: string | null;
+  createdAt: string;
+  updatedAt?: string | null;
+}
+
+export interface IPasswordReset {
+  id: string;
+  userId: string;
+  code: string;
+  expiresAt: string;
+  used: boolean;
+  createdAt: string;
 }

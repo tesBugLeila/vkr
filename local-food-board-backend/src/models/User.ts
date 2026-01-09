@@ -1,66 +1,80 @@
+
 import { DataTypes, Model, Optional } from 'sequelize';
 import sequelize from '../config/database';
 import { IUser } from '../types/models';
+import { UserRole } from '../utils/constants';
 
-/**
- * Интерфейс для создания пользователя
- * Указывает, какие поля необязательны при создании записи в базе данных
- */
-interface UserCreationAttributes extends Optional<
-  IUser, 
-  'id' | 'name' | 'password' | 'verified' | 'createdAt'
-> {}
+interface UserCreationAttributes
+  extends Optional<IUser, 'id' | 'email' | 'role' | 'isBlocked' | 'verified' | 'createdAt'> {}
 
-/**
- * Класс модели User
- * Наследуется от Sequelize Model и реализует интерфейс IUser
- */
 class User extends Model<IUser, UserCreationAttributes> implements IUser {
-  public id!: string;              // Уникальный идентификатор пользователя
-  public phone!: string;           // Телефон (логин)
-  public password!: string; // Хэш пароля 
-  public name!: string;     // Имя пользователя 
-  public verified!: boolean;       // Флаг подтверждения учетной записи
-  public createdAt!: number;       // Время создания пользователя (timestamp)
+  public id!: string;
+  public phone!: string;
+  public password!: string;
+  public name!: string;
+  public email!: string | null;
+  public role!: string;
+  public isBlocked!: boolean;
+  public verified!: boolean;
+  public createdAt!: string;
 }
 
-/**
- * Инициализация модели User
- * Настройка полей таблицы и типов данных
- */
 User.init(
   {
-    id: { 
-      type: DataTypes.STRING,      // Тип поля: строка
-      primaryKey: true             // Первичный ключ
+    id: {
+      type: DataTypes.STRING(50),
+      primaryKey: true
     },
-    phone: { 
-      type: DataTypes.STRING,      // Тип поля: строка
-      allowNull: false,            // Обязательное поле
-      unique: true                 // Должно быть уникальным
+    phone: {
+      type: DataTypes.STRING(20),
+      allowNull: false,
+      unique: true
     },
-    password: { 
-      type: DataTypes.STRING,      // Хэш пароля
-      allowNull: true              // Может быть null
+    password: {
+      type: DataTypes.STRING(255),
+      allowNull: false
     },
-    name: { 
-      type: DataTypes.STRING,      // Имя пользователя
-      allowNull: true              // Может быть null
+    name: {
+      type: DataTypes.STRING(100),
+      allowNull: false
     },
-    verified: { 
-      type: DataTypes.BOOLEAN,     // Флаг подтверждения
-      defaultValue: false          // По умолчанию false
+    email: {
+      type: DataTypes.STRING(255),
+      allowNull: true
     },
-    createdAt: { 
-      type: DataTypes.BIGINT,      // Время создания (timestamp)
-      allowNull: false             // Обязательное поле
+    role: {
+      type: DataTypes.STRING(20), // ✅ STRING вместо ENUM для SQLite
+      defaultValue: UserRole.USER,
+      allowNull: false,
+      validate: {
+        isIn: [[UserRole.USER, UserRole.ADMIN]]
+      }
+    },
+    isBlocked: {
+      type: DataTypes.BOOLEAN,
+      defaultValue: false,
+      allowNull: false
+    },
+    verified: {
+      type: DataTypes.BOOLEAN,
+      defaultValue: false,
+      allowNull: false
+    },
+    createdAt: {
+      type: DataTypes.STRING(50),
+      allowNull: false
     }
   },
-  { 
-    sequelize,                     // Подключение к базе данных
-    tableName: 'users',            // Имя таблицы в базе
-    modelName: 'User',             // Имя модели в Sequelize
-    timestamps: false              // Отключаем стандартные поля createdAt/updatedAt Sequelize
+  {
+    sequelize,
+    tableName: 'users',
+    modelName: 'User',
+    timestamps: false,
+    indexes: [
+      { fields: ['phone'], unique: true },
+      { fields: ['email'] },
+      { fields: ['role'] }
+    ]
   }
 );
 

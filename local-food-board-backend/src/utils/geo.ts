@@ -1,20 +1,46 @@
 /**
- * Вычисляет расстояние между двумя точками на Земле по их широте и долготе
- * с использованием формулы гаверсинуса (Haversine formula).
+ * Вычисляет расстояние между двумя точками на Земле
+ * Использует формулу гаверсинуса (Haversine formula)
+ * Учитывает кривизну Земли для точных расчётов
  * 
- * @param lat1 - широта первой точки в градусах
- * @param lon1 - долгота первой точки в градусах
- * @param lat2 - широта второй точки в градусах
- * @param lon2 - долгота второй точки в градусах
- * @returns расстояние между точками в метрах
+ * @param lat1 - Широта первой точки в градусах (-90 до 90)
+ * @param lon1 - Долгота первой точки в градусах (-180 до 180)
+ * @param lat2 - Широта второй точки в градусах
+ * @param lon2 - Долгота второй точки в градусах
+ * @returns Расстояние между точками в метрах
+ * 
+ * Пример:
+ * haversineDistance(56.8389, 60.6057, 55.7558, 37.6173) → ~1416000 (Екатеринбург - Москва)
  */
-
-export function haversineDistance(lat1: number, lon1: number, lat2: number, lon2: number) {
+export function haversineDistance(
+  lat1: number,
+  lon1: number,
+  lat2: number,
+  lon2: number
+): number {
+  // Средний радиус Земли в метрах
   const R = 6371000;
+  
+  // Вспомогательная функция для конвертации градусов в радианы
+  // (математические функции в JS работают с радианами)
   const toRad = (deg: number) => (deg * Math.PI) / 180;
+  
+  // Разница широт в радианах
   const dLat = toRad(lat2 - lat1);
+  
+  // Разница долгот в радианах
   const dLon = toRad(lon2 - lon1);
-  const a = Math.sin(dLat/2) ** 2 + Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) * Math.sin(dLon/2) ** 2;
-  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+  
+  // Формула гаверсинуса - часть 1
+  // Вычисляем квадрат половины длины хорды между точками
+  const a =
+    Math.sin(dLat / 2) ** 2 +
+    Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) * Math.sin(dLon / 2) ** 2;
+  
+  // Формула гаверсинуса - часть 2
+  // Вычисляем угловое расстояние в радианах
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+  
+  // Умножаем угловое расстояние на радиус Земли, получаем расстояние в метрах
   return R * c;
 }

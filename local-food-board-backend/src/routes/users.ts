@@ -1,16 +1,15 @@
 import { Router } from 'express';
 import { usersController } from '../controllers/usersController';
-import { validateRegister } from '../middleware/validation';
+import { validateRegister , validateUserUpdate} from '../middleware/validation';
+import { authMiddleware } from '../middleware/auth';
+import { authLimiter } from '../middleware/rateLimiter';
 
 const router = Router();
 
-// Регистрация нового пользователя
-// Сначала выполняется валидация обязательных полей (phone и password),
-// затем вызывается контроллер usersController.register
-router.post('/register', validateRegister, usersController.register);
-
-// Вход пользователя (login)
-// Валидация не нужна, так как контроллер сам проверяет наличие phone и password
-router.post('/login', usersController.login);
+router.post('/register', authLimiter, validateRegister, usersController.register);
+router.post('/login', authLimiter, usersController.login);
+router.get('/me', authMiddleware, usersController.me);
+router.put('/me', authMiddleware, validateUserUpdate, usersController.updateMe);
+router.get('/:id', usersController.getById);
 
 export default router;

@@ -18,41 +18,470 @@ Local Food Board — Backend (Node + Express)
 
 
 
-1) Установить зависимости:
-   npm install
- 
-2) Запустить сервер:
-   npm start
 
+## 🚀 Возможности
+✅ Регистрация и авторизация (JWT)
+✅ Создание постов с фотографиями
+✅ Геолокация и поиск по радиусу
+✅ **Админ-панель** - управление пользователями
+✅ **Черный список** - система жалоб
+✅ **Восстановление пароля** (Email/SMS)
+✅ **Push-уведомления соседям**
+✅ **PostgreSQL** база данных
+✅ Rate limiting и защита от спама
 
+---
 
-local-food-board-backend/
+## 📋 Требования
+- Node.js >= 18
+- PostgreSQL >= 14
+- npm или yarn
+
+---
+
+## 🛠️ Установка
+
+### 1. Установка PostgreSQL
+
+**Mac (Homebrew):**
+```bash
+brew install postgresql@16
+brew services start postgresql@16
+```
+
+**Ubuntu/Debian:**
+```bash
+sudo apt update
+sudo apt install postgresql postgresql-contrib
+sudo systemctl start postgresql
+```
+
+**Windows:**
+Скачайте установщик: https://www.postgresql.org/download/windows/
+
+### 2. Создание базы данных
+
+```bash
+# Подключаемся к PostgreSQL
+psql postgres
+
+# Создаём базу данных
+CREATE DATABASE neighboreats;
+
+# Создаём пользователя (опционально)
+CREATE USER neighboruser WITH PASSWORD 'your_password';
+GRANT ALL PRIVILEGES ON DATABASE neighboreats TO neighboruser;
+
+# Выходим
+\q
+```
+
+### 3. Клонирование и установка
+
+```bash
+# Клонируем проект
+git clone <repo-url>
+cd neighboreats-backend
+
+# Устанавливаем зависимости
+npm install
+
+# Копируем .env
+cp .env.example .env
+```
+
+### 4. Настройка .env
+
+```env
+# .env
+PORT=4000
+NODE_ENV=development
+
+# PostgreSQL (ОБЯЗАТЕЛЬНО!)
+DATABASE_URL=postgresql://postgres:password@localhost:5432/neighboreats
+
+# JWT секрет
+JWT_SECRET=super_secret_key_change_this_123456789
+
+# SMTP для восстановления пароля (опционально)
+SMTP_HOST=smtp.gmail.com
+SMTP_PORT=587
+SMTP_USER=your-email@gmail.com
+SMTP_PASS=your-app-password
+
+# Админ по умолчанию
+ADMIN_PHONE=+79999999999
+ADMIN_PASSWORD=SecurePass123!
+ADMIN_NAME=Администратор
+ADMIN_EMAIL=admin@example.com
+```
+
+### 5. Запуск
+
+```bash
+# Создаём таблицы и администратора
+npm run migrate
+npm run create-admin
+
+# Запускаем сервер
+npm run dev
+```
+
+Сервер запустится на http://localhost:4000
+
+---
+
+## 📚 API Endpoints
+
+### 🔐 Аутентификация
+
+**POST /api/users/register**
+```json
+{
+  "phone": "+79001234567",
+  "password": "password123",
+  "name": "Иван Иванов",
+  "email": "ivan@example.com"
+}
+```
+
+**POST /api/users/login**
+```json
+{
+  "phone": "+79001234567",
+  "password": "password123"
+}
+```
+
+**GET /api/users/me** (требует токен)
+
+**PUT /api/users/me** (требует токен)
+```json
+{
+  "name": "Новое имя",
+  "phone": "+79001111111"
+}
+```
+
+### 📝 Посты
+
+**GET /api/posts** - Список постов
+Query параметры:
+- `category` - фильтр по категории
+- `district` - фильтр по району
+- `q` - поиск по заголовку
+- `lat, lon, radius` - геофильтр
+- `page, limit` - пагинация
+
+**GET /api/posts/:id** - Один пост
+
+**POST /api/posts** (требует токен)
+FormData:
+- `title` - заголовок
+- `description` - описание
+- `price` - цена
+- `contact` - телефон
+- `category` - категория
+- `district` - район
+- `lat, lon` - координаты
+- `notifyNeighbors` - уведомить соседей
+- `photos` - массив файлов (до 6)
+
+**PATCH /api/posts/:id** (требует токен, только автор)
+
+**DELETE /api/posts/:id** (требует токен, только автор)
+
+### ⚠️ Жалобы
+
+**POST /api/reports** (требует токен)
+```json
+{
+  "reportedUserId": "user_id",
+  "postId": "post_id",
+  "reason": "spam",
+  "description": "Подробное описание"
+}
+```
+
+**GET /api/reports/my** (требует токен) - Мои жалобы
+
+### 🔑 Восстановление пароля
+
+**POST /api/password/request**
+```json
+{
+  "phone": "+79001234567"
+}
+```
+
+**POST /api/password/reset**
+```json
+{
+  "phone": "+79001234567",
+  "code": "123456",
+  "newPassword": "newpass123"
+}
+```
+
+### 👑 Админ-панель
+
+Все роуты требуют токен администратора!
+
+**GET /api/admin/users** - Список пользователей
+
+**GET /api/admin/users/:id** - Детали пользователя
+
+**PATCH /api/admin/users/:id/block**
+```json
+{
+  "blocked": true,
+  "reason": "Нарушение правил"
+}
+```
+
+**DELETE /api/admin/users/:id** - Удалить пользователя
+
+**GET /api/admin/reports** - Все жалобы
+
+**PATCH /api/admin/reports/:id**
+```json
+{
+  "status": "resolved",
+  "adminComment": "Проблема решена"
+}
+```
+
+**GET /api/admin/stats** - Статистика платформы
+
+---
+
+## 🧪 Тестирование API
+
+### С помощью curl:
+
+```bash
+# 1. Регистрация
+curl -X POST http://localhost:4000/api/users/register \
+  -H "Content-Type: application/json" \
+  -d '{"phone":"+79001234567","password":"test123","name":"Тест"}'
+
+# 2. Логин
+TOKEN=$(curl -s -X POST http://localhost:4000/api/users/login \
+  -H "Content-Type: application/json" \
+  -d '{"phone":"+79001234567","password":"test123"}' \
+  | jq -r '.token')
+
+# 3. Создать пост
+curl -X POST http://localhost:4000/api/posts \
+  -H "Authorization: Bearer $TOKEN" \
+  -F "title=Домашние пирожки" \
+  -F "description=Свежие, с мясом" \
+  -F "price=300" \
+  -F "contact=+79001234567" \
+  -F "category=pies"
+
+# 4. Получить список
+curl http://localhost:4000/api/posts
+```
+
+### С помощью Postman:
+Импортируйте коллекцию из `/docs/postman_collection.json`
+
+---
+
+## 🔧 Команды разработки
+
+```bash
+# Разработка (hot reload)
+npm run dev
+
+# Сборка для продакшена
+npm run build
+
+# Запуск продакшен версии
+npm start
+
+# Миграции (создание таблиц)
+npm run migrate
+
+# Создание тестовых данных
+npm run seed
+
+# Создание администратора
+npm run create-admin
+```
+
+---
+
+## 🚀 Деплой на продакшен
+
+### Heroku:
+
+```bash
+# Установить Heroku CLI
+brew install heroku/brew/heroku
+
+# Логин
+heroku login
+
+# Создать приложение
+heroku create neighboreats-api
+
+# Добавить PostgreSQL
+heroku addons:create heroku-postgresql:mini
+
+# Задать переменные окружения
+heroku config:set JWT_SECRET=your_secret_key
+heroku config:set NODE_ENV=production
+
+# Деплой
+git push heroku main
+
+# Запустить миграции
+heroku run npm run migrate
+
+# Создать админа
+heroku run npm run create-admin
+```
+
+### Railway:
+
+1. Зарегистрируйтесь на https://railway.app
+2. Создайте новый проект
+3. Добавьте PostgreSQL плагин
+4. Подключите GitHub репозиторий
+5. Добавьте переменные окружения
+6. Railway автоматически задеплоит
+
+### DigitalOcean / VPS:
+
+```bash
+# На сервере установить Node.js и PostgreSQL
+sudo apt update
+sudo apt install nodejs npm postgresql
+
+# Клонировать проект
+git clone <repo-url>
+cd neighboreats-backend
+
+# Установить зависимости
+npm ci --production
+
+# Настроить .env
+nano .env
+
+# Собрать
+npm run build
+
+# Запустить с PM2
+npm install -g pm2
+pm2 start dist/server.js --name neighboreats
+pm2 startup
+pm2 save
+```
+
+---
+
+## 📊 Структура проекта
+
+```
+neighboreats-backend/
+├── src/
+│   ├── config/
+│   │   └── database.ts          # Подключение к PostgreSQL
+│   ├── controllers/
+│   │   ├── usersController.ts   # Пользователи
+│   │   ├── postsController.ts   # Посты
+│   │   ├── adminController.ts   # Админ-панель
+│   │   ├── reportsController.ts # Жалобы
+│   │   └── passwordController.ts # Восстановление пароля
+│   ├── middleware/
+│   │   ├── auth.ts              # JWT аутентификация
+│   │   ├── adminAuth.ts         # Проверка прав админа
+│   │   ├── upload.ts            # Загрузка файлов
+│   │   ├── validation.ts        # Валидация данных
+│   │   └── rateLimiter.ts       # Rate limiting
+│   ├── models/
+│   │   ├── User.ts              # Модель пользователя
+│   │   ├── Post.ts              # Модель поста
+│   │   ├── Report.ts            # Модель жалобы
+│   │   ├── PasswordReset.ts     # Модель восстановления
+│   │   └── index.ts             # Связи между моделями
+│   ├── routes/
+│   │   ├── users.ts             # Роуты пользователей
+│   │   ├── posts.ts             # Роуты постов
+│   │   ├── admin.ts             # Роуты админа
+│   │   ├── reports.ts           # Роуты жалоб
+│   │   └── password.ts          # Роуты восстановления
+│   ├── scripts/
+│   │   ├── migrate.ts           # Создание таблиц
+│   │   ├── seed.ts              # Тестовые данные
+│   │   └── createAdmin.ts       # Создание админа
+│   ├── types/
+│   │   ├── models.ts            # TypeScript интерфейсы
+│   │   └── express.ts           # Расширения Express
+│   ├── utils/
+│   │   ├── constants.ts         # Константы
+│   │   ├── dateFormatter.ts     # Форматирование дат
+│   │   ├── geo.ts               # Геолокация
+│   │   ├── emailService.ts      # Email сервис
+│   │   ├── notificationService.ts # Push уведомления
+│   │   ├── backgroundTasks.ts   # Фоновые задачи
+│   │   └── AppError.ts          # Класс ошибок
+│   └── server.ts                # Главный файл
+├── uploads/                     # Загруженные файлы
+├── .env.example                 # Пример конфигурации
+├── .gitignore
 ├── package.json
 ├── tsconfig.json
-├── .env
-├── nodemon.json
-├── README.md
-├── src/
-│   ├── config/database.ts
-│   ├── index.ts
-│   ├── types/models.ts
-│   ├── types/express.ts
-│   ├── models/
-│   │   ├── User.ts
-│   │   ├── Post.ts
-│   │   └── index.ts
-│   ├── controllers/
-│   │   ├── usersController.ts
-│   │   └── postsController.ts
-│   ├── routes/
-│   │   ├── users.ts
-│   │   └── posts.ts
-│   ├── middleware/
-│   │   ├── upload.ts
-│   │   └── validation.ts
-│   ├── utils/
-│   │   ├── geo.ts
-│   │   └── backgroundTasks.ts
-│   └── scripts/
-│       └── initDB.ts
-└── uploads/  (папка для загружаемых фото)
+└── README.md
+```
+
+---
+
+## 🐛 Troubleshooting
+
+### Ошибка подключения к PostgreSQL
+
+```bash
+# Проверить, запущен ли PostgreSQL
+sudo systemctl status postgresql   # Linux
+brew services list                  # Mac
+
+# Проверить порт
+psql -U postgres -h localhost -p 5432
+
+# Проверить DATABASE_URL в .env
+```
+
+### Ошибка "relation does not exist"
+
+```bash
+# Запустить миграции
+npm run migrate
+```
+
+### Ошибка при загрузке файлов
+
+```bash
+# Создать папку uploads
+mkdir uploads
+chmod 755 uploads
+```
+
+---
+
+## 📝 Лицензия
+
+MIT
+
+## 🤝 Контрибьюторы
+
+Добро пожаловать! Создавайте Issues и Pull Requests.
+
+---
+
+## 📞 Поддержка
+
+Email: support@neighboreats.com
+GitHub: https://github.com/yourname/neighboreats-backend

@@ -2,73 +2,98 @@ import { DataTypes, Model, Optional } from 'sequelize';
 import sequelize from '../config/database';
 import { IPost } from '../types/models';
 
-/**
- * Интерфейс для создания поста
- * Указывает, какие поля необязательные при создании записи в базе данных
- */
-interface PostCreationAttributes extends Optional<
-  IPost, 
-  'id' | 'description' | 'price' | 'category' | 'district' | 'photos' | 'lat' | 'lon' | 'notifyNeighbors' | 'userId' | 'createdAt'
-> {}
+interface PostCreationAttributes
+  extends Optional<IPost, 'id' | 'description' | 'price' | 'category' | 'district' | 'photos' | 'lat' | 'lon' | 'notifyNeighbors' | 'createdAt'> {}
 
-/**
- * Класс модели Post
- * Наследуется от Sequelize Model и реализует интерфейс IPost
- */
 class Post extends Model<IPost, PostCreationAttributes> implements IPost {
-  public id!: string;              // Уникальный идентификатор поста
-  public title!: string;           // Заголовок поста
-  public description!: string;     // Описание поста
-  public price!: number;           // Цена
-  public contact!: string;         // Контактная информация
-  public category!: string;        // Категория поста
-  public district!: string;        // Район/местоположение
-
-  public photos!: string[];        // Массив ссылок на фотографии
-  public lat!: number | null;      // Широта (координата)
-  public lon!: number | null;      // Долгота (координата)
-  public notifyNeighbors!: boolean; // Уведомление соседей
-  public userId!: string;   // ID пользователя, автора поста
-  public createdAt!: string;       // Время создания
+  public id!: string;
+  public title!: string;
+  public description!: string;
+  public price!: number;
+  public contact!: string;
+  public category!: string;
+  public district!: string;
+  public photos!: string[];
+  public lat!: number | null;
+  public lon!: number | null;
+  public notifyNeighbors!: boolean;
+  public userId!: string;
+  public createdAt!: string;
 }
 
-/**
- * Инициализация модели Post
- * Настройка полей таблицы и типов данных
- */
 Post.init(
   {
-    id: { type: DataTypes.STRING, primaryKey: true }, // Primary key
-    title: { type: DataTypes.STRING, allowNull: false }, // Заголовок обязателен
-    description: { type: DataTypes.TEXT, defaultValue: '' }, // Описание по умолчанию пустое
-    price: { type: DataTypes.DECIMAL(10, 2), defaultValue: 0 }, // Цена по умолчанию 0
-    contact: { type: DataTypes.STRING, allowNull: false }, // Контакт обязателен
-    category: { type: DataTypes.STRING, defaultValue: 'other' }, // Категория по умолчанию "other"
-    district: { type: DataTypes.STRING, defaultValue: '' }, // Район по умолчанию пустой
-    photos: { 
-      type: DataTypes.TEXT, 
-      defaultValue: '[]', 
-      get(this: any) { 
-        // Преобразуем JSON-строку в массив
+    id: {
+      type: DataTypes.STRING(50),
+      primaryKey: true
+    },
+    title: {
+      type: DataTypes.STRING(255),
+      allowNull: false
+    },
+    description: {
+      type: DataTypes.TEXT,
+      defaultValue: ''
+    },
+    price: {
+      type: DataTypes.DECIMAL(10, 2),
+      defaultValue: 0
+    },
+    contact: {
+      type: DataTypes.STRING(20),
+      allowNull: false
+    },
+    category: {
+      type: DataTypes.STRING(50),
+      defaultValue: 'other'
+    },
+    district: {
+      type: DataTypes.STRING(100),
+      defaultValue: ''
+    },
+    photos: {
+      type: DataTypes.TEXT, // ✅ TEXT вместо JSONB для SQLite
+      defaultValue: '[]',
+      get(this: any) {
         const raw = this.getDataValue('photos') as string;
         return raw ? JSON.parse(raw) : [];
-      }, 
-      set(this: any, val: string[]) { 
-        // Сохраняем массив как JSON-строку
+      },
+      set(this: any, val: string[]) {
         this.setDataValue('photos', JSON.stringify(val || []));
-      } 
+      }
     },
-    lat: { type: DataTypes.FLOAT, allowNull: true }, // Широта может быть null
-    lon: { type: DataTypes.FLOAT, allowNull: true }, // Долгота может быть null
-    notifyNeighbors: { type: DataTypes.BOOLEAN, defaultValue: false }, // По умолчанию уведомление выключено
-    userId: { type: DataTypes.STRING, allowNull: true }, // ID автора поста
-    createdAt: { type: DataTypes.BIGINT, allowNull: false } // Timestamp создания поста
+    lat: {
+      type: DataTypes.DOUBLE,
+      allowNull: true
+    },
+    lon: {
+      type: DataTypes.DOUBLE,
+      allowNull: true
+    },
+    notifyNeighbors: {
+      type: DataTypes.BOOLEAN,
+      defaultValue: false
+    },
+    userId: {
+      type: DataTypes.STRING(50),
+      allowNull: false
+    },
+    createdAt: {
+      type: DataTypes.STRING(50),
+      allowNull: false
+    }
   },
-  { 
-    sequelize,               // Подключение к базе данных
-    tableName: 'posts',      // Имя таблицы в базе
-    modelName: 'Post',       // Имя модели в Sequelize
-    timestamps: false        // Отключаем стандартные поля createdAt/updatedAt Sequelize
+  {
+    sequelize,
+    tableName: 'posts',
+    modelName: 'Post',
+    timestamps: false,
+    indexes: [
+      { fields: ['userId'] },
+      { fields: ['category'] },
+      { fields: ['district'] },
+      { fields: ['createdAt'] }
+    ]
   }
 );
 
