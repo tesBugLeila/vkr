@@ -5,7 +5,7 @@ export interface IUser {
   password: string | null;  // Хеш пароля (может быть null, если, например, пользователь зарегистрирован через соцсеть)
   name: string | null;      // Имя пользователя (необязательное)
   verified: boolean;        // Флаг подтверждения пользователя (например, по SMS)
-  createdAt: string;        // Временная метка создания пользователя (timestamp)
+  createdAt: string;        // Изменено на string для формата "14.12.2025 15:30"
 }
 
 // Интерфейс для запроса регистрации нового пользователя
@@ -20,6 +20,7 @@ export interface IUserLoginRequest {
   phone: string;            // Телефон пользователя
   password: string;         // Пароль пользователя
 }
+
 
 // Интерфейс для ответа после успешной аутентификации
 export interface IAuthResponse {
@@ -45,7 +46,7 @@ export interface IPost {
   lon?: number | null;      // Долгота (необязательное)
   notifyNeighbors?: boolean;// Флаг уведомления соседей (необязательное)
   userId: string;   // ID автора поста 
-  createdAt: string;        // Временная метка создания поста
+  createdAt: string;        // Изменено на string для формата "14.12.2025 15:30"
 }
 
 // Интерфейс для запроса на создание нового поста

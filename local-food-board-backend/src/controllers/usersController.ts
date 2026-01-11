@@ -1,14 +1,20 @@
-import { Request, Response } from 'express';
+import { Request, Response, NextFunction } from 'express';
 import { nanoid } from 'nanoid';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import { User } from '../models';
-import { IUserRegisterRequest, IUserLoginRequest, IAuthResponse } from '../types/models';
+import {
+  IUserRegisterRequest,
+  IUserLoginRequest,
+  IAuthResponse
+} from '../types/models';
+import { AuthRequest } from '../types/express';
+import { AppError } from '../utils/AppError';
+import { formatDate } from '../utils/dateFormatter';
 import dotenv from 'dotenv';
-
 dotenv.config();
 
-const JWT_SECRET = process.env.JWT_SECRET || 'change_this';
+const JWT_SECRET = process.env.JWT_SECRET || 'change_this_secret_key';
 
 export const usersController = {
   /**
@@ -16,21 +22,14 @@ export const usersController = {
    * @param req - Request, тело запроса содержит phone, password и необязательное name
    * @param res - Response
    */
-  async register(req: Request, res: Response): Promise<void> {
+  async register(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
       const { phone, password, name } = req.body as IUserRegisterRequest;
 
-      // Проверяем обязательные поля
-      if (!phone || !password) {
-        res.status(400).json({ error: 'phone and password required' });
-        return;
-      }
-
       // Проверяем, зарегистрирован ли уже пользователь с таким телефоном
       const exists = await User.findOne({ where: { phone } });
-      if (exists) {
-        res.status(400).json({ error: 'phone already registered' });
-        return;
+    if (exists) {
+        throw new AppError(400, 'Телефон уже зарегистрирован');
       }
 
       // Хэшируем пароль
@@ -43,7 +42,7 @@ export const usersController = {
         password: hashed,    // сохраняем хэш пароля
         name: name || null,
         verified: true,      // помечаем как верифицированного
-        createdAt: new Date().toLocaleString('ru-RU')// текущий timestamp
+        createdAt: formatDate() // Теперь "14.12.2025 15:30"
       });
 
       // Генерируем JWT для аутентификации
@@ -68,74 +67,192 @@ export const usersController = {
         token 
       };
 
-      res.json(response);
-    } catch (err) {
-      console.error('Registration error:', err);
-      res.status(500).json({ error: 'Internal server error' });
+      res.status(201).json(response);
+    } 
+    catch (error) {
+      next(error);
     }
   },
 
-  /**
-   * Логин пользователя
-   * @param req - Request, тело запроса содержит phone и password
-   * @param res - Response
-   */
-  async login(req: Request, res: Response): Promise<void> {
-    try {
-      const { phone, password } = req.body as IUserLoginRequest;
 
-      // Проверяем обязательные поля
-      if (!phone || !password) {
-        res.status(400).json({ error: 'phone and password required' });
-        return;
-      }
 
-      // Ищем пользователя по телефону
-      const user = await User.findOne({ where: { phone } });
-      if (!user) {
-        res.status(404).json({ error: 'user not found' });
-        return;
-      }
+ /**
+ * Авторизация (логин) пользователя по номеру телефона и паролю.
+ */
+async login(req: Request, res: Response, next: NextFunction) {
+  try {
+    // 1. Извлекаем номер телефона и пароль из тела запроса
+    const { phone, password } = req.body as IUserLoginRequest;
 
-      // Проверяем, есть ли пароль
-      if (!user.password) {
-        res.status(401).json({ error: 'invalid credentials' });
-        return;
-      }
+    // 2. Ищем пользователя в базе данных по номеру телефона
+    const user = await User.findOne({ where: { phone } });
 
-      // Сравниваем введенный пароль с хэшем
-      const isPasswordValid = await bcrypt.compare(password, user.password);
-      if (!isPasswordValid) {
-        res.status(401).json({ error: 'invalid credentials' });
-        return;
-      }
-
-      // Генерируем JWT
-      const token = jwt.sign(
-        { 
-          id: user.id, 
-          phone: user.phone 
-        },
-        JWT_SECRET,
-        {
-          expiresIn: '7d'
-        }
-      );
-
-      // Формируем ответ
-      const response: IAuthResponse = {
-        token, 
-        user: { 
-          id: user.id, 
-          phone: user.phone, 
-          name: user.name 
-        } 
-      };
-
-      res.json(response);
-    } catch (err) {
-      console.error('Login error:', err);
-      res.status(500).json({ error: 'Internal server error' });
+    // 3. Проверяем, найден ли пользователь и существует ли у него пароль
+    // Если пользователь не найден или пароль отсутствует — считаем данные неверными
+    if (!user || !user.password) {
+      throw new AppError(401, 'Неверные учетные данные');
     }
-  },
+
+    // 4. Сравниваем введённый пароль с хэшированным паролем из базы данных
+    // bcrypt.compare возвращает true, если пароли совпадают
+    const isValid = await bcrypt.compare(password, user.password);
+
+    // 5. Если пароль не совпадает — возвращаем ошибку авторизации
+    if (!isValid) {
+      throw new AppError(401, 'Неверные учетные данные');
+    }
+
+    // 6. Генерируем JWT-токен
+    // В payload токена передаём идентификатор и телефон пользователя
+    // Токен действует 7 дней
+    const token = jwt.sign(
+      { id: user.id, phone: user.phone },
+      JWT_SECRET,
+      { expiresIn: '7d' }
+    );
+
+    // 7. Формируем объект ответа,
+    // содержащий токен и минимальную информацию о пользователе
+    const response: IAuthResponse = {
+      token,
+      user: {
+        id: user.id,
+        phone: user.phone,
+        name: user.name
+      }
+    };
+
+    // 8. Отправляем успешный ответ клиенту в формате JSON
+    res.json(response);
+  } catch (error) {
+    // 9. Передаём ошибку в централизованный обработчик ошибок
+    next(error);
+  }
+},
+
+/**
+ * Получение данных текущего авторизованного пользователя.
+ */
+async me(req: AuthRequest, res: Response, next: NextFunction) {
+  try {
+    // 1. Проверяем наличие идентификатора пользователя в объекте запроса
+    // Если ID отсутствует — пользователь не авторизован
+    if (!req.user?.id) {
+      throw new AppError(401, 'Не авторизован');
+    }
+
+    // 2. Получаем пользователя из базы данных по его ID
+    // Возвращаем только необходимые поля
+    const user = await User.findByPk(req.user.id, {
+      attributes: ['id', 'phone', 'name', 'createdAt']
+    });
+
+    // 3. Если пользователь не найден — возвращаем ошибку 404
+    if (!user) {
+      throw new AppError(404, 'Пользователь не найден');
+    }
+
+    // 4. Отправляем данные пользователя клиенту
+    res.json({ user });
+  } catch (error) {
+    // 5. Передаём ошибку в централизованный обработчик
+    next(error);
+  }
+},
+
+
+
+/**
+ * Обновление данных текущего авторизованного пользователя.
+ */
+async updateMe(req: AuthRequest, res: Response, next: NextFunction) {
+  try {
+    // 1. Проверяем, что пользователь авторизован
+    if (!req.user?.id) {
+      throw new AppError(401, 'Не авторизован');
+    }
+
+    // 2. Извлекаем данные, разрешённые для обновления
+    const { name, phone } = req.body;
+
+    // 3. Загружаем пользователя из базы данных по ID
+    const user = await User.findByPk(req.user.id);
+
+    // 4. Если пользователь не найден — возвращаем ошибку
+    if (!user) {
+      throw new AppError(404, 'Пользователь не найден');
+    }
+
+    // 5. Обновляем имя, если передано
+    if (typeof name !== 'undefined') {
+      user.name = name;
+    }
+
+    // 6. Обновляем телефон, если передан
+    if (typeof phone !== 'undefined') {
+      // Проверяем уникальность телефона
+      const exists = await User.findOne({ where: { phone } });
+      if (exists && exists.id !== user.id) {
+        throw new AppError(400, 'Телефон уже зарегистрирован другим пользователем');
+      }
+      user.phone = phone;
+    }
+
+    // 7. Сохраняем изменения в базе данных
+    await user.save();
+
+    // 7. Отправляем клиенту обновлённые данные пользователя
+    res.json({
+      user: {
+        id: user.id,
+        phone: user.phone,
+        name: user.name,
+        createdAt: user.createdAt
+      }
+    });
+  } catch (error) {
+   
+    next(error);
+  }
+},
+
+
+
+
+/**
+ * Получение публичной информации о пользователе по его идентификатору.
+ */
+async getById(req: Request, res: Response, next: NextFunction) {
+  try {
+    // 1. Получаем идентификатор пользователя из параметров URL
+    const { id } = req.params;
+
+    // 2. Загружаем пользователя из базы данных по ID
+    // Возвращаем только публичные поля
+    const user = await User.findByPk(id, {
+      attributes: ['id', 'name', 'createdAt']
+    });
+
+    // 3. Если пользователь не найден — возвращаем ошибку 404
+    if (!user) {
+      throw new AppError(404, 'Пользователь не найден');
+    }
+
+    // 4. Отправляем данные пользователя клиенту
+    res.json({ user });
+  } catch (error) {
+    // 5. Передаём ошибку в централизованный обработчик
+    next(error);
+  }
+}
+
+
+
+
+
+
+
+
+
+
 };

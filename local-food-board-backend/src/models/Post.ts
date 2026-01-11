@@ -38,13 +38,35 @@ class Post extends Model<IPost, PostCreationAttributes> implements IPost {
  */
 Post.init(
   {
-    id: { type: DataTypes.STRING, primaryKey: true }, // Primary key
-    title: { type: DataTypes.STRING, allowNull: false }, // Заголовок обязателен
-    description: { type: DataTypes.TEXT, defaultValue: '' }, // Описание по умолчанию пустое
-    price: { type: DataTypes.DECIMAL(10, 2), defaultValue: 0 }, // Цена по умолчанию 0
-    contact: { type: DataTypes.STRING, allowNull: false }, // Контакт обязателен
-    category: { type: DataTypes.STRING, defaultValue: 'other' }, // Категория по умолчанию "other"
-    district: { type: DataTypes.STRING, defaultValue: '' }, // Район по умолчанию пустой
+    
+    id: {
+      type: DataTypes.STRING,
+      primaryKey: true
+    },
+    title: {
+      type: DataTypes.STRING,
+      allowNull: false
+    }, // Заголовок обязателен
+   description: {
+      type: DataTypes.TEXT,
+      defaultValue: ''
+    }, // Описание по умолчанию пустое
+    price: {
+      type: DataTypes.DECIMAL(10, 2),
+      defaultValue: 0
+    }, // Цена по умолчанию 0
+    contact: {
+      type: DataTypes.STRING,
+      allowNull: false
+    }, // Контакт обязателен
+    category: {
+      type: DataTypes.STRING,
+      defaultValue: 'Другое'
+    }, // Категория по умолчанию "Другое"
+    district: {
+      type: DataTypes.STRING,
+      defaultValue: ''
+    }, // Район по умолчанию пустой
     photos: { 
       type: DataTypes.TEXT, 
       defaultValue: '[]', 
@@ -61,15 +83,25 @@ Post.init(
     lat: { type: DataTypes.FLOAT, allowNull: true }, // Широта может быть null
     lon: { type: DataTypes.FLOAT, allowNull: true }, // Долгота может быть null
     notifyNeighbors: { type: DataTypes.BOOLEAN, defaultValue: false }, // По умолчанию уведомление выключено
-    userId: { type: DataTypes.STRING, allowNull: true }, // ID автора поста
-    createdAt: { type: DataTypes.BIGINT, allowNull: false } // Timestamp создания поста
+    userId: { type: DataTypes.STRING, allowNull: false }, // ID автора поста
+    createdAt: {
+      type: DataTypes.STRING, //  Изменено на STRING для хранения формата "14.12.2025 15:30"
+      allowNull: false
+    }
   },
   { 
     sequelize,               // Подключение к базе данных
     tableName: 'posts',      // Имя таблицы в базе
     modelName: 'Post',       // Имя модели в Sequelize
-    timestamps: false        // Отключаем стандартные поля createdAt/updatedAt Sequelize
+timestamps: false,
+    indexes: [
+      { fields: ['userId'] },
+      { fields: ['category'] },
+      { fields: ['district'] },
+      { fields: ['createdAt'] }
+    ] //  Добавлены индексы
   }
 );
 
 export default Post;
+

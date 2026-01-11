@@ -8,5 +8,8 @@ import { Request } from 'express';
  * Поле `user` является опциональным, потому что не каждый запрос может быть аутентифицирован.
  */
 export interface AuthRequest extends Request {
-  user?: any; // Здесь можно указать конкретный тип пользователя, например { id: string; phone?: string; name?: string }
+  user?: {
+    id: string;
+    phone?: string;
+  };
 }
