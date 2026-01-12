@@ -2,53 +2,41 @@ import { Request, Response, NextFunction } from 'express';
 import jwt from 'jsonwebtoken';
 import * as dotenv from 'dotenv';
 import { AuthRequest } from '../types/express';
+import { AppError } from '../utils/AppError';
 
 dotenv.config();
-const JWT_SECRET = process.env.JWT_SECRET || 'change_this';
+const JWT_SECRET = process.env.JWT_SECRET || 'change_this_secret_key';
 
 /**
  * Middleware для проверки JWT токена и аутентификации пользователя
  * Добавляет поле `user` к объекту запроса `req` с ID пользователя
  */
-export function authMiddleware(req: AuthRequest, res: Response, next: NextFunction) {
-  console.log('--- Начало authMiddleware ---');
-  console.log('Заголовки запроса:', req.headers);
-
-  // Получаем заголовок Authorization
-  const auth = req.headers.authorization;
-  if (!auth) {
-    console.warn('Заголовок Authorization отсутствует');
-    return res.status(401).json({ error: 'токен отсутствует' });
-  }
-
-  // Проверяем формат заголовка: "Bearer <token>"
-  const parts = auth.split(' ');
-  if (parts.length !== 2) {
-    console.warn('Неверный формат заголовка Authorization:', auth);
-    return res.status(401).json({ error: 'неверный токен' });
-  }
-
-  const [scheme, token] = parts;
-  if (!/^Bearer$/i.test(scheme)) {
-    console.warn('Схема Authorization не Bearer:', scheme);
-    return res.status(401).json({ error: 'неверный токен' });
-  }
-
-  console.log('Получен токен:', token);
-
+export function authMiddleware(
+  req: AuthRequest,
+  res: Response,
+  next: NextFunction
+) {
   try {
-    // Проверяем токен
+    const auth = req.headers.authorization;
+    
+    if (!auth) {
+      throw new AppError(401, 'Токен отсутствует');
+    }
+
+    const parts = auth.split(' ');
+    if (parts.length !== 2 || !/^Bearer$/i.test(parts[0])) {
+      throw new AppError(401, 'Неверный формат токена');
+    }
+
+    const token = parts[1];
     const payload: any = jwt.verify(token, JWT_SECRET);
-    console.log('Данные токена (payload):', payload);
-
-    // Добавляем поле user к запросу (ID пользователя)
-    req.user = { id: payload.id };
-    console.log('ID пользователя установлен в запросе:', req.user);
-
+    
+    req.user = { id: payload.id, phone: payload.phone };
     next();
-    console.log('--- Завершение authMiddleware (успех) ---');
-  } catch (err) {
-    console.error('Ошибка проверки JWT токена:', err);
-    return res.status(401).json({ error: 'неверный токен' });
+  } catch (error) {
+    if (error instanceof jwt.JsonWebTokenError) {
+      return next(new AppError(401, 'Недействительный токен'));
+    }
+    next(error);
   }
 }

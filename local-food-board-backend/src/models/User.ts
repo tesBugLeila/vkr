@@ -21,7 +21,7 @@ class User extends Model<IUser, UserCreationAttributes> implements IUser {
   public password!: string; // Хэш пароля 
   public name!: string;     // Имя пользователя 
   public verified!: boolean;       // Флаг подтверждения учетной записи
-  public createdAt!: number;       // Время создания пользователя (timestamp)
+  public createdAt!: string;       // Время создания пользователя (timestamp)
 }
 
 /**
@@ -51,16 +51,17 @@ User.init(
       type: DataTypes.BOOLEAN,     // Флаг подтверждения
       defaultValue: false          // По умолчанию false
     },
-    createdAt: { 
-      type: DataTypes.BIGINT,      // Время создания (timestamp)
-      allowNull: false             // Обязательное поле
+    createdAt: {
+      type: DataTypes.STRING, //  Изменено на STRING для хранения формата "14.12.2025 15:30"
+      allowNull: false
     }
   },
   { 
     sequelize,                     // Подключение к базе данных
     tableName: 'users',            // Имя таблицы в базе
     modelName: 'User',             // Имя модели в Sequelize
-    timestamps: false              // Отключаем стандартные поля createdAt/updatedAt Sequelize
+    timestamps: false,             // Отключаем стандартные поля createdAt/updatedAt Sequelize
+    indexes: [{ fields: ['phone'] }] //  Добавлен индекс
   }
 );
 
