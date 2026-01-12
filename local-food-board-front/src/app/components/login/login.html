@@ -1,0 +1,14 @@
+<section>
+  <h3>Введите ваш номер телефона</h3>
+  <br />
+
+  <input
+    type="tel"
+    mask="(000) 000-00-00"
+    prefix="8 "
+    placeholder="8 (999) 999-99-99"
+    [(ngModel)]="userPhoneNumber"
+  />
+  <button [disabled]="userPhoneNumber.length !== 10">Отправить код</button>
+  <br /><br />
+</section>

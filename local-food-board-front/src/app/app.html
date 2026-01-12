@@ -1,20 +1,21 @@
 <header>
   <div class="title">
     <div>
-      <h1>СОСЕДИ</h1>
+      <h1 [routerLink]="['/']" class="link">СОСЕДИ</h1>
       Доска объявлений еды <br />
       домашнего производства
     </div>
 
     <div class="slogan">
+      <app-login-bar></app-login-bar>
       Поддержите локальный вкус, находите и покупайте продукты питания у фермеров вашего края.
       <br />
-      <button>Подать объявление</button>
+      <button [routerLink]="['/new']">Подать объявление</button>
     </div>
   </div>
   <app-search-bar></app-search-bar>
 </header>
-<section>
+<section class="main-content">
   <router-outlet />
 </section>
 <footer></footer>
