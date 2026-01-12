@@ -45,7 +45,7 @@ export class Phone implements OnInit {
         return;
       }
       if (phoneSrc?.length === 7) {
-        this.phone = `+${phoneSrc[0]}-${phoneSrc.substring(1, 4)}-${phoneSrc.substring(4, 7)}-`;
+        this.phone = `+${phoneSrc[0]} (${phoneSrc.substring(1, 4)}) ${phoneSrc.substring(4, 7)}-`;
         this.phone += !this.loading ? `XX-XX` : `░░-░░`;
       }
       if (phoneSrc?.length === 11) {

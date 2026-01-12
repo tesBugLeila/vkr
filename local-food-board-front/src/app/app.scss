@@ -63,6 +63,9 @@
     }
   }
 
+  h1{
+    font-weight: 100;
+  }
   input,
   select {
     font-size: 16px;
@@ -87,7 +90,9 @@
   .link {
     cursor: pointer;
     color: #333333;
-    text-decoration: underline;
+    &:not(h1) {
+      text-decoration: underline;
+    }
   }
   a {
     color: #333333;

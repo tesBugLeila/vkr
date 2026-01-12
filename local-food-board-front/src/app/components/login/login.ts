@@ -36,6 +36,7 @@ export class Login {
         this.userService.userPhoneNumber = this.userPhoneNumber;
       } else {
         this.state = 'failure';
+        this.confirmationCode = '';
         setTimeout(() => {
           this.state = 'phone';
           this.cdr.markForCheck();
