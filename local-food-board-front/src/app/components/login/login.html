@@ -1,14 +1,42 @@
 <section>
-  <h3>Введите ваш номер телефона</h3>
-  <br />
-
-  <input
-    type="tel"
-    mask="(000) 000-00-00"
-    prefix="8 "
-    placeholder="8 (999) 999-99-99"
-    [(ngModel)]="userPhoneNumber"
-  />
-  <button [disabled]="userPhoneNumber.length !== 10">Отправить код</button>
-  <br /><br />
+  @switch (state) {
+    @case ('phone') {
+      <h3>Введите ваш номер телефона</h3>
+      <br />
+      <input
+        type="tel"
+        mask="(000) 000-00-00"
+        prefix="8 "
+        placeholder="8 (999) 999-99-99"
+        [(ngModel)]="userPhoneNumber"
+      />
+      <button [disabled]="userPhoneNumber.length !== 10" (click)="sendPhone()">Отправить код</button>
+      <br /><br />
+    }
+    @case ('code') {
+      <h3>Введите код подтверждения</h3>
+      <br />
+      <input
+        class="code"
+        type="text"
+        mask="0 0 0 0"
+        placeholder="0 0 0 0"
+        [(ngModel)]="confirmationCode"
+      />
+      <br />
+      <button [disabled]="confirmationCode.length !== 4" (click)="sendCode()">Войти</button>
+      <br /><br />
+    }
+    @case ('success') {
+      <h3>Вы успешно вошли</h3>
+      <br />
+    }
+    @case ('failure') {
+      <h3>Неверный код попробуйте ещё</h3>
+      <br />
+    }
+    @default {
+      <app-loading />
+    }
+  }
 </section>
