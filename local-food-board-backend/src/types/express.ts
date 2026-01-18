@@ -1,4 +1,5 @@
 import { Request } from 'express';
+import { UserRole } from '../utils/constants';
 
 /**
  * Расширенный интерфейс запроса Express для аутентифицированного пользователя
@@ -11,5 +12,7 @@ export interface AuthRequest extends Request {
   user?: {
     id: string;
     phone?: string;
+    role: UserRole;
+    isBlocked?: boolean;
   };
 }

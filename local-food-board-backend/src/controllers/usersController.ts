@@ -40,16 +40,16 @@ export const usersController = {
         id: nanoid(),        // уникальный идентификатор
         phone,
         password: hashed,    // сохраняем хэш пароля
-        name: name || null,
-        verified: true,      // помечаем как верифицированного
-        createdAt: formatDate() // Теперь "14.12.2025 15:30"
+        name: name ,
+        createdAt: formatDate() // "14.12.2025 15:30"
       });
 
       // Генерируем JWT для аутентификации
       const token = jwt.sign(
         { 
           id: user.id, 
-          phone: user.phone 
+          phone: user.phone,
+           role: user.role
         },
         JWT_SECRET,
         {
@@ -62,7 +62,8 @@ export const usersController = {
         user: { 
           id: user.id, 
           phone: user.phone, 
-          name: user.name 
+          name: user.name,
+          role: user.role
         }, 
         token 
       };
@@ -106,7 +107,7 @@ async login(req: Request, res: Response, next: NextFunction) {
     // В payload токена передаём идентификатор и телефон пользователя
     // Токен действует 7 дней
     const token = jwt.sign(
-      { id: user.id, phone: user.phone },
+      { id: user.id, phone: user.phone, role: user.role  },
       JWT_SECRET,
       { expiresIn: '7d' }
     );
@@ -118,7 +119,8 @@ async login(req: Request, res: Response, next: NextFunction) {
       user: {
         id: user.id,
         phone: user.phone,
-        name: user.name
+        name: user.name,
+        role: user.role
       }
     };
 

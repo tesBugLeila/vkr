@@ -1,23 +1,36 @@
 import User from './User';
 import Post from './Post';
-import { Sequelize } from 'sequelize';
+import Report from './Report';
+import Notification from './Notification';
 
-/**
- * Настройка связей между моделями
- */
 
-// Связь "Пользователь —> Посты"
-// У одного пользователя может быть много постов
-User.hasMany(Post, { 
-  foreignKey: 'userId', // В таблице posts поле userId будет хранить ID пользователя
-});
+// Связи User <-> Post
+User.hasMany(Post, { foreignKey: 'userId', as: 'posts' });
+Post.belongsTo(User, { foreignKey: 'userId', as: 'user' });
 
-// Связь "Пост —> Пользователь"
-// Каждый пост принадлежит конкретному пользователю
-Post.belongsTo(User, { 
-  foreignKey: 'userId', // Поле userId связывает пост с пользователем
-  as: 'user',           // Псевдоним для включения пользователя через include в запросах
-});
+// Связи User <-> Report (кто пожаловался)
+User.hasMany(Report, { foreignKey: 'reporterId', as: 'myReports' });
+Report.belongsTo(User, { foreignKey: 'reporterId', as: 'reporter' });
 
-// Экспорт моделей для использования в контроллерах и других частях приложения
-export { User, Post };
+// Связи User <-> Report (на кого пожаловались)
+User.hasMany(Report, { foreignKey: 'reportedUserId', as: 'reportsAgainstMe' });
+Report.belongsTo(User, { foreignKey: 'reportedUserId', as: 'reportedUser' });
+
+// Связи Post <-> Report (жалоба на пост)
+Post.hasMany(Report, { foreignKey: 'postId', as: 'reports' });
+Report.belongsTo(Post, { foreignKey: 'postId', as: 'post' });
+
+
+
+//  Связи User <-> Notification
+User.hasMany(Notification, { foreignKey: 'userId', as: 'notifications' });
+Notification.belongsTo(User, { foreignKey: 'userId', as: 'user' });
+
+//  Связи Post <-> Notification
+Post.hasMany(Notification, { foreignKey: 'postId', as: 'notifications' });
+Notification.belongsTo(Post, { foreignKey: 'postId', as: 'post' });
+
+export { User, Post, Report, Notification };
+
+
+

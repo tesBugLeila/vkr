@@ -56,3 +56,61 @@ local-food-board-backend/
 │   └── scripts/
 │       └── initDB.ts
 └── uploads/  (папка для загружаемых фото)
+
+
+
+ npm run dev
+ npm run init-db  # Создать БД с тестовыми данными
+  npm run create-admin админ
+
+
+ **Геолокация**
+
+
+Геолокация добавляется **отдельно и обычно автоматически или через фронт**, есть специальный роут:
+
+```ts
+POST /api/notifications/update-location
+```
+
+Он как раз отвечает за **обновление координат пользователя**.
+
+---
+
+### Как это работает
+
+1. **Фронт получает координаты пользователя** через браузер или мобильное устройство:
+
+```ts
+navigator.geolocation.getCurrentPosition((position) => {
+  const lat = position.coords.latitude;
+  const lon = position.coords.longitude;
+  // отправить на сервер
+});
+```
+
+2. **Отправляет на бэк**:
+
+```json
+POST /api/notifications/update-location
+{
+  "lat": 56.8389,
+  "lon": 60.6057
+}
+```
+
+3. **Бэк обновляет User**:
+
+```ts
+user.lastLat = latNum;
+user.lastLon = lonNum;
+user.lastLocationUpdate = formatDate();
+await user.save();
+```
+
+4. После этого **геолокация хранится в БД** и используется для:
+
+* уведомлений
+* фильтрации
+
+
