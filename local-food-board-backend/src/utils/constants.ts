@@ -17,6 +17,12 @@ export const DEFAULT_SEARCH_RADIUS = 5000;
 export const DEFAULT_LIMIT = 50;
 
 
+// Роли пользователей
+export enum UserRole {
+  USER = 'user',           // Обычный пользователь
+  ADMIN = 'admin'          // Администратор
+}
+
 export enum PostCategory {
   OTHER = 'Другое',
   PIES = 'Пироги',
@@ -25,4 +31,23 @@ export enum PostCategory {
   DAIRY = 'Молочные продукты',
   MEAT = 'Мясо',
   BAKERY = 'Выпечка'
+}
+
+
+// Статусы жалоб
+export enum ReportStatus {
+  PENDING = 'В обработке',
+  REVIEWED = 'Просмотрено',
+  RESOLVED = 'Решено',
+  REJECTED = 'Отклонено'
+}
+
+
+// ПРИЧИНЫ ЖАЛОБ
+export enum ReportReason {
+  SPAM = 'Спам',
+  FRAUD = 'Мошенничество',
+  INAPPROPRIATE = 'Неприемлемый контент',
+  OFFENSIVE = 'Оскорбления',
+  OTHER = 'Другая причина'
 }

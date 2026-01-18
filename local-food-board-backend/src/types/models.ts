@@ -1,12 +1,17 @@
 // Интерфейс, описывающий структуру пользователя в базе данных
 export interface IUser {
-  id: string;               // Уникальный идентификатор пользователя
-  phone: string;            // Телефон пользователя (уникальный)
-  password: string | null;  // Хеш пароля (может быть null, если, например, пользователь зарегистрирован через соцсеть)
-  name: string | null;      // Имя пользователя (необязательное)
-  verified: boolean;        // Флаг подтверждения пользователя (например, по SMS)
-  createdAt: string;        // Изменено на string для формата "14.12.2025 15:30"
+  id: string;
+  phone: string;
+  password: string;
+  name: string;
+  role: string;
+  isBlocked: boolean;
+  lastLat?: number | null;       //  - последняя широта
+  lastLon?: number | null;       //  - последняя долгота
+  lastLocationUpdate?: string | null; // время последнего обновления геопозиции
+  createdAt: string;
 }
+
 
 // Интерфейс для запроса регистрации нового пользователя
 export interface IUserRegisterRequest {
@@ -28,6 +33,7 @@ export interface IAuthResponse {
     id: string;
     phone: string;
     name: string | null;
+    role: string;                
   };
   token: string;            // JWT токен для последующих запросов
 }
@@ -76,4 +82,28 @@ export interface IPostUpdateRequest {
   lat?: number;
   lon?: number;
   notifyNeighbors?: boolean;
+}
+
+export interface IReport {
+  id: string;
+  reporterId: string;
+  reportedUserId: string;
+  postId?: string | null;
+  reason: string;
+  description: string;
+  status: string;
+  adminComment?: string | null;
+  createdAt: string;
+  updatedAt?: string | null;
+}
+
+// Уведомления
+export interface INotification {
+  id: string;
+  userId: string;              // Кому отправлено
+  postId: string;              // Какой пост
+  postTitle: string;           // Заголовок поста
+  distance: number;            // Расстояние в метрах
+  isRead: boolean;             // Прочитано ли
+  createdAt: string;
 }

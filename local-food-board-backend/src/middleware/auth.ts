@@ -31,7 +31,7 @@ export function authMiddleware(
     const token = parts[1];
     const payload: any = jwt.verify(token, JWT_SECRET);
     
-    req.user = { id: payload.id, phone: payload.phone };
+    req.user = { id: payload.id, phone: payload.phone,  role: payload.role };
     next();
   } catch (error) {
     if (error instanceof jwt.JsonWebTokenError) {

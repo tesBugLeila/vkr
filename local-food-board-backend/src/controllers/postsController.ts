@@ -8,6 +8,8 @@ import { AuthRequest } from '../types/express';
 import { AppError } from '../utils/AppError';
 import { DEFAULT_SEARCH_RADIUS, DEFAULT_LIMIT } from '../utils/constants';
 import { formatDate } from '../utils/dateFormatter';
+import { notifyNeighbors } from '../utils/notificationService';
+
 
 export const postsController = {
   /**
@@ -41,6 +43,24 @@ export const postsController = {
         userId: req.user?.id,
         createdAt: formatDate() // Теперь "14.12.2025 15:30" 
       });
+
+
+//  ОТПРАВЛЯЕМ УВЕДОМЛЕНИЯ СОСЕДЯМ
+      if (post.notifyNeighbors && post.lat && post.lon) {
+  
+        notifyNeighbors(
+          post.id,
+          post.title,
+          post.lat,
+          post.lon,
+          req.user!.id
+        ).catch(err => {
+          console.error(' Ошибка отправки уведомлений:', err);
+        });
+      }
+
+
+
 
       // Возвращаем созданный пост
    res.status(201).json({ post });

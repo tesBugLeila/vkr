@@ -10,9 +10,9 @@ async function init() {
     const u = await User.create({
       id: 'user1',
       phone: '+70000000001',
-      password: null,
+      password: '123456',
       name: 'Тестовый пользователь',
-      verified: true,
+      
       createdAt: formatDate()
     });
 

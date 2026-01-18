@@ -1,6 +1,7 @@
 import { DataTypes, Model, Optional } from 'sequelize';
 import sequelize from '../config/database';
 import { IUser } from '../types/models';
+import { UserRole } from '../utils/constants';
 
 /**
  * Интерфейс для создания пользователя
@@ -8,7 +9,7 @@ import { IUser } from '../types/models';
  */
 interface UserCreationAttributes extends Optional<
   IUser, 
-  'id' | 'name' | 'password' | 'verified' | 'createdAt'
+  'id' | 'role' | 'isBlocked'  | 'lastLat' | 'lastLon' | 'lastLocationUpdate' | 'createdAt'
 > {}
 
 /**
@@ -16,12 +17,16 @@ interface UserCreationAttributes extends Optional<
  * Наследуется от Sequelize Model и реализует интерфейс IUser
  */
 class User extends Model<IUser, UserCreationAttributes> implements IUser {
-  public id!: string;              // Уникальный идентификатор пользователя
-  public phone!: string;           // Телефон (логин)
-  public password!: string; // Хэш пароля 
-  public name!: string;     // Имя пользователя 
-  public verified!: boolean;       // Флаг подтверждения учетной записи
-  public createdAt!: string;       // Время создания пользователя (timestamp)
+  public id!: string;
+  public phone!: string;
+  public password!: string;
+  public name!: string;
+  public role!: string;
+  public isBlocked!: boolean;
+  public lastLat!: number | null;           
+  public lastLon!: number | null;           
+  public lastLocationUpdate!: string | null; 
+  public createdAt!: string;
 }
 
 /**
@@ -47,21 +52,52 @@ User.init(
       type: DataTypes.STRING,      // Имя пользователя
       allowNull: true              // Может быть null
     },
-    verified: { 
-      type: DataTypes.BOOLEAN,     // Флаг подтверждения
-      defaultValue: false          // По умолчанию false
+      role: {                            
+      type: DataTypes.STRING,
+      defaultValue: UserRole.USER,
+      allowNull: false,
+      validate: {
+        isIn: [[UserRole.USER, UserRole.ADMIN]]
+      }
     },
+    isBlocked: {                       
+      type: DataTypes.BOOLEAN,
+      defaultValue: false,
+      allowNull: false
+    },
+   
+    lastLat: {                              
+      type: DataTypes.DOUBLE,
+      allowNull: true,
+      comment: 'Последняя известная широта пользователя'
+    },
+    lastLon: {                             
+      type: DataTypes.DOUBLE,
+      allowNull: true,
+      comment: 'Последняя известная долгота пользователя'
+    },
+    lastLocationUpdate: {                   
+      type: DataTypes.STRING,
+      allowNull: true,
+      comment: 'Время последнего обновления геолокации'
+    },
+
+
     createdAt: {
-      type: DataTypes.STRING, //  Изменено на STRING для хранения формата "14.12.2025 15:30"
+      type: DataTypes.STRING, //  для хранения формата "14.12.2025 15:30"
       allowNull: false
     }
   },
-  { 
-    sequelize,                     // Подключение к базе данных
-    tableName: 'users',            // Имя таблицы в базе
-    modelName: 'User',             // Имя модели в Sequelize
-    timestamps: false,             // Отключаем стандартные поля createdAt/updatedAt Sequelize
-    indexes: [{ fields: ['phone'] }] //  Добавлен индекс
+ { 
+    sequelize,
+    tableName: 'users',
+    modelName: 'User',
+    timestamps: false,
+    indexes: [
+      { fields: ['phone'], unique: true },
+      { fields: ['role'] },
+      { fields: ['lastLat', 'lastLon'] }    
+    ]
   }
 );
 

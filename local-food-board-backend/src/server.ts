@@ -3,8 +3,14 @@ import cors from 'cors';
 import path from 'path';
 import dotenv from 'dotenv';
 import sequelize from './config/database';
+
 import usersRouter from './routes/users';
 import postsRouter from './routes/posts';
+import adminRouter from './routes/admin';          
+import reportsRouter from './routes/reports';      
+import notificationsRouter from './routes/notifications';      
+
+
 import { startBackgroundTasks } from './utils/backgroundTasks';
 import { AppError } from './utils/AppError';
 import { apiLimiter } from './middleware/rateLimiter';
@@ -28,6 +34,10 @@ app.use('/uploads', express.static(path.join(process.cwd(), 'uploads')));
 // Routes
 app.use('/api/users', usersRouter);
 app.use('/api/posts', postsRouter);
+app.use('/api/admin', adminRouter);           
+app.use('/api/reports', reportsRouter); 
+app.use('/api/notifications', notificationsRouter);      
+
 
 // Health check
 app.get('/api/health', (req, res) => res.json({ ok: true }));
