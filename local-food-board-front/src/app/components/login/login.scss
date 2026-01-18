@@ -1,0 +1,16 @@
+:host {
+  display: block;
+  margin-bottom: 100px;
+  section {
+    border-radius: 6px;
+    margin: 135px auto;
+    padding: 20px 50px;
+    background-color: #fefcf7;
+    box-shadow: -15px 15px 20px 0px rgba(34, 60, 80, 0.2);
+  }
+
+  input.code {
+    font-size: 50px;
+    width: 155px;
+  }
+}
