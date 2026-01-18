@@ -41,6 +41,7 @@ export class Phone implements OnInit {
   transform() {
     if (this.data?.contact) {
       const phoneSrc = this.data?.contact.toString();
+
       if (!phoneSrc?.length) {
         return;
       }
@@ -48,8 +49,8 @@ export class Phone implements OnInit {
         this.phone = `+${phoneSrc[0]} (${phoneSrc.substring(1, 4)}) ${phoneSrc.substring(4, 7)}-`;
         this.phone += !this.loading ? `XX-XX` : `░░-░░`;
       }
-      if (phoneSrc?.length === 11) {
-        this.phone = `+${phoneSrc[0]}-${phoneSrc.substring(1, 4)}-${phoneSrc.substring(4, 7)}-${phoneSrc.substring(7, 9)}-${phoneSrc.substring(9, 11)}`;
+      if (phoneSrc?.length === 12) {
+        this.phone = `${phoneSrc[0]}${phoneSrc[1]}-${phoneSrc.substring(2, 5)}-${phoneSrc.substring(5, 6)}-${phoneSrc.substring(6, 10)}-${phoneSrc.substring(10, 12)}`;
       }
     }
     this.cdr.detectChanges();

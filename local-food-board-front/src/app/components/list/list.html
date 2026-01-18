@@ -1,6 +1,11 @@
-  @for (item of posts; track item.id) {
-      <app-post [data]="item"></app-post>
-    } @empty {
-      <li>Ничего не найдено</li>
+@for (item of posts; track item.id) {
+  <app-post [data]="item"></app-post>
+} @empty {
+  <div class="empty">
+    @if (loading) {
+      <app-loading></app-loading>
+    } @else {
+      <h3>Ничего не найдено в вашем населённом пункте Попробуйте поискать в других местах</h3>
     }
-
+  </div>
+}

@@ -17,7 +17,7 @@ const ru: { [index: string]: string[] } = {
   pure: true,
 })
 export class DateAgoPipe implements PipeTransform {
-  transform(value: any, args?: any): any {
+  transform(value: Date, args?: any): string {
     if (value) {
       const seconds = Math.floor((+new Date() - +new Date(value)) / 1000);
       if (seconds < 29)
@@ -39,7 +39,7 @@ export class DateAgoPipe implements PipeTransform {
         }
       }
     }
-    return value;
+    return value.toString();
   }
 
   ruIndex(value: number): number {
