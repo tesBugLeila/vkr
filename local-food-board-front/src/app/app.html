@@ -10,7 +10,9 @@
       <app-login-bar></app-login-bar>
       Поддержите локальный вкус, находите и покупайте продукты питания у фермеров вашего края.
       <br />
-      <button [routerLink]="['/new']">Подать объявление</button>
+      @if (userService.currentUser$ | async) {
+        <button [routerLink]="['/new']">Подать объявление</button>
+      }
     </div>
   </div>
   <app-search-bar></app-search-bar>
