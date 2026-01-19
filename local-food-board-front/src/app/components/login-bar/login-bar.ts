@@ -3,10 +3,11 @@ import { RouterLink } from '@angular/router';
 import { UserService } from '../../services/user';
 import { NgxMaskPipe } from 'ngx-mask';
 import { Router } from '@angular/router';
+import { AsyncPipe } from '@angular/common';
 
 @Component({
   selector: 'app-login-bar',
-  imports: [RouterLink, NgxMaskPipe],
+  imports: [RouterLink, AsyncPipe, NgxMaskPipe],
   templateUrl: './login-bar.html',
   styleUrl: './login-bar.scss',
   standalone: true,
@@ -18,7 +19,8 @@ export class LoginBar {
   ) {}
 
   logOut() {
-    this.userService.userPhoneNumber = null;
+    this.userService.currentUser$.next(null)
+    document.cookie = `access-token=; path=/`;
     this.router.navigate(['/']).then();
   }
 }
