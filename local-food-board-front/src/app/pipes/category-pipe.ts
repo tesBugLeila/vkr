@@ -26,14 +26,3 @@ export class CategoryPipe implements PipeTransform {
     }
   }
 }
-
-// public readonly categories = ['OTHER', 'PIES', 'JAMS', 'VEGETABLES', 'DAIRY', 'MEAT', 'BAKERY'];
-// public readonly categories = [
-//   'Другое',
-//   'Пироги',
-//   'Варенье и джемы',
-//   'Овощи',
-//   'Молочные продукты',
-//   'Мясо',
-//   'Выпечка',
-// ];

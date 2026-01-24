@@ -9,3 +9,10 @@
     }
   </div>
 }
+<div class="pagination">
+  @for (pageNumber of pages; track pageNumber) {
+    <span (click)="loadPage(pageNumber)" [class.active]="pageNumber === currentPage" ]>{{
+      pageNumber
+    }}</span>
+  }
+</div>

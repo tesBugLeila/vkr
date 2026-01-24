@@ -11,7 +11,7 @@ export class PostService {
   constructor(private http: HttpClient) {}
   public readonly categories = ['PIES', 'JAMS', 'VEGETABLES', 'DAIRY', 'MEAT', 'BAKERY', 'OTHER'];
 
-  list(page = 1, limit = 10): Observable<IList<IPost>> {
+  list(page: number, limit: number): Observable<IList<IPost>> {
     return this.http.get<IList<IPost>>('/api/posts', { params: { page, limit } });
   }
 

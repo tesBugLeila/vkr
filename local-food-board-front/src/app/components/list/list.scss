@@ -1,3 +1,36 @@
 .empty {
   margin: 135px auto;
 }
+.pagination {
+  display: flex;
+  justify-content: center;
+  list-style-type: none;
+  padding: 10px;
+
+  & span {
+    color: black;
+    padding: 8px 16px;
+    text-decoration: none;
+    transition: background-color 0.3s;
+    border: 1px solid #ddd;
+    margin: 0 4px;
+
+    &.active {
+      background-color: #d99064;
+      color: white;
+      border: 1px solid #d99064;
+    }
+    &:hover:not(.active) {
+      background-color: #ddd;
+    }
+    &:first-child {
+      border-top-left-radius: 5px;
+      border-bottom-left-radius: 5px;
+    }
+
+    &:last-child {
+      border-top-right-radius: 5px;
+      border-bottom-right-radius: 5px;
+    }
+  }
+}
