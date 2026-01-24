@@ -40,13 +40,16 @@ export class Post implements OnInit {
   ) {}
 
 
+  get isMyPost(): boolean {
+    return this.userService.currentUser$.value?.id === this.data?.user?.id;
+  }
 
   ngOnInit(): void {
     this.activatedRoute.paramMap.pipe(takeUntilDestroyed(this.destroyRef)).subscribe((params) => {
       this.isPostPage = params.keys.includes('id')
-      const postPage = params.get('id');
-      if (postPage) {
-        this.loadData(postPage);
+      const postId = params.get('id');
+      if (postId) {
+        this.loadData(postId);
       }
     });
   }

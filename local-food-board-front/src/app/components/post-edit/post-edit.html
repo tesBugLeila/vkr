@@ -1,3 +1,7 @@
+@if (editablePostId) {
+  <br />
+  <a [routerLink]="['/', 'post', editablePostId]">Вернуться к посту</a>
+}
 <section>
   @if (postForm) {
     <form [formGroup]="postForm" (ngSubmit)="onSubmit()" class="post-form">

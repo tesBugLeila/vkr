@@ -3,6 +3,7 @@ import { List } from './components/list/list';
 import { PostEdit } from './components/post-edit/post-edit';
 import { Login } from './components/login/login';
 import { Health } from './components/health/health';
+import { Post } from './components/post/post';
 
 export const routes: Routes = [
   {
@@ -11,8 +12,16 @@ export const routes: Routes = [
     component: List,
   },
   {
+    path: 'post/:id',
+    component: Post,
+  },
+  {
     path: 'health',
     component: Health,
+  },
+  {
+    path: 'edit/:id',
+    component: PostEdit,
   },
   {
     path: 'new',

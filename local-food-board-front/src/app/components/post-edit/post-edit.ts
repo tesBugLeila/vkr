@@ -6,24 +6,25 @@ import { first } from 'rxjs';
 import { UserService } from '../../services/user';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { formatDate } from '@angular/common';
-import { Router } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 
 @Component({
   selector: 'app-post-edit',
-  imports: [ReactiveFormsModule],
+  imports: [ReactiveFormsModule, RouterLink],
   templateUrl: './post-edit.html',
   styleUrl: './post-edit.scss',
   standalone: true,
 })
 export class PostEdit implements OnInit {
-  @Input() postData?: IPost;
   postForm!: FormGroup;
+  editablePostId: null | string = null;
   error = '';
 
   constructor(
     private fb: FormBuilder,
     private cdr: ChangeDetectorRef,
     private router: Router,
+    private activatedRoute: ActivatedRoute,
     private destroyRef: DestroyRef,
 
     protected postService: PostService,
@@ -35,15 +36,26 @@ export class PostEdit implements OnInit {
       if (!me) {
         return;
       }
-      this.initForm();
-      if (this.postData) {
-        this.postForm.patchValue(this.postData);
-      } else {
-        this.getLocation();
-      }
+      this.activatedRoute.paramMap.pipe(takeUntilDestroyed(this.destroyRef)).subscribe((params) => {
+        const postId = params.get('id');
+        this.loadData(postId);
+      });
     });
   }
 
+  private loadData(id: string | null): void {
+    this.initForm();
+    if (id) {
+      this.postService
+        .getById(id)
+        .pipe(first())
+        .subscribe((data: IPostWrapper) => {
+          this.editablePostId = data.post.id;
+          this.postForm.patchValue(data.post);
+        });
+    }
+    this.getLocation();
+  }
   private initForm(): void {
     this.postForm = this.fb.group({
       title: ['', [Validators.required]],
