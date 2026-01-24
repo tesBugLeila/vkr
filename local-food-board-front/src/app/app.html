@@ -8,7 +8,9 @@
 
     <div class="slogan">
       <app-login-bar></app-login-bar>
-      Поддержите локальный вкус, находите и покупайте продукты питания у фермеров вашего края.
+      <span class="text">
+        Поддержите локальный вкус, находите и покупайте продукты питания у фермеров вашего края.
+      </span>
       <br />
       @if (userService.currentUser$ | async) {
         <button [routerLink]="['/new']">Подать объявление</button>

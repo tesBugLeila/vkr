@@ -5,6 +5,11 @@
     padding: 20px 50px;
     background-color: #fefcf7;
     box-shadow: -15px 15px 20px 0px rgba(34, 60, 80, 0.2);
+    @media screen and (max-width: 900px) {
+      padding: 10px 10px;
+      margin: 35px 10px;
+    }
+
     & .main-data {
       display: flex;
       justify-content: space-between;
@@ -13,16 +18,36 @@
         height: 200px;
         width: auto;
       }
+      @media screen and (max-width: 900px) {
+        img,
+        svg {
+          width: 100px;
+        }
+      }
       .description {
         display: flex;
         justify-content: space-between;
         flex-direction: column;
         text-align: right;
         width: 40%;
+        @media screen and (max-width: 900px) {
+          display: block;
+          width: calc(100% - 140px);
+        }
 
         & .title {
+          @media screen and (max-width: 600px) {
+            display: block;
+          }
           display: flex;
           justify-content: space-between;
+          .category {
+          @media screen and (max-width: 600px) {
+            display: block;
+          }
+            min-width: 150px;
+            text-align: left;
+          }
           & h3 {
             margin-top: 0;
             display: inline;
