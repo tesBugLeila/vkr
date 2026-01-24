@@ -1,44 +1,51 @@
 <section>
-  <form [formGroup]="editForm" (ngSubmit)="onSubmit()" class="post-form">
-    <div class="form-row">
-      <label
-        >Заголовок:
-        @if (editForm.get('title')?.invalid && editForm.get('title')?.touched) {
-          <small>Обязательно</small>
-        }
-      </label>
-      <input type="text" formControlName="title" />
-    </div>
+  @if (postForm) {
+    <form [formGroup]="postForm" (ngSubmit)="onSubmit()" class="post-form">
+      <div class="form-row">
+        <label
+          >Заголовок:
+          @if (postForm.get('title')?.invalid && postForm.get('title')?.touched) {
+            <small>Обязательно</small>
+          }
+        </label>
+        <input type="text" formControlName="title" />
+      </div>
 
-    <div class="form-row">
-      <label>Описание:</label>
-      <textarea formControlName="description"></textarea>
-    </div>
+      <div class="form-row">
+        <label>Описание:</label>
+        <textarea formControlName="description"></textarea>
+      </div>
 
-    <div class="form-row">
-      <label>Цена:</label>
-      <input type="number" formControlName="price" />
-    </div>
+      <div class="form-row">
+        <label>Цена:</label>
+        <input type="number" formControlName="price" />
+      </div>
 
-    <div class="form-row">
-      <label>Категория:</label>
-      <select formControlName="category">
-        @for (item of categories; track item) {
-          <option [value]="item">{{ item }}</option>
-        }
-      </select>
-    </div>
+      <div class="form-row">
+        <label>Категория:</label>
+        <select formControlName="category">
+          @for (item of postService.categories; track item) {
+            <option [value]="item">{{ item }}</option>
+          }
+        </select>
+      </div>
 
-    <div class="form-row">
-      <label>Район:</label>
-      <input type="text" formControlName="district" />
-    </div>
+      <div class="form-row">
+        <label>Район:</label>
+        <input type="text" formControlName="district" />
+      </div>
 
-    <div class="form-row">
-      <div></div>
-      <label> <input type="checkbox" formControlName="notifyNeighbors" /> Уведомить соседей </label>
-    </div>
+      <div class="form-row">
+        <div></div>
+        <label>
+          <input type="checkbox" formControlName="notifyNeighbors" /> Уведомить соседей
+        </label>
+      </div>
 
-    <button type="submit" [disabled]="editForm.invalid">Сохранить изменения</button>
-  </form>
+      @if (error) {
+        <div class="status-bar">{{ error }}</div>
+      }
+      <button type="submit" [disabled]="postForm.invalid">Сохранить изменения</button>
+    </form>
+  }
 </section>

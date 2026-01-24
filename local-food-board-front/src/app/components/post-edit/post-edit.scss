@@ -1,16 +1,24 @@
-  section {
-    border-radius: 6px;
-    margin: 40px auto;
-    padding: 20px 50px;
-    background-color: #fefcf7;
-    box-shadow: -15px 15px 20px 0px rgba(34, 60, 80, 0.2);
+section {
+  border-radius: 6px;
+  margin: 40px auto;
+  padding: 20px 50px;
+  background-color: #fefcf7;
+  box-shadow: -15px 15px 20px 0px rgba(34, 60, 80, 0.2);
 
-    .form-row{
-      display: flex;
-      justify-content: space-between;
-      margin: 20px 0;
-      & :nth-child(2){
-        width: 70%;
-      }
+  .form-row {
+    display: flex;
+    justify-content: space-between;
+    margin: 20px 0;
+    & :nth-child(2) {
+      width: 70%;
     }
   }
+  .status-bar {
+    background-color: #f9eee0;
+    padding: 20px;
+    box-shadow: -1px 1px 10px 0px rgb(151 101 50 / 21%) inset;
+    border-radius: 13px;
+    color: #cd1818;
+    font-weight: 600;
+  }
+}

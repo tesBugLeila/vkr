@@ -5,9 +5,9 @@
   <div>
     <select>
       <option value="">Все объявления</option>
-      <option value="молочная продукция">Молочная продукция</option>
-      <option value="мясная продукция">Мясная продукция</option>
-      <option value="мёд">Мёд</option>
+      @for (item of postService.categories; track item) {
+        <option [value]="item">{{ item }}</option>
+      }
     </select>
     <select>
       <option value="[53.221187,50.625772]">Кинель</option>

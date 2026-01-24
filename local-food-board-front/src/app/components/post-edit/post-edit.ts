@@ -1,6 +1,12 @@
-import { Component, Input, OnInit } from '@angular/core';
+import { ChangeDetectorRef, Component, DestroyRef,  Input,  OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { IPost } from '../../types/post';
+import { PostService } from '../../services/post';
+import { first } from 'rxjs';
+import { UserService } from '../../services/user';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { formatDate } from '@angular/common';
+
 
 @Component({
   selector: 'app-post-edit',
@@ -10,58 +16,79 @@ import { IPost } from '../../types/post';
   standalone: true,
 })
 export class PostEdit implements OnInit {
-  postForm: FormGroup;
   @Input() postData?: IPost;
-  editForm!: FormGroup;
-  categories = ['OTHER', 'PIES', 'JAMS', 'VEGETABLES', 'DAIRY', 'MEAT', 'BAKERY'];
+  postForm!: FormGroup;
+  error = '';
 
+  constructor(
+    private fb: FormBuilder,
+    private cdr: ChangeDetectorRef,
+    private destroyRef: DestroyRef,
 
-  constructor(private fb: FormBuilder) {}
+    protected postService: PostService,
+    private userService: UserService,
+  ) {}
 
   ngOnInit(): void {
-    this.initForm();
-    if (this.postData) {
-      this.editForm.patchValue(this.postData);
-    } else {
-      this.getLocation();
-    }
+    this.userService.currentUser$.pipe(takeUntilDestroyed(this.destroyRef)).subscribe((me) => {
+      if (!me) {
+        return;
+      }
+      this.initForm();
+      if (this.postData) {
+        this.postForm.patchValue(this.postData);
+      } else {
+        this.getLocation();
+      }
+    });
   }
 
   private initForm(): void {
-    this.editForm = this.fb.group({
+    this.postForm = this.fb.group({
       title: ['', [Validators.required]],
       description: ['', [Validators.required]],
       price: [0, [Validators.required, Validators.min(0)]],
       category: ['OTHER', [Validators.required]],
-      district: [''],
+      district: ['Центральный'],
       photos: [[]],
       lat: [null],
       lon: [null],
       notifyNeighbors: [false],
       // Скрытые поля сохраняем в форме или обрабатываем отдельно при отправке
-      id: [null],
-      contact: [''],
-      userId: [null],
-      createdAt: [new Date()]
+      id: [undefined],
+      contact: [this.userService.currentUser$.value?.phone],
+      userId: [this.userService.currentUser$.value?.id],
+      createdAt: [ formatDate(new Date(), 'dd.MM.yyyy HH:mm','en-US')],
     });
   }
 
   getLocation(): void {
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition((position) => {
-        this.editForm.patchValue({
+        this.postForm.patchValue({
           lat: position.coords.latitude,
-          lon: position.coords.longitude
+          lon: position.coords.longitude,
         });
       });
     }
   }
 
   onSubmit(): void {
-    if (this.editForm.valid) {
-      const updatedPost: IPost = this.editForm.value;
-      console.log('Данные для сохранения:', updatedPost);
-      // Здесь вызов сервиса: this.postService.update(updatedPost)
+    if (this.postForm.valid) {
+      this.postService
+        .create(<IPost>this.postForm.value)
+        .pipe(first())
+        .subscribe(
+          (resp) => {
+            this.error = '';
+            console.log(resp);
+            this.cdr.detectChanges();
+          },
+          (error) => {
+            this.error = error.error.error || error.statusText;
+            this.cdr.detectChanges();
+          },
+        );
     }
   }
 }
