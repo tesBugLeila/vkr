@@ -1,5 +1,5 @@
 @if (isPostPage) {
-  <br>
+  <br />
   <a [routerLink]="['/']">Вернуться к списку</a>
 }
 @if (data) {
@@ -27,18 +27,27 @@
     </div>
 
     <div class="description">
-      <h3>{{ data.title }}</h3>
+      <div class="title">
+        {{ data.category | category }}
+        <h3>{{ data.title }}</h3>
+      </div>
       {{ data.description }}
-
       <div>
         <div class="price">{{ data.price | currency: 'RUB' : 'symbol-narrow' : '.0-2' }}</div>
+        @if (isMyPost) {
+          <a [routerLink]="['/', 'edit', data.id]">✎ Редактировать</a>
+          @if (data.notifyNeighbors) {
+            ✉
+          }
+          <br /><br />
+        }
+
         <app-phone [data]="data"></app-phone>
         <div class="createdAt">
           {{ data.district }}, {{ data.createdAt | parseDateTime | dateAgo }}
         </div>
       </div>
     </div>
-    
   </section>
 } @else {
   <app-loading></app-loading>

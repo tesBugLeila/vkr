@@ -10,10 +10,11 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { PostService } from '../../services/post';
 import { UserService } from '../../services/user';
 import { first } from 'rxjs';
+import { CategoryPipe } from '../../pipes/category-pipe';
 
 @Component({
   selector: 'app-post',
-  imports: [CurrencyPipe, DateAgoPipe, Phone, NgOptimizedImage, ParseDateTimePipe, Loading, RouterLink],
+  imports: [CurrencyPipe, DateAgoPipe, Phone, NgOptimizedImage, ParseDateTimePipe, Loading, RouterLink, CategoryPipe],
   providers: [
     {
       provide: IMAGE_CONFIG,

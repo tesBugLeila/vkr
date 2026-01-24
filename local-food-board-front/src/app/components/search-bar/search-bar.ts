@@ -1,9 +1,12 @@
 import { Component } from '@angular/core';
 import { PostService } from '../../services/post';
+import { CategoryPipe } from '../../pipes/category-pipe';
 
 @Component({
   selector: 'app-search-bar',
-  imports: [],
+  imports: [
+    CategoryPipe
+  ],
   templateUrl: './search-bar.html',
   styleUrl: './search-bar.scss',
   standalone: true,

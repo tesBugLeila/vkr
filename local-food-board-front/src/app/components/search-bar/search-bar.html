@@ -6,7 +6,7 @@
     <select>
       <option value="">Все объявления</option>
       @for (item of postService.categories; track item) {
-        <option [value]="item">{{ item }}</option>
+        <option [value]="item">{{ item | category }}</option>
       }
     </select>
     <select>

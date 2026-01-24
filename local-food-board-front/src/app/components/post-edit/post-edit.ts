@@ -7,10 +7,11 @@ import { UserService } from '../../services/user';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { formatDate } from '@angular/common';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
+import { CategoryPipe } from '../../pipes/category-pipe';
 
 @Component({
   selector: 'app-post-edit',
-  imports: [ReactiveFormsModule, RouterLink],
+  imports: [ReactiveFormsModule, RouterLink, CategoryPipe],
   templateUrl: './post-edit.html',
   styleUrl: './post-edit.scss',
   standalone: true,
@@ -61,7 +62,7 @@ export class PostEdit implements OnInit {
       title: ['', [Validators.required]],
       description: ['', [Validators.required]],
       price: [0, [Validators.required, Validators.min(0)]],
-      category: ['OTHER', [Validators.required]],
+      category: ['', [Validators.required]],
       district: ['Центральный'],
       photos: [[]],
       lat: [null],
