@@ -1,18 +1,23 @@
 <nav>
   <div>
-    <input type="text" placeholder="Поиск" />
+    <input
+      type="text"
+      placeholder="Поиск"
+      [(ngModel)]="postService.searchBar.q"
+      (ngModelChange)="listReload()"
+    />
   </div>
   <div>
-    <select>
-      <option value="">Все объявления</option>
+    <select [(ngModel)]="postService.searchBar.category" (ngModelChange)="listReload()">
+      <option [ngValue]="undefined">Все объявления</option>
       @for (item of postService.categories; track item) {
-        <option [value]="item">{{ item | category }}</option>
+        <option [ngValue]="item | category">{{ item | category }}</option>
       }
     </select>
-    <select>
-      <option value="[53.221187,50.625772]">Кинель</option>
-      <option value="[53.270082,50.583010]">Усть-Кинельский</option>
-      <option value="[53.253653,50.492068]">Алексеевка</option>
+    <select [(ngModel)]="locationStr" (ngModelChange)="changeLocation($event)">
+      @for (location of locationOptions; track location) {
+        <option [ngValue]="location.value">{{ location.name }}</option>
+      }
     </select>
   </div>
 </nav>

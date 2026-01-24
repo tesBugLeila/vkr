@@ -17,5 +17,14 @@ export interface IPost {
 }
 
 export interface IPostWrapper {
-  post: IPost
+  post: IPost;
+}
+
+export interface IPostFilter {
+  lat?: number;
+  lon?: number;
+  radius?: number;
+  category?: string;
+  district?: string;
+  q?: string;
 }

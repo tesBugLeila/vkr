@@ -1,9 +1,16 @@
-import { ChangeDetectionStrategy, ChangeDetectorRef, Component, OnInit } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  ChangeDetectorRef,
+  Component,
+  DestroyRef,
+  OnInit,
+} from '@angular/core';
 import { Post } from '../post/post';
 import { IPost } from '../../types/post';
 import { PostService } from '../../services/post';
 import { Loading } from '../loading/loading';
-import { finalize, Observable } from 'rxjs';
+import { debounce, debounceTime, finalize, Observable } from 'rxjs';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 @Component({
   selector: 'app-list',
@@ -20,17 +27,27 @@ export class List implements OnInit {
   currentPage = 1;
   totalPages = 1;
 
-  constructor(private postService: PostService, private cdr: ChangeDetectorRef) {}
+  constructor(
+    private postService: PostService,
+    private destroyRef: DestroyRef,
+    private cdr: ChangeDetectorRef,
+  ) {}
 
-  get pages(): number[]{
-    if(this.totalPages === 1){
-      return []
+  get pages(): number[] {
+    if (this.totalPages === 1) {
+      return [];
     }
-    return Array.from({length: this.totalPages}, (_, i) => i + 1);
+    return Array.from({ length: this.totalPages }, (_, i) => i + 1);
   }
 
   public ngOnInit() {
     this.loadPage(1);
+    this.postService.filterUpdated$.pipe(debounceTime(1000),takeUntilDestroyed(this.destroyRef)).subscribe((emited) => {
+      if(!emited){
+        return;
+      }
+      this.loadPage(1)
+    });
   }
   public loadPage(pageNumber: number) {
     this.loading = true;

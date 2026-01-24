@@ -11,10 +11,10 @@
   app-search-bar,
   footer {
     padding: 0 100px;
+    word-break: break-word;
     @media screen and (max-width: 900px) {
       padding: 0;
     }
-    word-break: break-word;
   }
 
   header {
