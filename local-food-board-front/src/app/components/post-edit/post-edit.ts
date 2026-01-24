@@ -8,10 +8,11 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { formatDate } from '@angular/common';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { CategoryPipe } from '../../pipes/category-pipe';
+import { Loading } from '../loading/loading';
 
 @Component({
   selector: 'app-post-edit',
-  imports: [ReactiveFormsModule, RouterLink, CategoryPipe],
+  imports: [ReactiveFormsModule, RouterLink, CategoryPipe, Loading],
   templateUrl: './post-edit.html',
   styleUrl: './post-edit.scss',
   standalone: true,
@@ -20,6 +21,8 @@ export class PostEdit implements OnInit {
   postForm!: FormGroup;
   editablePostId: null | string = null;
   error = '';
+  deleteWarning = false;
+  loading = false;
 
   constructor(
     private fb: FormBuilder,
@@ -89,8 +92,10 @@ export class PostEdit implements OnInit {
 
   onSubmit(): void {
     if (this.postForm.valid) {
+      this.loading = true;
+      this.cdr.detectChanges();
       this.postService
-        .create(<IPost>this.postForm.value)
+        .save(<IPost>this.postForm.value)
         .pipe(first())
         .subscribe(
           (resp: IPostWrapper) => {
@@ -100,9 +105,36 @@ export class PostEdit implements OnInit {
               this.router.navigate(['post', resp.post.id]).then();
               this.error = '';
             }
+            this.loading = false;
             this.cdr.detectChanges();
           },
           (error) => {
+            this.loading = false;
+            this.error = error.error.error || error.statusText;
+            this.cdr.detectChanges();
+          },
+        );
+    }
+  }
+  onPostDelete() {
+    if (!this.deleteWarning) {
+      this.deleteWarning = true;
+    } else {
+      this.loading = true;
+      this.cdr.detectChanges();
+      //this.deleteWarning = false
+      this.postService
+        .delete(<IPost>this.postForm.value)
+        .pipe(first())
+        .subscribe(
+          (resp: IPostWrapper) => {
+            this.router.navigate(['/']).then();
+            this.error = '';
+            this.loading = false;
+            this.cdr.detectChanges();
+          },
+          (error) => {
+            this.loading = false;
             this.error = error.error.error || error.statusText;
             this.cdr.detectChanges();
           },

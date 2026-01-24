@@ -19,7 +19,15 @@ export class PostService {
     return this.http.get<IPostWrapper>(`/api/posts/${postId}`);
   }
 
-  create(post: IPost): Observable<IPostWrapper> {
-    return this.http.post<IPostWrapper>('/api/posts', post);
+  save(post: IPost): Observable<IPostWrapper> {
+    if (post.id) {
+      const data = { ...post, id: undefined, userId: undefined, createdAt: undefined };
+      return this.http.patch<IPostWrapper>(`/api/posts/${post.id}`, data);
+    } else {
+      return this.http.post<IPostWrapper>('/api/posts', post);
+    }
+  }
+  delete(post: IPost): Observable<IPostWrapper> {
+    return this.http.delete<IPostWrapper>(`/api/posts/${post.id}`);
   }
 }
