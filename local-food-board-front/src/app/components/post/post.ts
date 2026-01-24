@@ -43,6 +43,9 @@ export class Post implements OnInit {
 
 
   get isMyPost(): boolean {
+    if(!this.userService.currentUser$.value){
+      return false
+    }
     return this.userService.currentUser$.value?.id === this.data?.user?.id;
   }
 
