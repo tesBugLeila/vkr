@@ -1,7 +1,7 @@
 @if (tel) {
-  <a href="tel:{{tel}}">{{ phone }}</a>
+  <a (click)="clickOnPhone($event)" href="tel:{{tel}}">{{ phone }}</a>
 } @else {
-  <div class="tooltip-container" (click)="loadPhone()">
+  <div class="tooltip-container" (click)="loadPhone($event)">
     {{ phone }}
     <span class="tooltip-text">Показать телефон</span>
   </div>

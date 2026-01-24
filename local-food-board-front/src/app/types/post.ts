@@ -1,3 +1,4 @@
+import { IUser } from './user';
 export interface IPost {
   id: string; // Уникальный идентификатор поста
   title: string; // Заголовок поста
@@ -11,5 +12,10 @@ export interface IPost {
   lon: number | null; // Долгота (координата)
   notifyNeighbors: boolean; // Уведомление соседей
   userId: string | null; // ID пользователя, автора поста
+  user?: IUser | null; //  автор поста
   createdAt: Date; // Время создания (timestamp)
+}
+
+export interface IPostWrapper {
+  post: IPost
 }

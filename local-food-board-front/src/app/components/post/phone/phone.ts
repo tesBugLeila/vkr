@@ -21,12 +21,18 @@ export class Phone implements OnInit {
   tel = '';
   phone = '';
 
-  constructor(private cdr: ChangeDetectorRef) {}
+  constructor(
+    private cdr: ChangeDetectorRef,
+  ) {}
 
   ngOnInit() {
     this.transform();
   }
-  loadPhone() {
+  clickOnPhone($event: PointerEvent) {
+    $event.stopPropagation();
+  }
+  loadPhone($event: PointerEvent) {
+    $event.stopPropagation();
     this.loading = true;
     this.transform();
     setTimeout(() => {
@@ -36,7 +42,7 @@ export class Phone implements OnInit {
       this.tel = `+${this.data?.contact}`;
       this.loading = false;
       this.transform();
-    },500)
+    }, 500);
   }
   transform() {
     if (this.data?.contact) {

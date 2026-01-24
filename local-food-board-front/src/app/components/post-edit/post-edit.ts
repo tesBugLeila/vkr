@@ -1,12 +1,12 @@
-import { ChangeDetectorRef, Component, DestroyRef,  Input,  OnInit } from '@angular/core';
+import { ChangeDetectorRef, Component, DestroyRef, Input, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
-import { IPost } from '../../types/post';
+import { IPost, IPostWrapper } from '../../types/post';
 import { PostService } from '../../services/post';
 import { first } from 'rxjs';
 import { UserService } from '../../services/user';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { formatDate } from '@angular/common';
-
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-post-edit',
@@ -23,6 +23,7 @@ export class PostEdit implements OnInit {
   constructor(
     private fb: FormBuilder,
     private cdr: ChangeDetectorRef,
+    private router: Router,
     private destroyRef: DestroyRef,
 
     protected postService: PostService,
@@ -58,7 +59,7 @@ export class PostEdit implements OnInit {
       id: [undefined],
       contact: [this.userService.currentUser$.value?.phone],
       userId: [this.userService.currentUser$.value?.id],
-      createdAt: [ formatDate(new Date(), 'dd.MM.yyyy HH:mm','en-US')],
+      createdAt: [formatDate(new Date(), 'dd.MM.yyyy HH:mm', 'en-US')],
     });
   }
 
@@ -79,9 +80,13 @@ export class PostEdit implements OnInit {
         .create(<IPost>this.postForm.value)
         .pipe(first())
         .subscribe(
-          (resp) => {
-            this.error = '';
-            console.log(resp);
+          (resp: IPostWrapper) => {
+            if (!resp.post.id) {
+              this.error = 'Что-то пошло не так';
+            } else {
+              this.router.navigate(['post', resp.post.id]).then();
+              this.error = '';
+            }
             this.cdr.detectChanges();
           },
           (error) => {

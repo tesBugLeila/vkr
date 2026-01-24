@@ -1,5 +1,9 @@
+@if (isPostPage) {
+  <br>
+  <a [routerLink]="['/']">Вернуться к списку</a>
+}
 @if (data) {
-  <section>
+  <section (click)="clickOnPost()">
     <div>
       @if (data.photos.length && data.photos[0]) {
         <img [ngSrc]="data.photos[0]" width="400" height="200" placeholder />
@@ -34,5 +38,8 @@
         </div>
       </div>
     </div>
+    
   </section>
+} @else {
+  <app-loading></app-loading>
 }
