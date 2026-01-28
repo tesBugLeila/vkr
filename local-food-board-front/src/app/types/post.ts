@@ -13,7 +13,7 @@ export interface IPost {
   notifyNeighbors: boolean; // Уведомление соседей
   userId: string | null; // ID пользователя, автора поста
   user?: IUser | null; //  автор поста
-  createdAt: Date; // Время создания (timestamp)
+  createdAt: string; // Время создания 
 }
 
 export interface IPostWrapper {

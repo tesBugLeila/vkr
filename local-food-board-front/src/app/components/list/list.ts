@@ -28,9 +28,10 @@ export class List implements OnInit {
   totalPages = 1;
 
   constructor(
-    private postService: PostService,
     private destroyRef: DestroyRef,
     private cdr: ChangeDetectorRef,
+
+    private postService: PostService,
   ) {}
 
   get pages(): number[] {
