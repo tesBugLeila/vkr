@@ -28,6 +28,6 @@ jobs:
       # Runs a set of commands using the runners shell
       - name: Run a build and deploy script
         run: |
-          whoami
+          chmod +x ./ci/rebuild-and-deploy.sh
           ./ci/rebuild-and-deploy.sh
 

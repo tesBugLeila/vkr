@@ -11,7 +11,6 @@ pm2 start index-db
 
 # db.food-63.ru/api
 
-cd /var/www/vkr/local-food-board-backend/dist/
 pm2 stop server
 cd /var/www/vkr/local-food-board-backend
 #npm i
@@ -20,7 +19,7 @@ ln -s ~/cache/back/node_modules/ ./node_modules
 npm run build
 cd /var/www/vkr/local-food-board-backend/dist/
 pm2 start server
-curl http://food-63.ru/api/health
+#curl http://food-63.ru/api/health
 
 
 # db.food-63.ru/
