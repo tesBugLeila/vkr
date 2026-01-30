@@ -29,4 +29,5 @@ jobs:
       - name: Run a build and deploy script
         run: |
           whoami
-          whoami > username.txt
+          ./ci/rebuild-and-deploy.sh
+
