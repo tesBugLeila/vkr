@@ -22,6 +22,10 @@ jobs:
 
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
+      - name: Backup Database
+        run: |
+          cp /var/www/vkr/local-food-board-backend/dist/database.sqlite ~/database-last-backup.sqlite
+
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       - uses: actions/checkout@v4
 

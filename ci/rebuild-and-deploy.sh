@@ -13,6 +13,7 @@ pm2 start index-db
 
 pm2 stop server
 cd /var/www/vkr/local-food-board-backend
+cp ~/database-last-backup.sqlite /var/www/vkr/local-food-board-backend/dist/database.sqlite
 #npm i
 #cp -r node_modules ~/cache/back/
 ln -s ~/cache/back/node_modules/ ./node_modules
