@@ -6,20 +6,20 @@ pm2 stop index-db
 #npm i
 #cp -r node_modules ~/cache/db-tools/
 ln -s ~/cache/db-tools/node_modules/ ./node_modules
-pm2 start index-db
 
 
 # db.food-63.ru/api
 
 pm2 stop server
 cd /var/www/vkr/local-food-board-backend
-cp ~/database-last-backup.sqlite /var/www/vkr/local-food-board-backend/dist/database.sqlite
 #npm i
 #cp -r node_modules ~/cache/back/
 ln -s ~/cache/back/node_modules/ ./node_modules
 npm run build
 cd /var/www/vkr/local-food-board-backend/dist/
+cp ~/database-last-backup.sqlite /var/www/vkr/local-food-board-backend/dist/database.sqlite
 pm2 start server
+pm2 start index-db
 #curl http://food-63.ru/api/health
 
 
