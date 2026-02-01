@@ -2,7 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { RouterLink, RouterOutlet } from '@angular/router';
 import { SearchBar } from './components/search-bar/search-bar';
 import { LoginBar } from './components/login-bar/login-bar';
-import { UserService } from './services/user';
+import { UserService } from './services/user.service';
 import { AsyncPipe } from '@angular/common';
 
 @Component({

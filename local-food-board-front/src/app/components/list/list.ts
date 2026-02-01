@@ -7,7 +7,7 @@ import {
 } from '@angular/core';
 import { Post } from '../post/post';
 import { IPost } from '../../types/post';
-import { PostService } from '../../services/post';
+import { PostService } from '../../services/post.service';
 import { Loading } from '../loading/loading';
 import { debounce, debounceTime, finalize, Observable } from 'rxjs';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';

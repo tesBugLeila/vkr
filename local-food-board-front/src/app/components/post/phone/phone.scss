@@ -1,11 +1,18 @@
 :host {
-  a{
+  a {
     color: #333333;
+    text-decoration: none;
   }
+
   .tooltip-container {
     position: relative;
     display: inline-block;
     cursor: pointer;
+    color: #333333;
+    
+    &:hover {
+      opacity: 0.8;
+    }
   }
 
   .tooltip-text {
@@ -23,10 +30,23 @@
     margin-left: -90px;
     opacity: 0;
     transition: opacity 0.5s;
+    font-size: 12px;
   }
 
   .tooltip-container:hover .tooltip-text {
     visibility: visible;
     opacity: 1;
+  }
+  
+  // Анимация загрузки
+  .loading-indicator {
+    display: inline-block;
+    animation: pulse 1.5s infinite;
+  }
+
+  @keyframes pulse {
+    0% { opacity: 0.6; }
+    50% { opacity: 1; }
+    100% { opacity: 0.6; }
   }
 }

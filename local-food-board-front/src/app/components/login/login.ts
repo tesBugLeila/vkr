@@ -2,7 +2,7 @@ import { ChangeDetectorRef, Component } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { NgxMaskDirective } from 'ngx-mask';
 import { Loading } from '../loading/loading';
-import { UserService } from '../../services/user';
+import { UserService } from '../../services/user.service';
 import { finalize, first } from 'rxjs';
 import { IUserResp } from '../../types/user';
 import { Router } from '@angular/router';

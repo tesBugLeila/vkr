@@ -31,6 +31,8 @@ app.use('/api/', apiLimiter);
 // Статика
 app.use('/uploads', express.static(path.join(process.cwd(), 'uploads')));
 
+
+
 // Routes
 app.use('/api/users', usersRouter);
 app.use('/api/posts', postsRouter);

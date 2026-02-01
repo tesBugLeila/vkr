@@ -1,72 +1,148 @@
 @if (editablePostId) {
   <br />
-  <a [routerLink]="['/', 'post', editablePostId]">Вернуться к посту</a>
+  <a [routerLink]="['/', 'post', editablePostId]">← Вернуться к посту</a>
 }
+
 <section>
-  @if (postForm) {
+  @if (postForm && !loading) {
     <form [formGroup]="postForm" (ngSubmit)="onSubmit()" class="post-form">
+      <h2>{{ editablePostId ? 'Редактировать объявление' : 'Новое объявление' }}</h2>
+
       <div class="form-row">
-        <label
-          >Заголовок:
+        <label>
+          Заголовок: *
           @if (postForm.get('title')?.invalid && postForm.get('title')?.touched) {
-            <small>Обязательно</small>
+            <small>Минимум 3 символа</small>
           }
         </label>
-        <input type="text" formControlName="title" />
+        <input type="text" formControlName="title" placeholder="Например: Свежее молоко 3 литра" />
       </div>
 
       <div class="form-row">
-        <label>Описание:</label>
-        <textarea formControlName="description"></textarea>
+        <label>
+          Описание: *
+          @if (postForm.get('description')?.invalid && postForm.get('description')?.touched) {
+            <small>Минимум 10 символов</small>
+          }
+        </label>
+        <textarea formControlName="description" rows="4" placeholder="Опишите ваш товар подробнее..."></textarea>
       </div>
 
       <div class="form-row">
-        <label>Цена:</label>
-        <input type="number" step="50" formControlName="price" />
+        <label>Цена: *</label>
+        <input type="number" step="10" formControlName="price" placeholder="0" />
       </div>
 
       <div class="form-row">
-        <label>Категория:</label>
+        <label>Категория: *</label>
         <select formControlName="category">
-          @for (item of postService.categories; track item) {
-            <option [value]="item | category">{{ item | category }}</option>
+          @for (item of categories; track item) {
+            <option [value]="item">{{ item }}</option>
           }
         </select>
       </div>
 
       <div class="form-row">
-        <label>Район:</label>
-        <input type="text" formControlName="district" />
+        <label>
+          Контакты: *
+          @if (postForm.get('contact')?.invalid && postForm.get('contact')?.touched) {
+            <small>Укажите способ связи</small>
+          }
+        </label>
+        <input type="text" formControlName="contact" placeholder="+7 999 123-45-67 или @username" />
       </div>
 
       <div class="form-row">
-        <div></div>
+        <label>Район/Населённый пункт: *</label>
+        <input type="text" formControlName="district" placeholder="Например: ЮГ" />
+      </div>
+
+      <!-- БЛОК ЗАГРУЗКИ ФОТОГРАФИЙ -->
+      <div class="form-row">
+        <label>Фотографии (до 6 шт):</label>
+        <div class="file-upload-area">
+          <!-- Скрытый input, на него триггерим клик -->
+          <input
+            type="file"
+            id="photoUpload"
+            #photoInput
+            multiple
+            accept="image/*"
+            (change)="onFileChange($event)"
+            [disabled]="loading"
+            class="hidden-file-input"
+          />
+          <!-- Кнопка которая триггерит input -->
+          <button type="button" class="upload-btn" (click)="photoInput.click()" [disabled]="loading">
+             Выбрать фотографии
+          </button>
+          @if (selectedFiles.length > 0) {
+            <span class="file-count">Выбрано: {{ selectedFiles.length }} / 6</span>
+          }
+        </div>
+      </div>
+
+      <!-- СУЩЕСТВУЮЩИЕ ФОТОГРАФИИ (при редактировании) -->
+      @if (existingPhotos.length > 0 && selectedFiles.length === 0) {
+        <div class="photos-section">
+          <p>Текущие фотографии:</p>
+          <div class="photo-grid">
+            @for (photo of existingPhotos; track $index) {
+              <div class="photo-item">
+                <img [src]="photo" [alt]="'Фото ' + ($index + 1)" />
+                <button type="button" class="remove-photo" (click)="removeExistingPhoto($index)">✕</button>
+              </div>
+            }
+          </div>
+        </div>
+      }
+
+      <!-- ПРЕВЬЮ НОВЫХ ФОТОГРАФИЙ -->
+      @if (previewUrls.length > 0) {
+        <div class="photos-section">
+          <p>Новые фотографии ({{ previewUrls.length }}):</p>
+          <div class="photo-grid">
+            @for (preview of previewUrls; track $index) {
+              <div class="photo-item">
+                <img [src]="preview" [alt]="'Превью ' + ($index + 1)" />
+                <button type="button" class="remove-photo" (click)="removePreviewPhoto($index)">✕</button>
+              </div>
+            }
+          </div>
+        </div>
+      }
+
+      <div class="form-row checkbox-row">
         <label>
-          <input type="checkbox" formControlName="notifyNeighbors" /> Уведомить соседей
+          <input type="checkbox" formControlName="notifyNeighbors" />
+          Уведомить соседей о новом объявлении
         </label>
       </div>
 
       @if (error) {
-        <div class="status-bar">{{ error }}</div>
+        <div class="status-bar error">{{ error }}</div>
       }
-      @if (!loading) {
-        <button type="submit" [disabled]="postForm.invalid">Сохранить изменения</button>
-      }
-      @if (editablePostId && !loading) {
-        &nbsp;
-        @if (deleteWarning) {
-          <br />
-          Вы точно уверены что хотите удалить объявление ? Данные будут потеряны.
-          <br />
-          <button class="gray" type="button" (click)="deleteWarning = false">Отмена</button> &nbsp;
-        }
 
-        <button [class.delete]="deleteWarning" type="button" (click)="onPostDelete()">
-          {{ !deleteWarning ? 'Удалить объявление' : 'Да уверен! Удалить!' }}
+      <div class="button-group">
+        <button type="submit" [disabled]="postForm.invalid || loading">
+          {{ editablePostId ? 'Сохранить изменения' : 'Создать объявление' }}
         </button>
-      }
+
+        @if (editablePostId) {
+          @if (!deleteWarning) {
+            <button type="button" class="delete" (click)="onPostDelete()">Удалить объявление</button>
+          } @else {
+            <div class="delete-confirm">
+              <p>⚠️ Вы уверены? Данные будут потеряны!</p>
+              <button type="button" class="gray" (click)="deleteWarning = false">Отмена</button>
+              <button type="button" class="delete" (click)="onPostDelete()">Да, удалить!</button>
+            </div>
+          }
+        }
+      </div>
     </form>
   }
+
   @if (loading) {
     <app-loading></app-loading>
   }

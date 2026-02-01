@@ -1,61 +1,97 @@
 @if (isPostPage) {
-  <br />
-  <a [routerLink]="['/']">Вернуться к списку</a>
+<br />
+<a [routerLink]="['/']">← Вернуться к списку</a>
 }
+
 @if (data) {
-  <section (click)="clickOnPost()">
-    <div class="main-data">
-      <div>
-        @if (data.photos.length && data.photos[0]) {
-          <img [ngSrc]="data.photos[0]" width="400" height="200" placeholder />
-        } @else {
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            width="400px"
-            height="200px"
-            viewBox="0 30 120 60"
-            fill="none"
-          >
-            <rect width="120" height="120" fill="#EFF1F3" />
-            <path
-              fill-rule="evenodd"
-              clip-rule="evenodd"
-              d="M33.2503 38.4816C33.2603 37.0472 34.4199 35.8864 35.8543 35.875H83.1463C84.5848 35.875 85.7503 37.0431 85.7503 38.4816V80.5184C85.7403 81.9528 84.5807 83.1136 83.1463 83.125H35.8543C34.4158 83.1236 33.2503 81.957 33.2503 80.5184V38.4816ZM80.5006 41.1251H38.5006V77.8751L62.8921 53.4783C63.9172 52.4536 65.5788 52.4536 66.6039 53.4783L80.5006 67.4013V41.1251ZM43.75 51.6249C43.75 54.5244 46.1005 56.8749 49 56.8749C51.8995 56.8749 54.25 54.5244 54.25 51.6249C54.25 48.7254 51.8995 46.3749 49 46.3749C46.1005 46.3749 43.75 48.7254 43.75 51.6249Z"
-              fill="#687787"
-            />
-          </svg>
+<section [class.clickable]="!isPostPage" (click)="clickOnPost()">
+  <div class="main-data">
+
+    <!-- БЛОК ФОТОГРАФИЙ -->
+    <div class="photo-section">
+      @if (hasPhotos) {
+      <div class="photo-container">
+        <!-- Клик по фото открывает лайтбокс только на странице поста -->
+        <img [src]="currentPhoto!" [alt]="data.title" class="post-photo" [class.zoomable]="isPostPage"
+          (click)="isPostPage ? openLightbox($event, currentPhotoIndex) : null" />
+
+        @if (data.photos.length > 1) {
+        <button type="button" class="photo-nav prev" (click)="prevPhoto(); $event.stopPropagation()">‹</button>
+        <button type="button" class="photo-nav next" (click)="nextPhoto(); $event.stopPropagation()">›</button>
+
+        <div class="photo-indicators">
+          @for (photo of data.photos; track $index) {
+          <span [class.active]="currentPhotoIndex === $index"
+            (click)="goToPhoto($index); $event.stopPropagation()"></span>
+          }
+        </div>
         }
       </div>
+      } @else {
+      <div class="photo-placeholder">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 30 120 60" fill="none">
+          <rect width="120" height="120" fill="#EFF1F3" />
+          <path fill-rule="evenodd" clip-rule="evenodd"
+            d="M33.2503 38.4816C33.2603 37.0472 34.4199 35.8864 35.8543 35.875H83.1463C84.5848 35.875 85.7503 37.0431 85.7503 38.4816V80.5184C85.7403 81.9528 84.5807 83.1136 83.1463 83.125H35.8543C34.4158 83.1236 33.2503 81.957 33.2503 80.5184V38.4816ZM80.5006 41.1251H38.5006V77.8751L62.8921 53.4783C63.9172 52.4536 65.5788 52.4536 66.6039 53.4783L80.5006 67.4013V41.1251ZM43.75 51.6249C43.75 54.5244 46.1005 56.8749 49 56.8749C51.8995 56.8749 54.25 54.5244 54.25 51.6249C54.25 48.7254 51.8995 46.3749 49 46.3749C46.1005 46.3749 43.75 48.7254 43.75 51.6249Z"
+            fill="#687787" />
+        </svg>
+      </div>
+      }
+    </div>
 
-      <div class="description">
-        <div class="title">
-          <span class="category">{{ data.category | category }}</span>
-          <h3>{{ data.title }}</h3>
-        </div>
-        {{ data.description }}
-        <div>
-          <div class="price">{{ data.price | currency: 'RUB' : 'symbol-narrow' : '.0-2' }}</div>
-          @if (isMyPost) {
-            <a [routerLink]="['/', 'edit', data.id]">✎ Редактировать</a>
-            @if (data.notifyNeighbors) {
-              ✉
-            }
-            <br /><br />
+    <!-- БЛОК ОПИСАНИЯ -->
+    <div class="description">
+      <div class="title">
+        <span class="category">{{ data.category }}</span>
+        <h3>{{ data.title }}</h3>
+      </div>
+
+      <p class="post-description">{{ data.description }}</p>
+
+      <div class="post-footer">
+        @if (isPostPage && data.contact) {
+        <span class="contact-meta">
+          <div class="contact-label">Контакты:</div>
+          <span class="contact-value">{{ data.contact }}</span>
+        </span>
+        }
+        <div class="price">{{ data.price | currency: 'RUB' : '' : '.0-2' }}₽</div>
+
+        @if (isMyPost) {
+        <div class="owner-actions">
+          <a [routerLink]="['/', 'edit', data.id]" (click)="$event.stopPropagation()">✎ Редактировать</a>
+          @if (data.notifyNeighbors) {
+          <span class="notification-badge" title="Соседи уведомлены">✉</span>
           }
-
-          <app-phone [data]="data"></app-phone>
-          <div class="createdAt">
-            {{ data.district }}, {{ data.createdAt | parseDateTime | dateAgo }}
-          </div>
         </div>
+        }
+
+        <!-- Показываем телефон только НЕ на странице поста -->
+  @if (!isPostPage) {
+    <app-phone [data]="data"></app-phone>
+  }
+
+        <div class="meta">
+          <span class="district">📍 {{ data.district }}</span>
+          <span class="created-at">{{ data.createdAt | parseDateTime | dateAgo }}</span>
+        </div>
+
+
       </div>
     </div>
-    @if (isPostPage) {
-      <div>
-        <app-map [data]="data"></app-map>
-      </div>
-    }
-  </section>
+  </div>
+
+
+
+  @if (isPostPage) {
+  <app-map [data]="data"></app-map>
+  }
+</section>
 } @else {
-  <app-loading></app-loading>
+<app-loading></app-loading>
+}
+
+<!-- ЛАЙТБОКС (рендерится когда открыт) -->
+@if (lightboxOpen && data) {
+<app-lightbox [photos]="data.photos" [startIndex]="lightboxIndex" (closed)="closeLightbox()"></app-lightbox>
 }

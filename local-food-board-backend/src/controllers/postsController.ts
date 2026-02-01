@@ -9,7 +9,7 @@ import { AppError } from '../utils/AppError';
 import { DEFAULT_SEARCH_RADIUS, DEFAULT_LIMIT } from '../utils/constants';
 import { formatDate } from '../utils/dateFormatter';
 import { notifyNeighbors } from '../utils/notificationService';
-
+import { parseDate } from '../utils/dateFormatter'; // ← Импортируйте вашу функцию
 
 export const postsController = {
   /**
@@ -70,12 +70,88 @@ export const postsController = {
   },
 
 
-  /**
-   * Получение списка постов с фильтрацией
-   * @param req - Request, query-параметры для фильтрации
-   * @param res - Response
-   */
-   async list(req: Request, res: Response, next: NextFunction) {
+  // /**
+  //  * Получение списка постов с фильтрацией
+  //  * @param req - Request, query-параметры для фильтрации
+  //  * @param res - Response
+  //  */
+  //  async list(req: Request, res: Response, next: NextFunction) {
+  //   try {
+  //     const {
+  //       category,
+  //       district,
+  //       q,
+  //       lat,
+  //       lon,
+  //       radius = String(DEFAULT_SEARCH_RADIUS),
+  //       limit = String(DEFAULT_LIMIT),
+  //       page = '1'
+  //     } = req.query;
+
+  //     const where: any = {};
+
+  //     if (category) where.category = category;
+  //     if (district) where.district = district;
+      
+  //     if (q) {
+  //       const sanitized = String(q).replace(/[%_]/g, '\\$&');
+  //       where.title = { [Op.like]: `%${sanitized}%` };
+  //     }
+
+  //     const limitNum = Math.min(Number(limit), 100);
+  //     const pageNum = Number(page);
+  //     const offset = (pageNum - 1) * limitNum;
+
+  //     const { count, rows: posts } = await Post.findAndCountAll({
+  //       where,
+  //       order: [['createdAt', 'DESC']],
+  //       limit: limitNum,
+  //       offset
+  //     });
+
+  //     // Геофильтрация
+  //     if (lat && lon) {
+  //       const latNum = Number(lat);
+  //       const lonNum = Number(lon);
+  //       const r = Number(radius);
+
+  //       const filtered = posts
+  //         .map((p) => {
+  //           const plat = p.lat ?? 0;
+  //           const plon = p.lon ?? 0;
+  //           const dist =
+  //             plat && plon
+  //               ? haversineDistance(latNum, lonNum, plat, plon)
+  //               : Infinity;
+  //           return { post: p, distance: dist };
+  //         })
+  //         .filter((x) => x.distance <= r)
+  //         .sort((a, b) => a.distance - b.distance)
+  //         .map((x) => ({ ...x.post.get(), distance: x.distance }));
+
+  //       return res.json({
+  //         posts: filtered,
+  //         pagination: {
+  //           total: filtered.length,
+  //           page: pageNum,
+  //           pages: Math.ceil(filtered.length / limitNum)
+  //         }
+  //       });
+  //     }
+
+  //     res.json({
+  //       posts,
+  //       pagination: {
+  //         total: count,
+  //         page: pageNum,
+  //         pages: Math.ceil(count / limitNum)
+  //       }
+  //     });
+  //   } catch (error) {
+  //     next(error);
+  //   }
+  // },
+ async list(req: Request, res: Response, next: NextFunction) {
     try {
       const {
         category,
@@ -102,11 +178,23 @@ export const postsController = {
       const pageNum = Number(page);
       const offset = (pageNum - 1) * limitNum;
 
-      const { count, rows: posts } = await Post.findAndCountAll({
+      // 1. Получаем посты БЕЗ сортировки
+      const { count, rows: unsortedPosts } = await Post.findAndCountAll({
         where,
-        order: [['createdAt', 'DESC']],
         limit: limitNum,
         offset
+      });
+
+      // 2. Сортируем посты вручную с помощью parseDate()
+      const sortedPosts = unsortedPosts.sort((a, b) => {
+        try {
+          const timeA = parseDate(a.createdAt);
+          const timeB = parseDate(b.createdAt);
+          return timeB - timeA; // Новые первыми (DESC)
+        } catch (error) {
+          console.error('Ошибка сортировки даты:', error);
+          return 0;
+        }
       });
 
       // Геофильтрация
@@ -115,7 +203,7 @@ export const postsController = {
         const lonNum = Number(lon);
         const r = Number(radius);
 
-        const filtered = posts
+        const filtered = sortedPosts
           .map((p) => {
             const plat = p.lat ?? 0;
             const plon = p.lon ?? 0;
@@ -139,8 +227,9 @@ export const postsController = {
         });
       }
 
+      // 3. Возвращаем отсортированные посты
       res.json({
-        posts,
+        posts: sortedPosts,
         pagination: {
           total: count,
           page: pageNum,
@@ -151,7 +240,6 @@ export const postsController = {
       next(error);
     }
   },
-
 
   /**
    * Получение поста по ID

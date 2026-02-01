@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
 import { RouterLink } from '@angular/router';
-import { UserService } from '../../services/user';
+import { UserService } from '../../services/user.service';
 import { NgxMaskPipe } from 'ngx-mask';
 import { Router } from '@angular/router';
 import { AsyncPipe } from '@angular/common';

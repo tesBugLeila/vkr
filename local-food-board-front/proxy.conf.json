@@ -1,9 +1,13 @@
 {
-  "/api/**": {
+  "/uploads": {
     "target": "http://localhost:4000",
-    "changeOrigin": true,
     "secure": false,
-    "ws": true,
-    "logLevel": "silent"
+    "changeOrigin": true,
+    "logLevel": "debug"
+  },
+  "/api": {
+    "target": "http://localhost:4000",
+    "secure": false,
+    "changeOrigin": true
   }
 }
