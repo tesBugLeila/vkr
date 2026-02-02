@@ -19,14 +19,14 @@
       <br />
       <input
         class="code"
-        type="text"
+        type="password"
         mask="0 0 0 0 0 0"
         placeholder="0 0 0 0 0 0"
         [(ngModel)]="confirmationCode"
         (keydown)="onCodeKeydown($event)"
       />
       <br />
-      <button [disabled]="confirmationCode.length !== 6" (click)="sendCode()">Войти</button>
+      <button [disabled]="confirmationCode.length < 1" (click)="sendCode()">Войти</button>
       <br /><br />
     }
     @case ('success') {
@@ -34,7 +34,7 @@
       <br />
     }
     @case ('failure') {
-      <h3>{{errorMassage}}</h3>
+      <h3> {{ errorMessage }}</h3>
       <br />
     }
     @default {
