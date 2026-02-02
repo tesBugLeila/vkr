@@ -1,8 +1,12 @@
-@if (tel) {
+@if (isPhoneRevealed && tel) {
+  <!-- Телефон раскрыт - показываем полный номер и ссылку -->
   <a (click)="clickOnPhone($event)" href="tel:{{tel}}">{{ phone }}</a>
 } @else {
+  <!-- Телефон скрыт - показываем частичный номер -->
   <div class="tooltip-container" (click)="loadPhone($event)">
     {{ phone }}
-    <span class="tooltip-text">Показать телефон</span>
+    @if (!loading) {
+      <span class="tooltip-text">Показать телефон</span>
+    }
   </div>
 }

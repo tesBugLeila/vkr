@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { PostService } from '../../services/post';
+import { PostService } from '../../services/post.service';
 import { CategoryPipe } from '../../pipes/category-pipe';
 import { FormsModule } from '@angular/forms';
 

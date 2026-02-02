@@ -5,64 +5,224 @@
     padding: 20px 50px;
     background-color: #fefcf7;
     box-shadow: -15px 15px 20px 0px rgba(34, 60, 80, 0.2);
+    transition: transform 0.2s;
+
+    &.clickable {
+      cursor: pointer;
+      &:hover {
+        transform: translateY(-2px);
+        box-shadow: -15px 17px 25px 0px rgba(34, 60, 80, 0.25);
+      }
+    }
+
     @media screen and (max-width: 900px) {
       padding: 10px 10px;
       margin: 35px 10px;
     }
 
-    & .main-data {
+    // ── ЛЕЙАУТ КАРТОЧКИ ──
+    .main-data {
       display: flex;
-      justify-content: space-between;
+      gap: 30px;
+      align-items: stretch; // Оба блока одинаковая высота
 
-      img {
-        height: 200px;
-        width: auto;
-      }
       @media screen and (max-width: 900px) {
-        img,
-        svg {
-          width: 100px;
+        flex-direction: column;
+        gap: 15px;
+      }
+    }
+
+    // ── БЛОК ФОТОГРАФИЙ ──
+    .photo-section {
+      flex-shrink: 0;
+      width: 35%;
+      align-self: stretch; // Растягивается по высоте описания
+
+      @media screen and (max-width: 900px) {
+        width: 100%;
+        align-self: auto;
+      }
+    }
+
+    .photo-container {
+      position: relative;
+      width: 100%;
+      height: 100%; // Контейнер растёт под высоту описания
+      min-height: 240px; // Но не меньше чем 240px
+      border-radius: 8px;
+      overflow: hidden;
+      background-color: #f0f0f0;
+
+      .post-photo {
+        width: 100%;
+        height: 100%; // Фото заполняет весь контейнер
+        object-fit: cover;
+        display: block;
+        transition: transform 0.2s;
+
+        &.zoomable {
+          cursor: zoom-in;
+          &:hover {
+            transform: scale(1.03);
+          }
+        }
+
+        @media screen and (max-width: 900px) {
+          height: 200px;
         }
       }
-      .description {
+      .photo-nav {
+        position: absolute;
+        top: 50%;
+        transform: translateY(-50%);
+        background-color: rgba(0, 0, 0, 0.4);
+        color: white;
+        border: none;
+        font-size: 30px;
+        line-height: 1;
+        width: 36px;
+        height: 56px;
+        cursor: pointer;
         display: flex;
-        justify-content: space-between;
-        flex-direction: column;
-        text-align: right;
-        width: 40%;
-        @media screen and (max-width: 900px) {
-          display: block;
-          width: calc(100% - 140px);
-        }
+        align-items: center;
+        justify-content: center;
+        transition: background-color 0.2s;
+        z-index: 10;
 
-        & .title {
-          @media screen and (max-width: 600px) {
-            display: block;
-          }
-          display: flex;
-          justify-content: space-between;
-          .category {
-          @media screen and (max-width: 600px) {
-            display: block;
-          }
-            min-width: 150px;
-            text-align: left;
-          }
-          & h3 {
-            margin-top: 0;
-            display: inline;
-          }
-        }
+        &:hover { background-color: rgba(0, 0, 0, 0.65); }
+        &.prev { left: 0; border-radius: 0 6px 6px 0; }
+        &.next { right: 0; border-radius: 6px 0 0 6px; }
+      }
 
-        & .price {
-          margin: 30px 0;
-          font-size: 32px;
-          font-weight: 500;
+      .photo-indicators {
+        position: absolute;
+        bottom: 10px;
+        left: 50%;
+        transform: translateX(-50%);
+        display: flex;
+        gap: 7px;
+        z-index: 10;
+
+        span {
+          width: 9px;
+          height: 9px;
+          border-radius: 50%;
+          background-color: rgba(255, 255, 255, 0.45);
+          cursor: pointer;
+          transition: background-color 0.2s;
+          &.active { background-color: #fff; }
+          &:hover { background-color: rgba(255, 255, 255, 0.75); }
         }
-        & .createdAt {
-          color: #999999;
+      }
+    }
+
+    .photo-placeholder {
+      width: 100%;
+      height: 50%;
+      min-height: 240px;
+      background-color: #EFF1F3;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+
+      svg {
+        width: 55%;
+        height: 55%;
+      }
+
+      @media screen and (max-width: 900px) {
+        min-height: 200px;
+      }
+    }
+
+    // ── БЛОК ОПИСАНИЯ ──
+    .description {
+      flex: 1;
+      min-width: 0;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-start; // Контент от верха вниз без растягивания
+
+      .title {
+        margin-bottom: 10px;
+
+        .category {
+          display: inline-block;
+          background-color: #d99064;
+          color: white;
+          padding: 4px 12px;
+          border-radius: 4px;
           font-size: 12px;
-          font-weight: 700;
+        }
+
+        h3 {
+          margin: 6px 0 0 0;
+          font-weight: 500;
+          font-size: 22px;
+          color: #333;
+        }
+      }
+
+      .post-description {
+        color: #555;
+        line-height: 1.5;
+        margin: 0 0 12px 0;
+        font-size: 14px;
+      }
+
+      .post-footer {
+        margin-top: auto; // Прижимает футер к низу описания
+        .price {
+          margin: 0 0 12px 0;
+          font-size: 24px;
+          font-weight: 500;
+          color: #d99064;
+        }
+
+        .owner-actions {
+          margin: 0 0 10px 0;
+          a {
+            color: #d99064;
+            text-decoration: underline;
+            margin-right: 10px;
+            &:hover { color: #c17a4e; }
+          }
+          .notification-badge { font-size: 16px; }
+        }
+
+        .contact-meta {
+          display: block;
+          margin: 0 0 12px 0;
+          padding: 10px 12px;
+          background-color: #f8f9fa;
+          border-radius: 8px;
+          border-left: 3px solid #d99064;
+
+          .contact-label {
+            font-size: 11px;
+            color: #666;
+            margin-bottom: 4px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+          }
+
+          .contact-value {
+            display: block;
+            font-size: 14px;
+            color: #333;
+            line-height: 1.4;
+            word-break: break-word;
+          }
+        }
+
+        .meta {
+          display: flex;
+          flex-direction: column;
+          gap: 3px;
+          .district { color: #666; font-size: 14px; }
+          .created-at { color: #999; font-size: 12px; font-weight: 600; }
         }
       }
     }

@@ -146,7 +146,7 @@ async me(req: AuthRequest, res: Response, next: NextFunction) {
     // 2. Получаем пользователя из базы данных по его ID
     // Возвращаем только необходимые поля
     const user = await User.findByPk(req.user.id, {
-      attributes: ['id', 'phone', 'name', 'createdAt']
+      attributes: ['id', 'phone', 'name', 'createdAt', 'role']
     });
 
     // 3. Если пользователь не найден — возвращаем ошибку 404

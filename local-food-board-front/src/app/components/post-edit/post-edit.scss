@@ -4,33 +4,234 @@ section {
   padding: 20px 50px;
   background-color: #fefcf7;
   box-shadow: -15px 15px 20px 0px rgba(34, 60, 80, 0.2);
+
   @media screen and (max-width: 900px) {
     padding: 10px 10px;
   }
 
+  h2 {
+    margin-top: 0;
+    font-weight: 300;
+  }
+
+  // ── СТРОКИ ФОРМЫ ──
   .form-row {
     display: flex;
     justify-content: space-between;
+    align-items: flex-start;
     margin: 20px 0;
-    & :nth-child(2) {
-      width: 70%;
+
+    label {
+      width: 30%;
+      padding-top: 8px;
+
+      small {
+        color: #cd1818;
+        font-size: 12px;
+        display: block;
+        margin-top: 4px;
+      }
     }
+
+    input:not([type="checkbox"]),
+    textarea,
+    select,
+    .file-upload-area {
+      width: 65%;
+    }
+
+    textarea {
+      font-family: inherit;
+      resize: vertical;
+    }
+
     @media screen and (max-width: 900px) {
       display: block;
+
+      label {
+        width: 100%;
+        margin-bottom: 8px;
+      }
+
+      input:not([type="checkbox"]),
+      textarea,
+      select,
+      .file-upload-area {
+        width: 100%;
+      }
     }
   }
+
+  // ── ЗАГРУЗКА ФАЙЛОВ ──
+  .file-upload-area {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+  }
+
+  .hidden-file-input {
+    display: none !important;
+    width: 0 !important;
+  }
+
+  .upload-btn {
+    display: inline-block;
+    padding: 10px 20px;
+    background-color: #d99064;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 15px;
+    font-weight: 500;
+    transition: background-color 0.2s;
+    white-space: nowrap;
+
+    &:hover:not(:disabled) {
+      background-color: #c17a4e;
+    }
+    &:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+  }
+
+  .file-count {
+    color: #666;
+    font-size: 14px;
+  }
+
+  // ── ЧЕКБОКС ──
+  .checkbox-row {
+    label {
+      width: 100%;
+      display: flex;
+      align-items: center;
+      padding-top: 0;
+
+      input[type="checkbox"] {
+        width: auto;
+        margin-right: 8px;
+      }
+    }
+  }
+
+  // ── БЛОК ФОТОГРАФИЙ ──
+  .photos-section {
+    margin: 25px 0;
+
+    p {
+      font-weight: 600;
+      margin-bottom: 12px;
+      color: #555;
+      font-size: 15px;
+    }
+  }
+
+  .photo-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+    gap: 12px;
+
+    @media screen and (max-width: 600px) {
+      grid-template-columns: repeat(2, 1fr);
+      gap: 8px;
+    }
+  }
+
+  .photo-item {
+    position: relative;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
+    background-color: #f0f0f0;
+    transition: transform 0.15s;
+
+    &:hover {
+      transform: scale(1.02);
+    }
+
+    img {
+      width: 100%;
+      height: 160px;
+      object-fit: cover;
+      display: block;
+
+      @media screen and (max-width: 600px) {
+        height: 130px;
+      }
+    }
+
+    .remove-photo {
+      position: absolute;
+      top: 6px;
+      right: 6px;
+      background-color: rgba(205, 24, 24, 0.85);
+      color: white;
+      border: none;
+      border-radius: 50%;
+      width: 28px;
+      height: 28px;
+      cursor: pointer;
+      font-size: 16px;
+      line-height: 28px;
+      text-align: center;
+      padding: 0;
+      transition: background-color 0.2s, transform 0.15s;
+
+      &:hover {
+        background-color: #cd1818;
+        transform: scale(1.1);
+      }
+    }
+  }
+
+  // ── СТАТУС / ОШИБКА ──
   .status-bar {
     background-color: #f9eee0;
-    padding: 20px;
+    padding: 15px 20px;
     box-shadow: -1px 1px 10px 0px rgb(151 101 50 / 21%) inset;
-    border-radius: 13px;
-    color: #cd1818;
-    font-weight: 600;
+    border-radius: 8px;
+    margin: 20px 0;
+
+    &.error {
+      color: #cd1818;
+      font-weight: 600;
+    }
   }
+
+  // ── КНОПКИ ──
+  .button-group {
+    margin-top: 30px;
+
+    button {
+      margin-right: 10px;
+    }
+  }
+
+  .delete-confirm {
+    margin-top: 20px;
+    padding: 15px;
+    background-color: #fff3cd;
+    border-radius: 8px;
+
+    p {
+      margin: 0 0 10px 0;
+      font-weight: 600;
+    }
+  }
+
   button.delete {
     background-color: #cd1818;
+    &:hover:not(:disabled) {
+      background-color: #a81414;
+    }
   }
+
   button.gray {
-    background-color: #a8a8a8;
+    background-color: #6c757d;
+    &:hover:not(:disabled) {
+      background-color: #545b62;
+    }
   }
 }

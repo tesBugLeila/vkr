@@ -1,0 +1,45 @@
+<div class="lightbox-overlay" tabindex="0" (keydown)="onKeyDown($event)" (click)="close()">
+  <div class="lightbox-content" (click)="$event.stopPropagation()">
+
+    <!-- Закрыть -->
+    <button type="button" class="lb-close" (click)="close()">✕</button>
+
+    <!-- Счётчик -->
+    <span class="lb-counter">{{ currentIndex + 1 }} / {{ photos.length }}</span>
+
+    <!-- Навигация назад -->
+    @if (photos.length > 1) {
+      <button type="button" class="lb-nav lb-prev" (click)="prev()">‹</button>
+    }
+
+    <!-- Фотография -->
+    <div class="lb-image-wrap">
+      <img [src]="current" alt="Фото {{ currentIndex + 1 }}" class="lb-image" />
+    </div>
+
+    <!-- Навигация вперёд -->
+    @if (photos.length > 1) {
+      <button type="button" class="lb-nav lb-next" (click)="next()">›</button>
+    }
+
+    <!-- Индикаторы -->
+    @if (photos.length > 1) {
+      <div class="lb-indicators">
+        @for (photo of photos; track $index) {
+          <span [class.active]="currentIndex === $index" (click)="goTo($index)"></span>
+        }
+      </div>
+    }
+
+    <!-- Миниатюры -->
+    @if (photos.length > 1) {
+      <div class="lb-thumbs">
+        @for (photo of photos; track $index) {
+          <div class="lb-thumb" [class.active]="currentIndex === $index" (click)="goTo($index)">
+            <img [src]="photo" [alt]="'Превью ' + ($index + 1)" />
+          </div>
+        }
+      </div>
+    }
+  </div>
+</div>

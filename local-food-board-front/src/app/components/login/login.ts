@@ -2,7 +2,7 @@ import { ChangeDetectorRef, Component } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { NgxMaskDirective } from 'ngx-mask';
 import { Loading } from '../loading/loading';
-import { UserService } from '../../services/user';
+import { UserService } from '../../services/user.service';
 import { finalize, first } from 'rxjs';
 import { IUserResp } from '../../types/user';
 import { Router } from '@angular/router';
@@ -17,9 +17,9 @@ import { Router } from '@angular/router';
 export class Login {
   state: 'phone' | 'loading' | 'code' | 'success' | 'failure' = 'phone';
   userPhoneNumber: string = '';
-  confirmationCode: string = '';
+  confirmationCode: string = ''; // Это на самом деле пароль, но называется "код"
+  errorMessage: string = '';
 
-  errorMassage: string = '';
   constructor(
     private cdr: ChangeDetectorRef,
     private router: Router,
@@ -30,14 +30,19 @@ export class Login {
     this.state = 'loading';
     setTimeout(() => {
       this.state = 'code';
-      console.log(this.state);
       this.cdr.markForCheck();
     }, 1000);
   }
+
   sendCode() {
     this.state = 'loading';
+    this.cdr.markForCheck();
+
+    const phone = `+7${this.userPhoneNumber}`;
+
+    
     this.userService
-      .login(`+7${this.userPhoneNumber}`, this.confirmationCode)
+      .login(phone, this.confirmationCode)
       .pipe(
         first(),
         finalize(() => {
@@ -50,18 +55,16 @@ export class Login {
           if (resp) {
             this.userService.currentUser$.next(resp.user);
             if (resp.token) {
-              document.cookie = `access-token=${resp.token}; path=/`;
+              document.cookie = `access-token=${resp.token}; path=/; max-age=604800`; // 7 дней
             }
-          setTimeout(() => {
-            this.router.navigate(['/']).then();
-          }, 2000);
-
-
+            setTimeout(() => {
+              this.router.navigate(['/']).then();
+            }, 1500);
           }
         },
         (error) => {
           this.state = 'failure';
-          this.errorMassage = error?.error?.error || error?.error || 'Неверный код попробуйте ещё';
+          this.errorMessage = error?.error?.error || error?.message || 'Неверный код, попробуйте ещё раз';
           this.confirmationCode = '';
           setTimeout(() => {
             this.state = 'phone';
@@ -69,18 +72,16 @@ export class Login {
           }, 2000);
         },
       );
-    // setTimeout(() => {
-    //
-    //   }
-    //}, 1000);
   }
+
   onTelKeydown(event: KeyboardEvent): void {
-    if (event.key === 'Enter') {
+    if (event.key === 'Enter' && this.userPhoneNumber.length === 10) {
       this.sendPhone();
     }
   }
+
   onCodeKeydown(event: KeyboardEvent): void {
-    if (event.key === 'Enter') {
+    if (event.key === 'Enter' && this.confirmationCode.length >= 1) {
       this.sendCode();
     }
   }
