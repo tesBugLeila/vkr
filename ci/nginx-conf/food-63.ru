@@ -21,21 +21,25 @@ server {
     location /marker-shadow.png {
         alias /home/pavel/actions-runner/_work/vkr/vkr/local-food-board-front/dist/local-food-board-front/browser/media/marker-shadow.png;
     }
+    location /uploads {
+        alias /home/pavel/actions-runner/_work/vkr/vkr/local-food-board-backend/dist/uploads;
+    }
 
     # Перехватим статические файлы, отключим логи, увеличим время expire, отключим лог доступа и ошибок для favicon.ico и robots.txt
-    location ~* ^.+.(js|css|jpg|jpeg|gif|ico|woff)$ {
-    access_log off;
-    expires max;
+    location ~* ^.+.(js|css|jpeg|gif|ico|woff)$ {
+        access_log off;
+        expires max;
     }
 
     location = /favicon.ico {
-    log_not_found off;
-    access_log off;
+        log_not_found off;
+        access_log off;
     }
 
     location = /robots.txt {
-    allow all;
-    log_not_found off;
-    access_log off;
+        allow all;
+        log_not_found off;
+        access_log off;
     }
 }
+

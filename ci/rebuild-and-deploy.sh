@@ -16,6 +16,7 @@ cd /var/www/vkr/local-food-board-backend
 #cp -r node_modules ~/cache/back/
 ln -s ~/cache/back/node_modules/ ./node_modules
 npm run build
+npm run create-admin
 cd /var/www/vkr/local-food-board-backend/dist/
 cp ~/database-last-backup.sqlite /var/www/vkr/local-food-board-backend/dist/database.sqlite
 pm2 start server
