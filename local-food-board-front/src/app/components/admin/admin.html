@@ -1,0 +1,232 @@
+<section class="admin-panel">
+  <h1>Админ-панель</h1>
+
+  <!-- ТАБЫ -->
+  <div class="tabs">
+    <button
+      [class.active]="activeTab === 'stats'"
+      (click)="switchTab('stats')"
+    >
+      Статистика
+    </button>
+    <button
+      [class.active]="activeTab === 'users'"
+      (click)="switchTab('users')"
+    >
+      Пользователи
+    </button>
+    <button
+      [class.active]="activeTab === 'reports'"
+      (click)="switchTab('reports')"
+    >
+      Жалобы
+    </button>
+  </div>
+
+  @if (loading && !stats && !users.length && !reports.length) {
+    <app-loading></app-loading>
+  }
+
+  <!-- СТАТИСТИКА -->
+  @if (activeTab === 'stats' && stats) {
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-value">{{ stats.totalUsers }}</div>
+        <div class="stat-label">Всего пользователей</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-value">{{ stats.totalPosts }}</div>
+        <div class="stat-label">Всего объявлений</div>
+      </div>
+      <div class="stat-card warn">
+        <div class="stat-value">{{ stats.pendingReports }}</div>
+        <div class="stat-label">Жалоб на рассмотрении</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-value">{{ stats.totalReports }}</div>
+        <div class="stat-label">Всего жалоб</div>
+      </div>
+      <div class="stat-card danger">
+        <div class="stat-value">{{ stats.blockedUsers }}</div>
+        <div class="stat-label">Заблокировано</div>
+      </div>
+    </div>
+  }
+
+  <!-- ПОЛЬЗОВАТЕЛИ -->
+  @if (activeTab === 'users') {
+    <div class="section-header">
+      <input
+        type="text"
+        placeholder="Поиск по телефону или имени..."
+        [(ngModel)]="usersSearch"
+        (keyup.enter)="searchUsers()"
+      />
+      <button (click)="searchUsers()">Найти</button>
+    </div>
+
+    <div class="users-table">
+      <table>
+        <thead>
+          <tr>
+            <th>Телефон</th>
+            <th>Имя</th>
+            <th>Роль</th>
+            <th>Дата регистрации</th>
+            <th>Статус</th>
+            <th>Действия</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (user of users; track user.id) {
+            <tr [class.blocked]="user.isBlocked">
+              <td>{{ user.phone }}</td>
+              <td>{{ user.name || '—' }}</td>
+              <td>
+                <span [class.badge]="user.role === 'admin'" class="role">
+                  {{ user.role === 'admin' ? '🛡️ Админ' : 'Пользователь' }}
+                </span>
+              </td>
+              <td>{{ user.createdAt }}</td>
+              <td>
+                @if (user.isBlocked) {
+                  <span class="status blocked">🔒 Заблокирован</span>
+                } @else {
+                  <span class="status active">✅ Активен</span>
+                }
+              </td>
+              <td class="actions">
+                <button
+                  class="btn-small"
+                  (click)="openBlockModal(user)"
+                >
+                  {{ user.isBlocked ? '🔓' : '🔒' }}
+                </button>
+                <button
+                  class="btn-small delete"
+                  (click)="deleteUserConfirm(user)"
+                >
+                  🗑️
+                </button>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+
+    @if (usersTotalPages > 1) {
+      <div class="pagination">
+        @for (page of userPages; track page) {
+          <span
+            [class.active]="page === usersPage"
+            (click)="loadUsers(page)"
+          >
+            {{ page }}
+          </span>
+        }
+      </div>
+    }
+  }
+
+  <!-- ЖАЛОБЫ -->
+  @if (activeTab === 'reports') {
+    <div class="section-header">
+      <select [(ngModel)]="reportsStatusFilter" (change)="filterReports()">
+        <option value="">Все жалобы</option>
+        <option value="pending">На рассмотрении</option>
+        <option value="reviewed">Просмотрено</option>
+        <option value="resolved">Решено</option>
+        <option value="rejected">Отклонено</option>
+      </select>
+    </div>
+
+    <div class="reports-list">
+      @for (report of reports; track report.id) {
+        <div class="report-card">
+          <div class="report-header">
+            <span class="report-status" [attr.data-status]="report.status">
+              {{ report.status }}
+            </span>
+            <span class="report-date">{{ report.createdAt }}</span>
+          </div>
+          <div class="report-body">
+            <p><strong>Причина:</strong> {{ report.reason }}</p>
+            <p><strong>От:</strong> {{ report.reporter.phone }} ({{ report.reporter.name || 'Без имени' }})</p>
+            <p><strong>На:</strong> {{ report.reportedUser.phone }} ({{ report.reportedUser.name || 'Без имени' }})</p>
+            @if (report.description) {
+              <p><strong>Описание:</strong> {{ report.description }}</p>
+            }
+            @if (report.post) {
+              <p><strong>Пост:</strong> {{ report.post.title }}</p>
+            }
+            @if (report.adminComment) {
+              <p class="admin-comment"><strong>Комментарий админа:</strong> {{ report.adminComment }}</p>
+            }
+          </div>
+          <div class="report-actions">
+            <button (click)="openReportModal(report)">📝 Обработать</button>
+          </div>
+        </div>
+      }
+    </div>
+
+    @if (reportsTotalPages > 1) {
+      <div class="pagination">
+        @for (page of reportPages; track page) {
+          <span
+            [class.active]="page === reportsPage"
+            (click)="loadReports(page)"
+          >
+            {{ page }}
+          </span>
+        }
+      </div>
+    }
+  }
+</section>
+
+<!-- МОДАЛКА БЛОКИРОВКИ -->
+@if (selectedUser) {
+  <div class="modal-overlay" (click)="selectedUser = null">
+    <div class="modal-content" (click)="$event.stopPropagation()">
+      <h3>{{ selectedUser.isBlocked ? 'Разблокировать' : 'Заблокировать' }} пользователя</h3>
+      <p>{{ selectedUser.phone }} ({{ selectedUser.name || 'Без имени' }})</p>
+      <textarea
+        placeholder="Причина (необязательно)"
+        [(ngModel)]="blockReason"
+        rows="3"
+      ></textarea>
+      <div class="modal-actions">
+        <button (click)="selectedUser = null" class="btn-cancel">Отмена</button>
+        <button (click)="toggleBlock()">Подтвердить</button>
+      </div>
+    </div>
+  </div>
+}
+
+<!-- МОДАЛКА ЖАЛОБЫ -->
+@if (selectedReport) {
+  <div class="modal-overlay" (click)="selectedReport = null">
+    <div class="modal-content" (click)="$event.stopPropagation()">
+      <h3>Обработка жалобы</h3>
+      <div class="form-row">
+        <label>Статус:</label>
+        <select [(ngModel)]="reportStatus">
+          <option value="pending">На рассмотрении</option>
+          <option value="reviewed">Просмотрено</option>
+          <option value="resolved">Решено</option>
+          <option value="rejected">Отклонено</option>
+        </select>
+      </div>
+      <div class="form-row">
+        <label>Комментарий:</label>
+        <textarea [(ngModel)]="reportComment" rows="3"></textarea>
+      </div>
+      <div class="modal-actions">
+        <button (click)="selectedReport = null" class="btn-cancel">Отмена</button>
+        <button (click)="updateReportStatus()">Сохранить</button>
+      </div>
+    </div>
+  </div>
+}

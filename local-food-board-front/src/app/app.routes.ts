@@ -4,6 +4,7 @@ import { PostEdit } from './components/post-edit/post-edit';
 import { Login } from './components/login/login';
 import { Health } from './components/health/health';
 import { Post } from './components/post/post';
+import { Admin } from './components/admin/admin';
 
 export const routes: Routes = [
   {
@@ -31,4 +32,11 @@ export const routes: Routes = [
     path: 'login',
     component: Login,
   },
+  {
+    path: 'admin',
+    component: Admin,
+  },
+
+
 ];
+//мне нужно добавить гуард для админа
