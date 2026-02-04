@@ -19,6 +19,7 @@ npm run build
 npm run create-admin
 cd /var/www/vkr/local-food-board-backend/dist/
 cp ~/database-last-backup.sqlite /var/www/vkr/local-food-board-backend/dist/database.sqlite
+cp -r ~/uploads-backup /var/www/vkr/local-food-board-backend/dist/uploads
 pm2 start server
 pm2 start index-db
 #curl http://food-63.ru/api/health
