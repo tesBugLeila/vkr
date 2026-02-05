@@ -9,7 +9,7 @@
   header,
   section,
   app-search-bar,
-  footer {
+  footer > p {
     padding: 0 100px;
     word-break: break-word;
     @media screen and (max-width: 900px) {
@@ -46,6 +46,21 @@
   section.main-content {
     padding-bottom: 20px;
   }
+  footer {
+    position: fixed;
+    left: auto;
+    bottom: 0;
+    width: 100%;
+    max-width: 950px;
+    padding-top: 20px;
+    & > p {
+      color: #00000050;
+      font-size: 12px;
+      @media screen and (max-width: 900px) {
+        padding: 0 25px;
+      }
+    }
+  }
 }
 
 // Общин стили для всех элементов приложения
@@ -80,7 +95,7 @@
     font-weight: 100;
   }
   h2 {
-     font-weight: 100;
+    font-weight: 100;
   }
   input,
   select,
