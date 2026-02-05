@@ -1,80 +1,77 @@
 .admin-panel {
-   border-radius: 6px;
-    margin: 35px -50px;
-    padding: 20px 50px;
-    background-color: #fefcf7;
-    box-shadow: -15px 15px 20px rgba(34, 60, 80, 0.2);
+  border-radius: 6px;
+  margin: 35px -50px;
+  padding: 20px 50px;
+  background-color: #fefcf7;
+  box-shadow: -15px 15px 20px rgba(34, 60, 80, 0.2);
 
-    @media screen and (max-width: 900px) {
-      padding: 15px;
-      margin: 20px 10px;
-    }
+  @media screen and (max-width: 900px) {
+    padding: 15px;
+    margin: 20px 10px;
+  }
 
-    h1 {
-      margin-bottom: 25px;
-      font-size: 26px;
-      font-weight: 500;
-      color: #333;
-    }
 
   // Табы
   .tabs {
-  display: flex;
-  gap: 10px;
-  margin-bottom: 25px;
+    display: flex;
+    gap: 10px;
+    margin-bottom: 25px;
 
-  button {
-    background: #f8f9fa;
-    border: none;
-    border-radius: 6px;
-    padding: 8px 16px;
-    font-size: 14px;
-    cursor: pointer;
-    color: #555;
-    transition: all 0.2s;
+    button {
+      background: #f8f9fa;
+      border: none;
+      border-radius: 6px;
+      padding: 8px 16px;
+      font-size: 14px;
+      cursor: pointer;
+      color: #555;
+      transition: all 0.2s;
 
-    &:hover {
-      background: #eee;
-    }
+      &:hover {
+        background: #eee;
+      }
 
-    &.active {
-      background: #d99064;
-      color: white;
-      font-weight: 500;
+      &.active {
+        background: #d99064;
+        color: white;
+        font-weight: 500;
+      }
     }
   }
-}
 
   // Статистика
   .stats-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-  gap: 20px;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 20px;
 
-  .stat-card {
-    background-color: #fff;
-    border-radius: 8px;
-    padding: 20px;
-    box-shadow: -6px 6px 12px rgba(34, 60, 80, 0.15);
-    border-left: 4px solid #d99064;
+    .stat-card {
+      background-color: #fff;
+      border-radius: 8px;
+      padding: 20px;
+      box-shadow: -6px 6px 12px rgba(34, 60, 80, 0.15);
+      border-left: 4px solid #d99064;
 
-    .stat-value {
-      font-size: 28px;
-      font-weight: 500;
-      color: #d99064;
+      .stat-value {
+        font-size: 28px;
+        font-weight: 500;
+        color: #d99064;
+      }
+
+      .stat-label {
+        font-size: 13px;
+        color: #666;
+        margin-top: 4px;
+      }
+
+      &.danger {
+        border-left-color: #c62828;
+      }
+      &.warn {
+        border-left-color: #f57c00;
+      }
     }
-
-    .stat-label {
-      font-size: 13px;
-      color: #666;
-      margin-top: 4px;
-    }
-
-    &.danger { border-left-color: #c62828; }
-    &.warn { border-left-color: #f57c00; }
   }
-}
-
 
   // Заголовок секции
   .section-header {
@@ -82,30 +79,13 @@
     gap: 10px;
     margin-bottom: 20px;
 
-    input, select {
+    input,
+    select {
       flex: 1;
-      padding: 10px 15px;
-      border: 1px solid #ddd;
-      border-radius: 4px;
-      font-size: 14px;
+      margin: 8px 0;
 
       &:focus {
         outline: none;
-        border-color: #007bff;
-      }
-    }
-
-    button {
-      padding: 10px 20px;
-      background: #007bff;
-      color: white;
-      border: none;
-      border-radius: 4px;
-      cursor: pointer;
-      font-size: 14px;
-
-      &:hover {
-        background: #0056b3;
       }
     }
   }
@@ -125,11 +105,14 @@
         background: #f8f9fa;
 
         th {
-          padding: 15px;
+          padding: 5px;
           text-align: left;
-          font-weight: 600;
           color: #333;
-          border-bottom: 2px solid #e0e0e0;
+          border-bottom: 2px solid #d99064;
+          font-size: 14px;
+          &:first-child {
+            padding: 5px 15px;
+          }
         }
       }
 
@@ -142,13 +125,16 @@
           }
 
           &.blocked {
-            background: #fff3e0;
+            background: #fff6f8;
           }
 
           td {
-            padding: 15px;
+            word-break: keep-all;
+            padding: 5px;
             color: #666;
-
+            &:first-child {
+              padding: 5px 15px;
+            }
             &.actions {
               display: flex;
               gap: 8px;
@@ -188,7 +174,6 @@
     }
   }
 
-  
   // Список жалоб
   .reports-list {
     display: grid;
@@ -211,22 +196,22 @@
           font-size: 12px;
           font-weight: 500;
 
-          &[data-status="pending"] {
+          &[data-status='pending'] {
             background: #fff3e0;
             color: #f57c00;
           }
 
-          &[data-status="reviewed"] {
+          &[data-status='reviewed'] {
             background: #e3f2fd;
             color: #1976d2;
           }
 
-          &[data-status="resolved"] {
+          &[data-status='resolved'] {
             background: #e8f5e9;
             color: #2e7d32;
           }
 
-          &[data-status="rejected"] {
+          &[data-status='rejected'] {
             background: #ffebee;
             color: #c62828;
           }
@@ -269,7 +254,6 @@
   // Кнопки
   .btn-small {
     padding: 8px 12px;
-    background: #007bff;
     color: white;
     border: none;
     border-radius: 4px;
@@ -317,6 +301,7 @@
       }
     }
   }
+}
 
   // Модальные окна
   .modal-overlay {
@@ -342,8 +327,6 @@
 
       h3 {
         margin: 0 0 20px 0;
-        font-size: 22px;
-        color: #333;
       }
 
       p {
@@ -366,7 +349,8 @@
           color: #333;
         }
 
-        select, textarea {
+        select,
+        textarea {
           width: 100%;
           padding: 10px;
           border: 1px solid #ddd;
@@ -386,7 +370,7 @@
       }
 
       textarea {
-        width: 100%;
+        width: 93%;
         padding: 10px;
         border: 1px solid #ddd;
         border-radius: 4px;
@@ -396,7 +380,7 @@
 
         &:focus {
           outline: none;
-          border-color: #007bff;
+          border-color: #d99064;
         }
       }
 
@@ -423,17 +407,7 @@
               background: #e0e0e0;
             }
           }
-
-          &:not(.btn-cancel) {
-            background: #007bff;
-            color: white;
-
-            &:hover {
-              background: #0056b3;
-            }
-          }
         }
       }
     }
   }
-}

@@ -59,7 +59,7 @@ export class Login {
             }
             setTimeout(() => {
               this.router.navigate(['/']).then();
-            }, 1500);
+            }, 800);
           }
         },
         (error) => {

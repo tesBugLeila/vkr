@@ -36,7 +36,4 @@ export const routes: Routes = [
     path: 'admin',
     component: Admin,
   },
-
-
 ];
-//мне нужно добавить гуард для админа
