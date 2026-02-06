@@ -12,6 +12,7 @@ import { UserService } from '../../services/user.service';
 import { first } from 'rxjs';
 import { Map } from './map/map';
 import { Lightbox } from '../lightbox/lightbox';
+import { ReportModal } from '../report-modal/report-modal';
 
 @Component({
   selector: 'app-post',
@@ -24,6 +25,7 @@ import { Lightbox } from '../lightbox/lightbox';
     RouterLink,
     Map,
     Lightbox,
+    ReportModal,
   ],
   templateUrl: './post.html',
   styleUrl: './post.scss',
@@ -43,6 +45,9 @@ export class Post implements OnInit {
   lightboxOpen = false;  // Открыт ли лайтбокс
   lightboxIndex = 0;     // Индекс фотографии в лайтбоксе
 
+    // Жалобы
+  reportModalOpen = false;
+
   constructor(
     private cdr: ChangeDetectorRef,        // Для ручного запуска обнаружения изменений
     private router: Router,                // Для навигации между страницами
@@ -58,6 +63,15 @@ export class Post implements OnInit {
     if (!this.userService.currentUser$.value || !this.data) return false;
     // Сравниваем ID текущего пользователя с ID автора поста
     return this.userService.currentUser$.value.id === this.data.userId;
+  }
+
+   get canReport(): boolean {
+    // Можно пожаловаться только если: авторизован, не свой пост, на странице поста
+    return (
+      !!this.userService.currentUser$.value &&
+      !this.isMyPost &&
+      this.isPostPage
+    );
   }
 
   // Геттер проверяет наличие фотографий у поста
@@ -144,5 +158,25 @@ export class Post implements OnInit {
   closeLightbox(): void {
     this.lightboxOpen = false; // Закрываем лайтбокс
     this.cdr.detectChanges();  // Обновляем представление
+  }
+
+
+  // ─────────────────────────────
+  // ЖАЛОБЫ
+  // ─────────────────────────────
+  openReportModal(event: MouseEvent): void {
+    event.stopPropagation();
+    this.reportModalOpen = true;
+    this.cdr.detectChanges();
+  }
+
+  closeReportModal(): void {
+    this.reportModalOpen = false;
+    this.cdr.detectChanges();
+  }
+
+  onReportSubmitted(): void {
+    // Можно добавить уведомление пользователю
+    console.log('Жалоба успешно отправлена');
   }
 }

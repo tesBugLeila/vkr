@@ -67,24 +67,29 @@
         }
 
         <!-- Показываем телефон только НЕ на странице поста -->
-  @if (!isPostPage) {
-    <app-phone [data]="data"></app-phone>
-  }
+        @if (!isPostPage) {
+        <app-phone [data]="data"></app-phone>
+        }
 
         <div class="meta">
           <span class="district">📍 {{ data.district }}</span>
           <span class="created-at">{{ data.createdAt | parseDateTime | dateAgo }}</span>
         </div>
-
-
       </div>
     </div>
   </div>
 
-
-
   @if (isPostPage) {
   <app-map [data]="data"></app-map>
+  }
+
+  <!-- КНОПКА ПОЖАЛОВАТЬСЯ (только на странице поста и не на свой пост) -->
+  @if (canReport) {
+  <div class="report-section">
+    <button class="report-button" (click)="openReportModal($event)">
+      Подать жалобу
+    </button>
+  </div>
   }
 </section>
 } @else {
@@ -94,4 +99,15 @@
 <!-- ЛАЙТБОКС (рендерится когда открыт) -->
 @if (lightboxOpen && data) {
 <app-lightbox [photos]="data.photos" [startIndex]="lightboxIndex" (closed)="closeLightbox()"></app-lightbox>
+}
+
+<!-- МОДАЛКА ЖАЛОБЫ (рендерится когда открыта) -->
+@if (reportModalOpen && data && data.userId) {
+<app-report-modal 
+  [reportedUserId]="data.userId" 
+  [postId]="data.id" 
+  [post]="{ id: data.id, title: data.title }"
+  (closed)="closeReportModal()" 
+  (submitted)="onReportSubmitted()">
+</app-report-modal>
 }

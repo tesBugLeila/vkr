@@ -5,6 +5,7 @@ import { Login } from './components/login/login';
 import { Health } from './components/health/health';
 import { Post } from './components/post/post';
 import { Admin } from './components/admin/admin';
+import { MyReports } from './components/my-reports/my-reports';
 
 export const routes: Routes = [
   {
@@ -36,7 +37,8 @@ export const routes: Routes = [
     path: 'admin',
     component: Admin,
   },
-
-
+  {
+    path: 'my-reports',
+    component: MyReports,
+  },
 ];
-//мне нужно добавить гуард для админа

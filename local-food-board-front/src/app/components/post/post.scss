@@ -226,5 +226,51 @@
         }
       }
     }
+
+
+// Секция с кнопкой жалобы внизу карточки
+.report-section {
+  margin-top: 20px;
+  padding-top: 20px;
+  border-top: 1px solid rgba(0, 0, 0, 0.05);
+  display: flex;
+  justify-content: center;
+
+  .report-button {
+    background-color: transparent;
+    color: #999;
+    border: 1px solid rgba(0, 0, 0, 0.1);
+    padding: 8px 16px;
+    font-size: 13px;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.2s;
+    margin: 0;
+    font-weight: 400;
+
+    &:hover {
+      color: #666;
+      border-color: rgba(0, 0, 0, 0.2);
+      background-color: rgba(0, 0, 0, 0.02);
+    }
+
+    &:active {
+      background-color: rgba(0, 0, 0, 0.05);
+    }
+  }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
   }
 }

@@ -1,0 +1,72 @@
+<section class="my-reports">
+  <div class="header">
+    <h2>Мои жалобы</h2>
+    <a [routerLink]="['/']" class="back-link">← Вернуться к списку</a>
+  </div>
+
+  @if (loading) {
+    <app-loading></app-loading>
+  }
+
+  @if (!loading && reports.length === 0) {
+    <div class="empty-state">
+      <p>У вас пока нет жалоб</p>
+    </div>
+  }
+
+  @if (!loading && reports.length > 0) {
+    <div class="reports-list">
+      @for (report of reports; track report.id) {
+        <div class="report-card">
+          <div class="report-header">
+            <div class="report-reason">
+              <strong>{{ report.reason }}</strong>
+            </div>
+            <div class="report-status" [attr.data-status]="report.status">
+              {{ report.status }}
+            </div>
+          </div>
+
+          <div class="report-body">
+            <div class="report-info">
+              <div class="info-row">
+                <span class="label">На пользователя:</span>
+                <span class="value">
+                  {{ report.reportedUser?.phone }}
+                  @if (report.reportedUser && report.reportedUser.name) {
+             <span class="user-name">({{ report.reportedUser.name }})</span>
+}
+                </span>
+              </div>
+
+              @if (report.post) {
+                <div class="info-row">
+                  <span class="label">Объявление:</span>
+                  <span class="value">
+                    <a [routerLink]="['/post', report.post.id]" class="post-link">
+                      {{ report.post.title }}
+                    </a>
+                  </span>
+                </div>
+              }
+
+              @if (report.description) {
+                <div class="info-row full-width">
+                  <span class="label">Описание:</span>
+                  <span class="value description">{{ report.description }}</span>
+                </div>
+              }
+
+              <div class="info-row">
+                <span class="label">Дата:</span>
+                <span class="value">
+                  {{ report.createdAt | parseDateTime | dateAgo }}
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+      }
+    </div>
+  }
+</section>

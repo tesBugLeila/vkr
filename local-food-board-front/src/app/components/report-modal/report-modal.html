@@ -1,0 +1,80 @@
+<div class="modal-overlay" (click)="onClose()">
+  <div class="modal-content" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h2>Подать жалобу</h2>
+      <button type="button" class="close-btn" (click)="onClose()">✕</button>
+    </div>
+
+    <div class="modal-body">
+      @if (post) {
+        <div class="info-block">
+          <strong>Объявление:</strong> {{ post.title }}
+        </div>
+      }
+
+      @if (reportedUser) {
+        <div class="info-block">
+          <strong>Пользователь:</strong> {{ reportedUser.phone }}
+          @if (reportedUser.name) {
+            <span>({{ reportedUser.name }})</span>
+          }
+        </div>
+      }
+
+      <form (ngSubmit)="onSubmit()" #reportForm="ngForm">
+        <div class="form-group">
+          <label for="reason">Причина жалобы *</label>
+          <select
+            id="reason"
+            name="reason"
+            [(ngModel)]="formData.reason"
+            required
+          >
+            <option value="" disabled>Выберите причину</option>
+            <option value="Спам">Спам</option>
+            <option value="Мошенничество">Мошенничество</option>
+            <option value="Неприемлемое содержание">Неприемлемое содержание</option>
+            <option value="Неверная информация">Неверная информация</option>
+            <option value="Нарушение правил">Нарушение правил</option>
+            <option value="Другое">Другое</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label for="description">Подробное описание (необязательно)</label>
+          <textarea
+            id="description"
+            name="description"
+            [(ngModel)]="formData.description"
+            rows="4"
+            placeholder="Опишите причину жалобы..."
+          ></textarea>
+        </div>
+
+        @if (errorMessage) {
+          <div class="error-message">
+            {{ errorMessage }}
+          </div>
+        }
+
+        @if (successMessage) {
+          <div class="success-message">
+            {{ successMessage }}
+          </div>
+        }
+
+        <div class="modal-actions">
+          <button type="button" class="btn-cancel" (click)="onClose()">
+            Отмена
+          </button>
+          <button
+            type="submit"
+            [disabled]="!reportForm.valid || isSubmitting || successMessage"
+          >
+            {{ isSubmitting ? 'Отправка...' : 'Отправить жалобу' }}
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
