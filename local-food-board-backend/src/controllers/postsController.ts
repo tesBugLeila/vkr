@@ -6,7 +6,7 @@ import { Op } from 'sequelize';
 import { IPostCreateRequest, IPostUpdateRequest } from '../types/models';
 import { AuthRequest } from '../types/express';
 import { AppError } from '../utils/AppError';
-import { DEFAULT_SEARCH_RADIUS, DEFAULT_LIMIT } from '../utils/constants';
+import {DEFAULT_SEARCH_RADIUS, DEFAULT_LIMIT, UserRole} from '../utils/constants';
 import { formatDate } from '../utils/dateFormatter';
 import { notifyNeighbors } from '../utils/notificationService';
 import { parseDate } from '../utils/dateFormatter'; // ← Импортируйте вашу функцию
@@ -224,7 +224,7 @@ async update(req: AuthRequest, res: Response, next: NextFunction) {
 
     // 5. Проверяем право на редактирование поста:
     // редактировать может только автор поста
-    if (post.userId && req.user?.id && post.userId !== req.user.id) {
+    if (post.userId && req.user?.id && post.userId !== req.user.id && req.user?.role !== UserRole.ADMIN) {
       throw new AppError(403, 'Можно редактировать только свои посты');
     }
 

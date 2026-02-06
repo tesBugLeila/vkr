@@ -58,11 +58,14 @@ export class Post implements OnInit {
   ) {}
 
   // Геттер проверяет, принадлежит ли пост текущему пользователю
+  // Так же возвращает true админу
   get isMyPost(): boolean {
     // Если нет текущего пользователя или данных поста - возвращаем false
     if (!this.userService.currentUser$.value || !this.data) return false;
-    // Сравниваем ID текущего пользователя с ID автора поста
-    return this.userService.currentUser$.value.id === this.data.userId;
+    return (
+      this.userService.currentUser$.value?.id === this.data.userId || // Сравниваем ID текущего пользователя с ID автора поста
+      this.userService.currentUser$.value?.role === 'admin'           // Проверка на админа
+    );
   }
 
    get canReport(): boolean {

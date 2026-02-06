@@ -123,7 +123,7 @@ export class PostEdit implements OnInit {
       price: [0, [Validators.required, Validators.min(0)]], // Обязательное, не меньше 0
       category: ['Другое', Validators.required], // Обязательное, значение по умолчанию
       district: ['', Validators.required], // Обязательное
-      contact: ['', [Validators.required, Validators.minLength(5)]], // Обязательное, мин. 5 символов
+      contact: [this.userService.currentUser$.value?.phone, [Validators.required, Validators.minLength(5)]], // Обязательное, мин. 5 символов
       notifyNeighbors: [false], // Необязательное, значение по умолчанию false
       lat: [null], // Необязательное
       lon: [null], // Необязательное

@@ -25,6 +25,7 @@ jobs:
       - name: Backup Database
         run: |
           cp /var/www/vkr/local-food-board-backend/dist/database.sqlite ~/database-last-backup.sqlite
+          cp -r /var/www/vkr/local-food-board-backend/dist/uploads ~/uploads-backup
 
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       - uses: actions/checkout@v4

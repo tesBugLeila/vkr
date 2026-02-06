@@ -1,5 +1,5 @@
 <section class="admin-panel">
-  <h1>Админ-панель</h1>
+  <h2>Админ-панель</h2>
 
   <!-- ТАБЫ -->
   <div class="tabs">
@@ -84,7 +84,7 @@
               <td>{{ user.name || '—' }}</td>
               <td>
                 <span [class.badge]="user.role === 'admin'" class="role">
-                  {{ user.role === 'admin' ? '🛡️ Админ' : 'Пользователь' }}
+                  {{ user.role === 'admin' ? '🔑 Админ' : 'Пользователь' }}
                 </span>
               </td>
               <td>{{ user.createdAt }}</td>
@@ -195,7 +195,7 @@
       <textarea
         placeholder="Причина (необязательно)"
         [(ngModel)]="blockReason"
-        rows="3"
+        rows="8"
       ></textarea>
       <div class="modal-actions">
         <button (click)="selectedUser = null" class="btn-cancel">Отмена</button>

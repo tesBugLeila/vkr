@@ -1,4 +1,7 @@
 @if (userService.currentUser$ | async) {
+  @if ((userService.currentUser$ | async)?.role === 'admin') {
+    <a [routerLink]="['/admin']">🔑</a>
+  }
   {{ (userService.currentUser$ | async)?.phone || '' | mask: '+0 (000) 000-00-00' }}
   <span class="link" (click)="logOut()">Выход</span>
 } @else {

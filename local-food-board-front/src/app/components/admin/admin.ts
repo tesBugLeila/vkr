@@ -53,9 +53,7 @@ ngOnInit() {
   this.userService.currentUser$
     .pipe(takeUntilDestroyed(this.destroyRef))
     .subscribe((user) => {
-      if (!user) return; 
-
-      if (user.role !== 'admin') {
+      if (!user || user?.role !== 'admin') {
         this.router.navigate(['/']).then();
         return;
       }
