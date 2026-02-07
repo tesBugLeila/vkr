@@ -130,4 +130,48 @@
   a {
     color: #333333;
   }
+
+
+  
+      .back-link {
+        color: #d99064;
+        text-decoration: none;
+        font-size: 14px;
+   
+
+        &:hover {
+          text-decoration: underline;
+        }
+      }
+}
+
+
+
+
+
+header {
+  .slogan {
+    .user-actions {
+      display: flex;
+      gap: 10px;
+      justify-content: flex-end;
+
+      button.profile-btn {
+       
+        padding: 6px 12px;
+        font-size: 14px;
+
+      
+
+      }
+
+      @media screen and (max-width: 900px) {
+        flex-direction: column;
+        
+        button {
+          width: 100%;
+        }
+      }
+    }
+  }
 }

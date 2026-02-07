@@ -21,6 +21,15 @@ router.get('/', postsController.list);
  */
 router.get('/:id', postsController.getById);
 
+
+/**
+ * GET /user/my-posts
+ * Получение всех постов текущего пользователя
+ * Требует авторизацию
+ */
+router.get('/user/my-posts', authMiddleware, postsController.getUserPosts);
+
+
 /**
  * POST /
  * Создание нового поста

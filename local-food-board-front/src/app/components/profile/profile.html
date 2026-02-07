@@ -1,0 +1,48 @@
+<section class="profile">
+  <div class="profile-header">
+    <h2>Мой профиль</h2>
+    <a [routerLink]="['/']" class="back-link">← На главную</a>
+  </div>
+
+  <!-- ТАБЫ -->
+  <div class="tabs">
+    <button
+      [class.active]="activeTab === 'posts'"
+      (click)="switchTab('posts')"
+    >
+      Мои объявления
+    </button>
+    <button
+      [class.active]="activeTab === 'reports'"
+      (click)="switchTab('reports')"
+    >
+      Мои жалобы
+    </button>
+  </div>
+
+  @if (loading && activeTab === 'posts') {
+    <app-loading></app-loading>
+  }
+
+  <!-- ТАБ: МОИ ОБЪЯВЛЕНИЯ -->
+  @if (activeTab === 'posts' && !loading) {
+    @if (myPosts.length === 0) {
+      <div class="empty-state">
+        <p>У вас пока нет объявлений</p>
+        <button [routerLink]="['/new']">Создать объявление</button>
+      </div>
+    } @else {
+      <div class="posts-list">
+        @for (post of myPosts; track post.id) {
+          <!-- Используем готовый компонент Post -->
+          <app-post [data]="post"></app-post>
+        }
+      </div>
+    }
+  }
+
+  <!-- ТАБ: МОИ ЖАЛОБЫ (используем готовый компонент) -->
+  @if (activeTab === 'reports') {
+    <app-my-reports></app-my-reports>
+  }
+</section>

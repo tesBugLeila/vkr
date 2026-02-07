@@ -76,98 +76,101 @@ export const postsController = {
    * @param res - Response
    */
  
- async list(req: Request, res: Response, next: NextFunction) {
-    try {
-      const {
-        category,
-        district,
-        q,
-        lat,
-        lon,
-        radius = String(DEFAULT_SEARCH_RADIUS),
-        limit = String(DEFAULT_LIMIT),
-        page = '1'
-      } = req.query;
+ // postsController.ts - метод list
+async list(req: Request, res: Response, next: NextFunction) {
+  try {
+    const {
+      category,
+      district,
+      q,
+      lat,
+      lon,
+      radius = String(DEFAULT_SEARCH_RADIUS),
+      limit = String(DEFAULT_LIMIT),
+      page = '1',
+      userId // Добавляем поддержку userId
+    } = req.query;
 
-      const where: any = {};
+    const where: any = {};
 
-      if (category) where.category = category;
-      if (district) where.district = district;
-      
-      if (q) {
-        const sanitized = String(q).replace(/[%_]/g, '\\$&');
-       where[Op.or] = [
-  { title: { [Op.like]: `%${sanitized}%` } },
-  { description: { [Op.like]: `%${sanitized}%` } }
-];
-      }
-
-      const limitNum = Math.min(Number(limit), 100);
-      const pageNum = Number(page);
-      const offset = (pageNum - 1) * limitNum;
-
-      // 1. Получаем посты БЕЗ сортировки
-      const { count, rows: unsortedPosts } = await Post.findAndCountAll({
-        where,
-        limit: limitNum,
-        offset
-      });
-
-      // 2. Сортируем посты вручную с помощью parseDate()
-      const sortedPosts = unsortedPosts.sort((a, b) => {
-        try {
-          const timeA = parseDate(a.createdAt);
-          const timeB = parseDate(b.createdAt);
-          return timeB - timeA; // Новые первыми (DESC)
-        } catch (error) {
-          console.error('Ошибка сортировки даты:', error);
-          return 0;
-        }
-      });
-
-      // Геофильтрация
-      if (lat && lon) {
-        const latNum = Number(lat);
-        const lonNum = Number(lon);
-        const r = Number(radius);
-
-        const filtered = sortedPosts
-          .map((p) => {
-            const plat = p.lat ?? 0;
-            const plon = p.lon ?? 0;
-            const dist =
-              plat && plon
-                ? haversineDistance(latNum, lonNum, plat, plon)
-                : Infinity;
-            return { post: p, distance: dist };
-          })
-          .filter((x) => x.distance <= r)
-          .sort((a, b) => a.distance - b.distance)
-          .map((x) => ({ ...x.post.get(), distance: x.distance }));
-
-        return res.json({
-          posts: filtered,
-          pagination: {
-            total: filtered.length,
-            page: pageNum,
-            pages: Math.ceil(filtered.length / limitNum)
-          }
-        });
-      }
-
-      // 3. Возвращаем отсортированные посты
-      res.json({
-        posts: sortedPosts,
-        pagination: {
-          total: count,
-          page: pageNum,
-          pages: Math.ceil(count / limitNum)
-        }
-      });
-    } catch (error) {
-      next(error);
+    if (category) where.category = category;
+    if (district) where.district = district;
+    if (userId) where.userId = userId; // Фильтрация по пользователю
+    
+    if (q) {
+      const sanitized = String(q).replace(/[%_]/g, '\\$&');
+      where[Op.or] = [
+        { title: { [Op.like]: `%${sanitized}%` } },
+        { description: { [Op.like]: `%${sanitized}%` } }
+      ];
     }
-  },
+
+    const limitNum = Math.min(Number(limit), 100);
+    const pageNum = Number(page);
+    const offset = (pageNum - 1) * limitNum;
+
+    // 1. Получаем посты БЕЗ сортировки
+    const { count, rows: unsortedPosts } = await Post.findAndCountAll({
+      where,
+      limit: limitNum,
+      offset
+    });
+
+    // 2. Сортируем посты вручную с помощью parseDate()
+    const sortedPosts = unsortedPosts.sort((a, b) => {
+      try {
+        const timeA = parseDate(a.createdAt);
+        const timeB = parseDate(b.createdAt);
+        return timeB - timeA; // Новые первыми (DESC)
+      } catch (error) {
+        console.error('Ошибка сортировки даты:', error);
+        return 0;
+      }
+    });
+
+    // Геофильтрация (только если указаны координаты)
+    if (lat && lon && !userId) { // Не применяем геофильтрацию при поиске по userId
+      const latNum = Number(lat);
+      const lonNum = Number(lon);
+      const r = Number(radius);
+
+      const filtered = sortedPosts
+        .map((p) => {
+          const plat = p.lat ?? 0;
+          const plon = p.lon ?? 0;
+          const dist =
+            plat && plon
+              ? haversineDistance(latNum, lonNum, plat, plon)
+              : Infinity;
+          return { post: p, distance: dist };
+        })
+        .filter((x) => x.distance <= r)
+        .sort((a, b) => a.distance - b.distance)
+        .map((x) => ({ ...x.post.get(), distance: x.distance }));
+
+      return res.json({
+        posts: filtered,
+        pagination: {
+          total: filtered.length,
+          page: pageNum,
+          pages: Math.ceil(filtered.length / limitNum)
+        }
+      });
+    }
+
+    // 3. Возвращаем отсортированные посты
+    res.json({
+      posts: sortedPosts,
+      pagination: {
+        total: count,
+        page: pageNum,
+        pages: Math.ceil(count / limitNum)
+      }
+    });
+  } catch (error) {
+    next(error);
+  }
+},
 
   /**
    * Получение поста по ID
@@ -197,6 +200,47 @@ async getById(req: Request, res: Response, next: NextFunction) {
     }
   },
 
+ /**
+   * Получить все посты пользователя (без пагинации, с фильтром по userId)
+   */
+
+async getUserPosts(req: AuthRequest, res: Response, next: NextFunction) {
+  try {
+    const userId = req.user?.id;
+    
+    if (!userId) {
+      throw new AppError(401, 'Требуется авторизация');
+    }
+
+    // Получаем все посты пользователя
+    const posts = await Post.findAll({
+      where: { userId },
+      include: [
+        {
+          model: User,
+          as: 'user',
+          attributes: ['id', 'phone', 'name']
+        }
+      ]
+    });
+
+    // Сортируем посты вручную с помощью parseDate()
+    const sortedPosts = posts.sort((a, b) => {
+      try {
+        const timeA = parseDate(a.createdAt);
+        const timeB = parseDate(b.createdAt);
+        return timeB - timeA; // Новые первыми (DESC)
+      } catch (error) {
+        console.error('Ошибка сортировки даты:', error);
+        return 0;
+      }
+    });
+
+    res.json({ posts: sortedPosts });
+  } catch (error) {
+    next(error);
+  }
+},
 
 
 /**

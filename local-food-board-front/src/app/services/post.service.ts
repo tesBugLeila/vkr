@@ -44,6 +44,14 @@ export class PostService {
     });
   }
 
+
+ /**
+   * Получить посты текущего пользователя (для профиля)
+   */
+  getMyPosts(): Observable<{ posts: IPost[] }> {
+    return this.http.get<{ posts: IPost[] }>('/api/posts/user/my-posts');
+  }
+
   /**
    * Получить один пост по ID
    */

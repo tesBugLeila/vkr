@@ -12,8 +12,11 @@
         Поддержите локальный вкус, находите и покупайте продукты питания у фермеров вашего края.
       </span>
       <br />
-      @if (userService.currentUser$ | async) {
-        <button [routerLink]="['/new']">Подать объявление</button>
+      @if (userService.currentUser$ | async; as user) {
+        <div class="user-actions">
+          <button [routerLink]="['/new']">Подать объявление</button>
+          <button [routerLink]="['/profile']" class="profile-btn">Профиль</button>
+        </div>
       }
     </div>
   </div>
@@ -23,5 +26,5 @@
   <router-outlet />
 </section>
 <footer>
-  <p>&copy; Лейла Старостина 2025 - {{ now | date: 'yyyy' }}</p>
+  <p>&copy;Создатель: Лейла Старостина, для ВКР 2025 - {{ now | date: 'yyyy' }}</p>
 </footer>

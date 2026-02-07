@@ -1,7 +1,10 @@
-@if (editablePostId) {
-  <br />
-  <a [routerLink]="['/', 'post', editablePostId]">← Вернуться к посту</a>
-}
+<div class="navigation-links">
+  <a [routerLink]="['/']" class="back-link">← На главную</a>
+  
+  @if (editablePostId) {
+    <a [routerLink]="['/', 'post', editablePostId]" class="back-link">← Вернуться к посту</a>
+  }
+</div>
 
 <section>
   @if (postForm && !loading) {
