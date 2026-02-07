@@ -63,6 +63,13 @@
         (keyup.enter)="searchUsers()"
       />
       <button (click)="searchUsers()">Найти</button>
+      <button 
+    *ngIf="usersSearch" 
+    (click)="clearUsersSearch()"
+    class="clear-btn"
+  >
+    Очистить
+  </button>
     </div>
 
     <div class="users-table">
@@ -134,10 +141,10 @@
     <div class="section-header">
       <select [(ngModel)]="reportsStatusFilter" (change)="filterReports()">
         <option value="">Все жалобы</option>
-        <option value="pending">На рассмотрении</option>
-        <option value="reviewed">Просмотрено</option>
-        <option value="resolved">Решено</option>
-        <option value="rejected">Отклонено</option>
+        <option value="В обработке">На рассмотрении</option>
+          <option value="Просмотрено">Просмотрено</option>
+          <option value="Решено">Решено</option>
+          <option value="Отклонено">Отклонено</option>
       </select>
     </div>
 
@@ -213,10 +220,10 @@
       <div class="form-row">
         <label>Статус:</label>
         <select [(ngModel)]="reportStatus">
-          <option value="pending">На рассмотрении</option>
-          <option value="reviewed">Просмотрено</option>
-          <option value="resolved">Решено</option>
-          <option value="rejected">Отклонено</option>
+     <option value="В обработке">На рассмотрении</option>
+          <option value="Просмотрено">Просмотрено</option>
+          <option value="Решено">Решено</option>
+          <option value="Отклонено">Отклонено</option>
         </select>
       </div>
       <div class="form-row">

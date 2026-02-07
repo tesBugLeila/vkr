@@ -5,6 +5,7 @@ export interface IUser {
   name: string | null; // Имя пользователя (может быть null)
   verified: boolean; // Флаг подтверждения учетной записи
   role: 'user' | 'admin'; // Роли пользователей;
+  isBlocked: boolean;
   createdAt: Date;
 }
 export interface IUserResp {

@@ -12,7 +12,7 @@ export interface AuthRequest extends Request {
   user?: {
     id: string;
     phone?: string;
-    role: UserRole;
+    role: string;
     isBlocked?: boolean;
   };
 }

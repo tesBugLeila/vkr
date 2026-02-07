@@ -19,6 +19,7 @@ export class Login {
   userPhoneNumber: string = '';
   confirmationCode: string = ''; // Это на самом деле пароль, но называется "код"
   errorMessage: string = '';
+  isBlockedError = false;
 
   constructor(
     private cdr: ChangeDetectorRef,
@@ -40,7 +41,6 @@ export class Login {
 
     const phone = `+7${this.userPhoneNumber}`;
 
-    
     this.userService
       .login(phone, this.confirmationCode)
       .pipe(
@@ -64,12 +64,21 @@ export class Login {
         },
         (error) => {
           this.state = 'failure';
-          this.errorMessage = error?.error?.error || error?.message || 'Неверный код, попробуйте ещё раз';
+          this.errorMessage = error?.error?.message || error?.error?.error || error?.message || 'Неверный код, попробуйте ещё раз';
           this.confirmationCode = '';
+          
+          // Проверяем, это ли ошибка блокировки
+          this.isBlockedError = this.errorMessage.includes('заблокирован');
+          
+          // Устанавливаем разное время показа в зависимости от типа ошибки
+          const showTime = this.isBlockedError ? 10000 : 2000; // 10 сек для блокировки, 2 сек для остальных
+          
           setTimeout(() => {
             this.state = 'phone';
+            this.errorMessage = '';
+            this.isBlockedError = false;
             this.cdr.markForCheck();
-          }, 2000);
+          }, showTime);
         },
       );
   }

@@ -98,6 +98,11 @@ ngOnInit() {
     this.loadUsers(1);
   }
 
+clearUsersSearch() {
+  this.usersSearch = '';
+  this.loadUsers(1);
+}
+
   openBlockModal(user: IAdminUser) {
     this.selectedUser = user;
     this.blockReason = '';
@@ -144,15 +149,28 @@ ngOnInit() {
     this.reportComment = report.adminComment || '';
   }
 
-  updateReportStatus() {
-    if (!this.selectedReport) return;
-    this.adminService
-      .updateReport(this.selectedReport.id, this.reportStatus, this.reportComment || undefined)
-      .subscribe(() => {
+updateReportStatus() {
+  if (!this.selectedReport) return;
+  
+  this.adminService
+    .updateReport(this.selectedReport.id, this.reportStatus, this.reportComment || undefined)
+    .subscribe({
+      next: () => {
+        // Закрываем модалку
         this.selectedReport = null;
+        this.reportStatus = '';
+        this.reportComment = '';
+        // Перезагружаем список жалоб
         this.loadReports(this.reportsPage);
-      });
-  }
+        // Обновляем представление
+        this.cdr.detectChanges();
+      },
+      error: (error) => {
+        console.error('Ошибка обновления жалобы:', error);
+        alert('Не удалось обновить жалобу: ' + (error.error?.message || error.message));
+      }
+    });
+}
 
   get userPages(): number[] {
     return Array.from({ length: this.usersTotalPages }, (_, i) => i + 1);

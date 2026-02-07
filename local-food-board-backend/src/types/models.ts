@@ -12,7 +12,6 @@ export interface IUser {
   createdAt: string;
 }
 
-
 // Интерфейс для запроса регистрации нового пользователя
 export interface IUserRegisterRequest {
   phone: string;            // Телефон для регистрации
@@ -26,14 +25,14 @@ export interface IUserLoginRequest {
   password: string;         // Пароль пользователя
 }
 
-
 // Интерфейс для ответа после успешной аутентификации
 export interface IAuthResponse {
   user: {                   // Данные пользователя
     id: string;
     phone: string;
     name: string | null;
-    role: string;                
+    role: string;
+    isBlocked: boolean;     // Добавлено поле isBlocked
   };
   token: string;            // JWT токен для последующих запросов
 }
@@ -68,7 +67,6 @@ export interface IPostCreateRequest {
   notifyNeighbors?: boolean;// Уведомлять соседей (необязательное)
   userId?: string;          // ID пользователя, который создаёт пост (берётся из токена)
 }
-
 
 // Интерфейс для обновления поста (все поля опциональны)
 export interface IPostUpdateRequest {

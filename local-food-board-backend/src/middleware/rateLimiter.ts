@@ -10,7 +10,7 @@ export const apiLimiter = rateLimit({
 
 export const authLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
-  max: 5, // 5 попыток логина
+  max: 10, // 5 попыток логина
   message: 'Слишком много попыток входа, попробуйте через 15 минут',
   skipSuccessfulRequests: true
 });
