@@ -7,6 +7,12 @@
   <!-- ТАБЫ -->
   <div class="tabs">
     <button
+      [class.active]="activeTab === 'info'"
+      (click)="switchTab('info')"
+    >
+      Профиль
+    </button>
+    <button
       [class.active]="activeTab === 'posts'"
       (click)="switchTab('posts')"
     >
@@ -24,6 +30,94 @@
     <app-loading></app-loading>
   }
 
+  <!-- ТАБ: ИНФОРМАЦИЯ ПРОФИЛЯ -->
+  @if (activeTab === 'info') {
+    <div class="profile-info">
+      <div class="info-card">
+        <h3>Личные данные</h3>
+        
+        @if (!editMode) {
+          <div class="info-display">
+            <div class="info-row">
+              <span class="label">Телефон:</span>
+              <span class="value">{{ userPhone }}</span>
+            </div>
+            <div class="info-row">
+              <span class="label">Имя:</span>
+              <span class="value">{{ userName || 'Не указано' }}</span>
+            </div>
+            <div class="info-row">
+              <span class="label">Дата регистрации:</span>
+              <span class="value">{{ userCreatedAt }}</span>
+            </div>
+            
+            <div class="actions">
+              <button (click)="enableEditMode()">✎ Редактировать профиль</button>
+             
+            </div>
+          </div>
+        } @else {
+          <div class="info-edit">
+            <form (ngSubmit)="saveProfile()">
+              <div class="form-group">
+                <label for="name">Имя:</label>
+                <input
+                  type="text"
+                  id="name"
+                  [(ngModel)]="editName"
+                  name="name"
+                  placeholder="Введите ваше имя"
+                />
+              </div>
+
+              <div class="form-group">
+                <label for="phone">Телефон:</label>
+                <input
+                  type="tel"
+                  id="phone"
+                  [(ngModel)]="editPhone"
+                  name="phone"
+                  placeholder="+7 (___) ___-__-__"
+                />
+              </div>
+
+              @if (saveError) {
+                <div class="error-message">{{ saveError }}</div>
+              }
+
+              @if (saveSuccess) {
+                <div class="success-message">Профиль успешно обновлен!</div>
+              }
+
+              <div class="actions">
+                <button type="submit" [disabled]="saving">
+                  {{ saving ? 'Сохранение...' : 'Сохранить' }}
+                </button>
+                <button type="button" class="cancel-btn" (click)="cancelEdit()">
+                  Отмена
+                </button>
+              </div>
+            </form>
+          </div>
+        }
+      </div>
+
+      <div class="stats-card">
+        <h3>Статистика</h3>
+        <div class="stats-grid">
+          <div class="stat-item">
+            <div class="stat-value">{{ myPosts.length }}</div>
+            <div class="stat-label">Объявлений</div>
+          </div>
+          <div class="stat-item">
+            <div class="stat-value">{{ reportsCount }}</div>
+            <div class="stat-label">Жалоб</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  }
+
   <!-- ТАБ: МОИ ОБЪЯВЛЕНИЯ -->
   @if (activeTab === 'posts' && !loading) {
     @if (myPosts.length === 0) {
@@ -34,14 +128,13 @@
     } @else {
       <div class="posts-list">
         @for (post of myPosts; track post.id) {
-          <!-- Используем готовый компонент Post -->
           <app-post [data]="post"></app-post>
         }
       </div>
     }
   }
 
-  <!-- ТАБ: МОИ ЖАЛОБЫ (используем готовый компонент) -->
+  <!-- ТАБ: МОИ ЖАЛОБЫ -->
   @if (activeTab === 'reports') {
     <app-my-reports></app-my-reports>
   }

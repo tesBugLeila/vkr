@@ -1,8 +1,10 @@
 import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterModule } from '@angular/router';
+import { FormsModule } from '@angular/forms';
+import { RouterModule, Router } from '@angular/router';
 import { PostService } from '../../services/post.service';
 import { UserService } from '../../services/user.service';
+import { ReportsService } from '../../services/reports.service';
 import { Loading } from '../loading/loading';
 import { Post } from '../post/post';
 import { MyReports } from '../my-reports/my-reports';
@@ -13,7 +15,8 @@ import { IPost } from '../../types/post';
   selector: 'app-profile',
   standalone: true,
   imports: [
-    CommonModule, 
+    CommonModule,
+    FormsModule, // Добавляем FormsModule для ngModel
     RouterModule, 
     Loading,
     Post,
@@ -23,21 +26,51 @@ import { IPost } from '../../types/post';
   styleUrl: './profile.scss',
 })
 export class Profile implements OnInit {
-  activeTab: 'posts' | 'reports' = 'posts';
+  activeTab: 'info' | 'posts' | 'reports' = 'info';
   loading = false;
   myPosts: IPost[] = [];
+  reportsCount = 0;
+
+  // Данные пользователя
+  userName: string | null = null;
+  userPhone: string = '';
+  userCreatedAt: string = '';
+
+  // Режим редактирования
+  editMode = false;
+  editName: string = '';
+  editPhone: string = '';
+  saving = false;
+  saveError = '';
+  saveSuccess = false;
 
   constructor(
     private postService: PostService,
     private userService: UserService,
+    private reportsService: ReportsService,
+    private router: Router,
     private cdr: ChangeDetectorRef
   ) {}
 
   ngOnInit() {
+    // Получаем данные пользователя
+    this.userService.currentUser$.subscribe(user => {
+      if (user) {
+        this.userName = user.name;
+        this.userPhone = user.phone;
+        this.userCreatedAt = user.createdAt || '';
+        this.editName = user.name || '';
+        this.editPhone = user.phone;
+      }
+    });
+
+    // Загружаем объявления для статистики
     this.loadMyPosts();
+    // Загружаем количество жалоб
+    this.loadReportsCount();
   }
 
-  switchTab(tab: 'posts' | 'reports') {
+  switchTab(tab: 'info' | 'posts' | 'reports') {
     this.activeTab = tab;
     if (tab === 'posts') {
       this.loadMyPosts();
@@ -47,7 +80,6 @@ export class Profile implements OnInit {
   loadMyPosts() {
     this.loading = true;
     
-    // Используем новый метод getMyPosts
     this.postService.getMyPosts()
       .pipe(finalize(() => {
         this.loading = false;
@@ -62,5 +94,74 @@ export class Profile implements OnInit {
           console.error('Ошибка загрузки объявлений:', error);
         }
       });
+  }
+
+  loadReportsCount() {
+    this.reportsService.getMyReports().subscribe({
+      next: (data) => {
+        this.reportsCount = data.reports.length;
+        this.cdr.detectChanges();
+      },
+      error: (error) => {
+        console.error('Ошибка загрузки жалоб:', error);
+      }
+    });
+  }
+
+  enableEditMode() {
+    this.editMode = true;
+    this.editName = this.userName || '';
+    this.editPhone = this.userPhone;
+    this.saveError = '';
+    this.saveSuccess = false;
+  }
+
+  cancelEdit() {
+    this.editMode = false;
+    this.editName = this.userName || '';
+    this.editPhone = this.userPhone;
+    this.saveError = '';
+    this.saveSuccess = false;
+  }
+
+  saveProfile() {
+    this.saving = true;
+    this.saveError = '';
+    this.saveSuccess = false;
+
+    this.userService.updateMe(this.editName, this.editPhone)
+      .pipe(finalize(() => {
+        this.saving = false;
+        this.cdr.detectChanges();
+      }))
+      .subscribe({
+        next: (response) => {
+          if (response.user) {
+            this.userName = response.user.name;
+            this.userPhone = response.user.phone;
+            this.saveSuccess = true;
+            
+            // Обновляем текущего пользователя
+            this.userService.me();
+            
+            // Закрываем режим редактирования через 1.5 секунды
+            setTimeout(() => {
+              this.editMode = false;
+              this.saveSuccess = false;
+              this.cdr.detectChanges();
+            }, 1500);
+          }
+        },
+        error: (error) => {
+          this.saveError = error.error?.message || 'Не удалось обновить профиль';
+        }
+      });
+  }
+
+  logout() {
+    if (confirm('Вы уверены, что хотите выйти?')) {
+      this.userService.logout();
+      this.router.navigate(['/']);
+    }
   }
 }

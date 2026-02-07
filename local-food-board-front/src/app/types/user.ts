@@ -6,7 +6,7 @@ export interface IUser {
   verified: boolean; // Флаг подтверждения учетной записи
   role: 'user' | 'admin'; // Роли пользователей;
   isBlocked: boolean;
-  createdAt: Date;
+  createdAt: string;
 }
 export interface IUserResp {
   token?: string;

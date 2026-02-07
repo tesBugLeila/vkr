@@ -26,7 +26,15 @@
         color: #333;
       }
 
+      .back-link {
+        color: #d99064;
+        text-decoration: none;
+        font-size: 14px;
 
+        &:hover {
+          text-decoration: underline;
+        }
+      }
 
       @media screen and (max-width: 900px) {
         flex-direction: column;
@@ -46,12 +54,33 @@
       margin-bottom: 30px;
       border-bottom: 2px solid rgba(0, 0, 0, 0.1);
 
+      button {
+        padding: 12px 20px;
+        border: none;
+        background: none;
+        cursor: pointer;
+        font-size: 16px;
+        border-bottom: 3px solid transparent;
+        transition: all 0.2s;
+        color: #666;
+        margin: 0;
 
+        &:hover {
+          background: #f5f5f5;
+          color: #333;
+        }
+
+        &.active {
+          border-bottom-color: #d99064;
+          font-weight: 600;
+          color: #333;
+        }
+      }
 
       @media screen and (max-width: 900px) {
         button {
-          font-size: 14px;
-          padding: 10px 15px;
+          font-size: 13px;
+          padding: 10px 12px;
         }
       }
     }
@@ -68,152 +97,209 @@
       }
     }
 
-    // // Список постов (используем компонент app-post)
-    // .posts-list {
-    //   display: flex;
-    //   flex-direction: column;
-    //   gap: 0; // Компонент Post уже имеет margin
-    // }
+    // Информация профиля
+    .profile-info {
+      display: grid;
+      grid-template-columns: 2fr 1fr;
+      gap: 20px;
 
-    // // Список жалоб
-    // .reports-list {
-    //   display: flex;
-    //   flex-direction: column;
-    //   gap: 20px;
+      @media screen and (max-width: 900px) {
+        grid-template-columns: 1fr;
+      }
 
-    //   .report-card {
-    //     background: white;
-    //     border-radius: 8px;
-    //     padding: 20px;
-    //     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-    //     transition: transform 0.2s, box-shadow 0.2s;
+      .info-card,
+      .stats-card {
+        background: white;
+        border-radius: 8px;
+        padding: 25px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 
-    //     &:hover {
-    //       transform: translateY(-2px);
-    //       box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-    //     }
+        h3 {
+          margin: 0 0 20px 0;
+          font-size: 20px;
+          font-weight: 500;
+          color: #333;
+        }
+      }
 
-    //     .report-header {
-    //       display: flex;
-    //       justify-content: space-between;
-    //       align-items: flex-start;
-    //       margin-bottom: 15px;
-    //       padding-bottom: 15px;
-    //       border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+      .info-card {
+        .info-display {
+          .info-row {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 15px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.05);
 
-    //       .report-reason {
-    //         flex: 1;
+            &:last-of-type {
+              border-bottom: none;
+              margin-bottom: 25px;
+            }
 
-    //         strong {
-    //           font-size: 18px;
-    //           color: #333;
-    //         }
-    //       }
+            .label {
+              font-weight: 500;
+              color: #666;
+              min-width: 150px;
+            }
 
-    //       .report-status {
-    //         padding: 6px 14px;
-    //         border-radius: 12px;
-    //         font-size: 12px;
-    //         font-weight: 500;
-    //         white-space: nowrap;
-    //         margin-left: 15px;
+            .value {
+              color: #333;
+              flex: 1;
+            }
 
-    //         &[data-status="В обработке"],
-    //         &[data-status="pending"] {
-    //           background: #fff3e0;
-    //           color: #f57c00;
-    //         }
+            @media screen and (max-width: 900px) {
+              flex-direction: column;
+              gap: 5px;
 
-    //         &[data-status="Просмотрено"],
-    //         &[data-status="reviewed"] {
-    //           background: #e3f2fd;
-    //           color: #1976d2;
-    //         }
+              .label {
+                min-width: auto;
+              }
+            }
+          }
 
-    //         &[data-status="Решено"],
-    //         &[data-status="resolved"] {
-    //           background: #e8f5e9;
-    //           color: #2e7d32;
-    //         }
+          .actions {
+            display: flex;
+            gap: 10px;
 
-    //         &[data-status="Отклонено"],
-    //         &[data-status="rejected"] {
-    //           background: #ffebee;
-    //           color: #c62828;
-    //         }
-    //       }
+            button {
+              flex: 1;
+              margin: 0;
 
-    //       @media screen and (max-width: 900px) {
-    //         flex-direction: column;
-    //         gap: 10px;
+              &.logout-btn {
+                background-color: #f44336;
 
-    //         .report-status {
-    //           margin-left: 0;
-    //         }
-    //       }
-    //     }
+                &:hover {
+                  background-color: #d32f2f;
+                }
 
-    //     .report-body {
-    //       .report-info {
-    //         display: flex;
-    //         flex-direction: column;
-    //         gap: 12px;
+                &:active {
+                  background-color: #c62828;
+                }
+              }
+            }
 
-    //         .info-row {
-    //           display: flex;
-    //           gap: 10px;
-    //           font-size: 14px;
+            @media screen and (max-width: 900px) {
+              flex-direction: column;
+            }
+          }
+        }
 
-    //           &.full-width {
-    //             flex-direction: column;
-    //             gap: 5px;
-    //           }
+        .info-edit {
+          form {
+            .form-group {
+              margin-bottom: 20px;
 
-    //           .label {
-    //             color: #666;
-    //             font-weight: 500;
-    //             min-width: 120px;
-    //           }
+              label {
+                display: block;
+                margin-bottom: 8px;
+                font-weight: 500;
+                color: #333;
+                font-size: 14px;
+              }
 
-    //           .value {
-    //             color: #333;
-    //             flex: 1;
+              input {
+                max-width: 90%;
+                width: 100%;
+              }
+            }
 
-    //             &.description {
-    //               line-height: 1.5;
-    //               padding: 10px;
-    //               background: #f8f9fa;
-    //               border-radius: 6px;
-    //               border-left: 3px solid #d99064;
-    //             }
+            .error-message {
+              background: #ffebee;
+              color: #c62828;
+              padding: 12px 15px;
+              border-radius: 8px;
+              margin-bottom: 15px;
+              font-size: 14px;
+              border-left: 3px solid #c62828;
+            }
 
-    //             .user-name {
-    //               color: #666;
-    //               font-style: italic;
-    //             }
+            .success-message {
+              background: #e8f5e9;
+              color: #2e7d32;
+              padding: 12px 15px;
+              border-radius: 8px;
+              margin-bottom: 15px;
+              font-size: 14px;
+              border-left: 3px solid #2e7d32;
+            }
 
-    //             .post-link {
-    //               color: #d99064;
-    //               text-decoration: underline;
+            .actions {
+              display: flex;
+              gap: 10px;
+              margin-top: 25px;
 
-    //               &:hover {
-    //                 color: #c17a4e;
-    //               }
-    //             }
-    //           }
+              button {
+                flex: 1;
+                margin: 0;
 
-    //           @media screen and (max-width: 900px) {
-    //             flex-direction: column;
-    //             gap: 5px;
+                &.cancel-btn {
+                  background-color: #e0e0e0;
+                  color: #555;
 
-    //             .label {
-    //               min-width: auto;
-    //             }
-    //           }
-    //         }
-    //       }
-    //     }
-    //   }
-    // }
+                  &:hover {
+                    background-color: #d0d0d0;
+                  }
+
+                  &:active {
+                    background-color: #c0c0c0;
+                  }
+                }
+              }
+
+              @media screen and (max-width: 900px) {
+                flex-direction: column;
+              }
+            }
+          }
+        }
+      }
+
+      .stats-card {
+        .stats-grid {
+          display: grid;
+          grid-template-columns: 1fr 1fr;
+          gap: 15px;
+
+          .stat-item {
+            text-align: center;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            border: 2px solid transparent;
+            transition: all 0.2s;
+            //width: 90%;
+        
+
+            &:hover {
+              border-color: #d99064;
+              transform: translateY(-2px);
+            }
+
+            .stat-value {
+              font-size: 32px;
+              font-weight: bold;
+              color: #d99064;
+              margin-bottom: 5px;
+            }
+
+            .stat-label {
+              font-size: 14px;
+              color: #666;
+            }
+          }
+
+          @media screen and (max-width: 900px) {
+            grid-template-columns: 1fr;
+          }
+        }
+      }
+    }
+
+    // Список постов
+    .posts-list {
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+    }
   }
 }
