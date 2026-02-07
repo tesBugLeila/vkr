@@ -27,6 +27,7 @@
       }
 
 
+
       @media screen and (max-width: 900px) {
         flex-direction: column;
         align-items: flex-start;
@@ -67,152 +68,152 @@
       }
     }
 
-    // Список постов (используем компонент app-post)
-    .posts-list {
-      display: flex;
-      flex-direction: column;
-      gap: 0; // Компонент Post уже имеет margin
-    }
+    // // Список постов (используем компонент app-post)
+    // .posts-list {
+    //   display: flex;
+    //   flex-direction: column;
+    //   gap: 0; // Компонент Post уже имеет margin
+    // }
 
-    // Список жалоб
-    .reports-list {
-      display: flex;
-      flex-direction: column;
-      gap: 20px;
+    // // Список жалоб
+    // .reports-list {
+    //   display: flex;
+    //   flex-direction: column;
+    //   gap: 20px;
 
-      .report-card {
-        background: white;
-        border-radius: 8px;
-        padding: 20px;
-        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-        transition: transform 0.2s, box-shadow 0.2s;
+    //   .report-card {
+    //     background: white;
+    //     border-radius: 8px;
+    //     padding: 20px;
+    //     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    //     transition: transform 0.2s, box-shadow 0.2s;
 
-        &:hover {
-          transform: translateY(-2px);
-          box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-        }
+    //     &:hover {
+    //       transform: translateY(-2px);
+    //       box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    //     }
 
-        .report-header {
-          display: flex;
-          justify-content: space-between;
-          align-items: flex-start;
-          margin-bottom: 15px;
-          padding-bottom: 15px;
-          border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+    //     .report-header {
+    //       display: flex;
+    //       justify-content: space-between;
+    //       align-items: flex-start;
+    //       margin-bottom: 15px;
+    //       padding-bottom: 15px;
+    //       border-bottom: 1px solid rgba(0, 0, 0, 0.05);
 
-          .report-reason {
-            flex: 1;
+    //       .report-reason {
+    //         flex: 1;
 
-            strong {
-              font-size: 18px;
-              color: #333;
-            }
-          }
+    //         strong {
+    //           font-size: 18px;
+    //           color: #333;
+    //         }
+    //       }
 
-          .report-status {
-            padding: 6px 14px;
-            border-radius: 12px;
-            font-size: 12px;
-            font-weight: 500;
-            white-space: nowrap;
-            margin-left: 15px;
+    //       .report-status {
+    //         padding: 6px 14px;
+    //         border-radius: 12px;
+    //         font-size: 12px;
+    //         font-weight: 500;
+    //         white-space: nowrap;
+    //         margin-left: 15px;
 
-            &[data-status="В обработке"],
-            &[data-status="pending"] {
-              background: #fff3e0;
-              color: #f57c00;
-            }
+    //         &[data-status="В обработке"],
+    //         &[data-status="pending"] {
+    //           background: #fff3e0;
+    //           color: #f57c00;
+    //         }
 
-            &[data-status="Просмотрено"],
-            &[data-status="reviewed"] {
-              background: #e3f2fd;
-              color: #1976d2;
-            }
+    //         &[data-status="Просмотрено"],
+    //         &[data-status="reviewed"] {
+    //           background: #e3f2fd;
+    //           color: #1976d2;
+    //         }
 
-            &[data-status="Решено"],
-            &[data-status="resolved"] {
-              background: #e8f5e9;
-              color: #2e7d32;
-            }
+    //         &[data-status="Решено"],
+    //         &[data-status="resolved"] {
+    //           background: #e8f5e9;
+    //           color: #2e7d32;
+    //         }
 
-            &[data-status="Отклонено"],
-            &[data-status="rejected"] {
-              background: #ffebee;
-              color: #c62828;
-            }
-          }
+    //         &[data-status="Отклонено"],
+    //         &[data-status="rejected"] {
+    //           background: #ffebee;
+    //           color: #c62828;
+    //         }
+    //       }
 
-          @media screen and (max-width: 900px) {
-            flex-direction: column;
-            gap: 10px;
+    //       @media screen and (max-width: 900px) {
+    //         flex-direction: column;
+    //         gap: 10px;
 
-            .report-status {
-              margin-left: 0;
-            }
-          }
-        }
+    //         .report-status {
+    //           margin-left: 0;
+    //         }
+    //       }
+    //     }
 
-        .report-body {
-          .report-info {
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
+    //     .report-body {
+    //       .report-info {
+    //         display: flex;
+    //         flex-direction: column;
+    //         gap: 12px;
 
-            .info-row {
-              display: flex;
-              gap: 10px;
-              font-size: 14px;
+    //         .info-row {
+    //           display: flex;
+    //           gap: 10px;
+    //           font-size: 14px;
 
-              &.full-width {
-                flex-direction: column;
-                gap: 5px;
-              }
+    //           &.full-width {
+    //             flex-direction: column;
+    //             gap: 5px;
+    //           }
 
-              .label {
-                color: #666;
-                font-weight: 500;
-                min-width: 120px;
-              }
+    //           .label {
+    //             color: #666;
+    //             font-weight: 500;
+    //             min-width: 120px;
+    //           }
 
-              .value {
-                color: #333;
-                flex: 1;
+    //           .value {
+    //             color: #333;
+    //             flex: 1;
 
-                &.description {
-                  line-height: 1.5;
-                  padding: 10px;
-                  background: #f8f9fa;
-                  border-radius: 6px;
-                  border-left: 3px solid #d99064;
-                }
+    //             &.description {
+    //               line-height: 1.5;
+    //               padding: 10px;
+    //               background: #f8f9fa;
+    //               border-radius: 6px;
+    //               border-left: 3px solid #d99064;
+    //             }
 
-                .user-name {
-                  color: #666;
-                  font-style: italic;
-                }
+    //             .user-name {
+    //               color: #666;
+    //               font-style: italic;
+    //             }
 
-                .post-link {
-                  color: #d99064;
-                  text-decoration: underline;
+    //             .post-link {
+    //               color: #d99064;
+    //               text-decoration: underline;
 
-                  &:hover {
-                    color: #c17a4e;
-                  }
-                }
-              }
+    //               &:hover {
+    //                 color: #c17a4e;
+    //               }
+    //             }
+    //           }
 
-              @media screen and (max-width: 900px) {
-                flex-direction: column;
-                gap: 5px;
+    //           @media screen and (max-width: 900px) {
+    //             flex-direction: column;
+    //             gap: 5px;
 
-                .label {
-                  min-width: auto;
-                }
-              }
-            }
-          }
-        }
-      }
-    }
+    //             .label {
+    //               min-width: auto;
+    //             }
+    //           }
+    //         }
+    //       }
+    //     }
+    //   }
+    // }
   }
 }
