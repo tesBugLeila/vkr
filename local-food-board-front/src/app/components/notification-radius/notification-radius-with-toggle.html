@@ -1,0 +1,71 @@
+<div class="notification-radius">
+  <div class="header-with-toggle">
+    <h4>Радиус уведомлений</h4>
+    <label class="toggle-switch">
+      <input 
+        type="checkbox" 
+        [(ngModel)]="notificationsEnabled"
+        (change)="onNotificationsToggle()"
+      />
+      <span class="toggle-slider"></span>
+      <span class="toggle-label">
+        {{ notificationsEnabled ? 'Включено' : 'Отключено' }}
+      </span>
+    </label>
+  </div>
+
+  @if (notificationsEnabled) {
+    <p class="description">
+      Вы будете получать уведомления о новых объявлениях в радиусе {{ radiusKm }} от вас
+    </p>
+
+    <div class="slider-container">
+      <input
+        type="range"
+        min="500"
+        max="50000"
+        step="500"
+        [(ngModel)]="radius"
+        (change)="onRadiusChange()"
+        class="radius-slider"
+      />
+      <div class="slider-labels">
+        <span>500м</span>
+        <span>{{ radiusKm }}</span>
+        <span>50км</span>
+      </div>
+    </div>
+
+    <div class="radius-presets">
+      <button (click)="setRadius(500)" [class.active]="radius === 500">
+        500м
+      </button>
+      <button (click)="setRadius(1000)" [class.active]="radius === 1000">
+        1км
+      </button>
+      <button (click)="setRadius(5000)" [class.active]="radius === 5000">
+        5км
+      </button>
+      <button (click)="setRadius(10000)" [class.active]="radius === 10000">
+        10км
+      </button>
+      <button (click)="setRadius(25000)" [class.active]="radius === 25000">
+        25км
+      </button>
+    </div>
+  } @else {
+    <p class="description disabled">
+      Вы не будете получать уведомления о новых объявлениях
+    </p>
+  }
+
+  @if (saving) {
+    <div class="save-message saving">💾 Сохранение...</div>
+  } @else if (saved) {
+    <div class="save-message success">
+      ✓ {{ notificationsEnabled ? 'Уведомления включены' : 'Уведомления отключены' }}
+    </div>
+  } @else if (error) {
+    <div class="save-message error">{{ error }}</div>
+  }
+</div>

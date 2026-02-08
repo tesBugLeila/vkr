@@ -8,6 +8,8 @@ import { ReportsService } from '../../services/reports.service';
 import { Loading } from '../loading/loading';
 import { Post } from '../post/post';
 import { MyReports } from '../my-reports/my-reports';
+import { GeolocationWidget } from '../geolocation-widget/geolocation-widget';
+import { NotificationRadius } from '../notification-radius/notification-radius-with-toggle'
 import { finalize } from 'rxjs';
 import { IPost } from '../../types/post';
 
@@ -16,17 +18,19 @@ import { IPost } from '../../types/post';
   standalone: true,
   imports: [
     CommonModule,
-    FormsModule, // Добавляем FormsModule для ngModel
+    FormsModule,
     RouterModule, 
     Loading,
     Post,
-    MyReports
+    MyReports,
+    GeolocationWidget,
+    NotificationRadius
   ],
   templateUrl: './profile.html',
   styleUrl: './profile.scss',
 })
 export class Profile implements OnInit {
-  activeTab: 'info' | 'posts' | 'reports' = 'info';
+  activeTab: 'info' | 'settings' | 'posts' | 'reports' = 'info';
   loading = false;
   myPosts: IPost[] = [];
   reportsCount = 0;
@@ -70,7 +74,7 @@ export class Profile implements OnInit {
     this.loadReportsCount();
   }
 
-  switchTab(tab: 'info' | 'posts' | 'reports') {
+  switchTab(tab: 'info' | 'settings' | 'posts' | 'reports') {
     this.activeTab = tab;
     if (tab === 'posts') {
       this.loadMyPosts();
@@ -158,10 +162,5 @@ export class Profile implements OnInit {
       });
   }
 
-  logout() {
-    if (confirm('Вы уверены, что хотите выйти?')) {
-      this.userService.logout();
-      this.router.navigate(['/']);
-    }
-  }
+
 }

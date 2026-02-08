@@ -12,12 +12,23 @@
     >
       Профиль
     </button>
+ <button
+      [class.active]="activeTab === 'settings'"
+      (click)="switchTab('settings')"
+    >
+      Настройки
+    </button>
+
+
+
     <button
       [class.active]="activeTab === 'posts'"
       (click)="switchTab('posts')"
     >
       Мои объявления
     </button>
+
+    
     <button
       [class.active]="activeTab === 'reports'"
       (click)="switchTab('reports')"
@@ -117,6 +128,33 @@
       </div>
     </div>
   }
+
+
+  <!-- ТАБ: НАСТРОЙКИ -->
+  @if (activeTab === 'settings') {
+    <div class="settings-container">
+      <div class="settings-section">
+        <h3>Геолокация</h3>
+        <p class="section-description">
+          Включите геолокацию, чтобы получать уведомления о новых объявлениях рядом с вами
+        </p>
+        <app-geolocation-widget></app-geolocation-widget>
+      </div>
+
+      <div class="settings-section">
+        <h3>Уведомления</h3>
+        <p class="section-description">
+          Настройте радиус, в котором вы хотите получать уведомления
+        </p>
+        <app-notification-radius></app-notification-radius>
+      </div>
+    </div>
+  }
+
+
+
+
+
 
   <!-- ТАБ: МОИ ОБЪЯВЛЕНИЯ -->
   @if (activeTab === 'posts' && !loading) {

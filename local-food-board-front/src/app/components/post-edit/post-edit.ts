@@ -210,9 +210,16 @@ export class PostEdit implements OnInit {
     // Добавляем текстовые поля формы
     Object.entries(this.postForm.value).forEach(([key, value]) => {
       if (value !== null && value !== undefined) {
-        formData.append(key, String(value)); // Преобразуем все значения в строки
+        // Для булевых значений явно преобразуем в строку
+        if (typeof value === 'boolean') {
+          formData.append(key, value ? 'true' : 'false');
+        } else {
+          formData.append(key, String(value));
+        }
       }
     });
+
+
 
     // Добавляем новые файлы
     this.selectedFiles.forEach((file) => {

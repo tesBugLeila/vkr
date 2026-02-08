@@ -3,23 +3,26 @@ import { haversineDistance } from './geo';
 import { formatDate } from './dateFormatter';
 import { nanoid } from 'nanoid';
 import { Op } from 'sequelize';
+
 /**
  * Отправка уведомлений соседям о новом посте
+ * 
+ * Каждый пользователь получает уведомление ТОЛЬКО если:
+ * 1. Он не автор поста
+ * 2. Расстояние до поста <= ЕГО ЛИЧНОГО радиуса уведомлений
  * 
  * @param postId - ID созданного поста
  * @param postTitle - Заголовок поста
  * @param postLat - Широта поста
  * @param postLon - Долгота поста
  * @param authorId - ID автора (не отправляем ему уведомление)
- * @param radius - Радиус уведомлений в метрах (по умолчанию 5км)
  */
 export async function notifyNeighbors(
   postId: string,
   postTitle: string,
   postLat: number | null,
   postLon: number | null,
-  authorId: string,
-  radius: number = 500
+  authorId: string
 ): Promise<number> {
   // Если координаты не указаны - не отправляем уведомления
   if (!postLat || !postLon) {
@@ -31,15 +34,16 @@ export async function notifyNeighbors(
     console.log(`\n === ОТПРАВКА УВЕДОМЛЕНИЙ СОСЕДЯМ ===`);
     console.log(` Пост: "${postTitle}"`);
     console.log(` Координаты: ${postLat}, ${postLon}`);
-    console.log(` Радиус: ${radius}м (${radius / 1000}км)`);
 
     // Получаем всех пользователей с геолокацией (кроме автора)
     const users = await User.findAll({
       where: {
-       lastLat: { [Op.ne]: null },      // Есть широта
-        lastLon: { [Op.ne]: null },      // Есть долгота
+        id: { [Op.ne]: authorId },   // Не автор
+        lastLat: { [Op.ne]: null },  // Есть широта
+        lastLon: { [Op.ne]: null },  // Есть долгота
         isBlocked: false             // Не заблокирован
-      }
+      },
+      attributes: ['id', 'name', 'phone', 'lastLat', 'lastLon', 'notificationRadius']
     });
 
     console.log(` Найдено пользователей с геолокацией: ${users.length}`);
@@ -49,9 +53,8 @@ export async function notifyNeighbors(
       return 0;
     }
 
-    // Фильтруем пользователей в радиусе
-    const nearbyUsers = users
-      .filter(user => user.id !== authorId) // Не отправляем автору
+    // Фильтруем пользователей по ИХ ЛИЧНОМУ радиусу
+    const eligibleUsers = users
       .map(user => {
         const distance = haversineDistance(
           postLat,
@@ -59,21 +62,32 @@ export async function notifyNeighbors(
           user.lastLat!,
           user.lastLon!
         );
-        return { user, distance };
+        
+        // Радиус пользователя (по умолчанию 5000, если не задан)
+        const userRadius = user.notificationRadius || 5000;
+ 
+    // Если радиус = 0, значит пользователь отключил уведомления
+    const isEnabled = userRadius > 0;
+    const inRange = isEnabled && distance <= userRadius;
+        return { user, distance, userRadius, inRange: distance <= userRadius };
       })
-      .filter(({ distance }) => distance <= radius) // В радиусе
-      .sort((a, b) => a.distance - b.distance);     // Сортируем по близости
+     .filter(({ inRange }) => inRange) // Оставляем только тех, кто ВКЛЮЧИЛ уведомления и в радиусе
+  .sort((a, b) => a.distance - b.distance);
 
-    console.log(` Пользователей в радиусе ${radius}м: ${nearbyUsers.length}`);
+   console.log(` Пользователей, которые получат уведомление: ${eligibleUsers.length}`);
+console.log(` (учитываются только те, кто включил уведомления)\n`);
 
-    if (nearbyUsers.length === 0) {
-      console.log(' Нет соседей в радиусе уведомлений');
-      return 0;
-    }
 
-    // Создаём уведомления для каждого соседа
+ if (eligibleUsers.length === 0) {
+  console.log(' ⚠️ Нет пользователей в радиусе уведомлений');
+  console.log('   Возможные причины:');
+  console.log('   - Все пользователи отключили уведомления (radius = 0)');
+  console.log('   - Все пользователи находятся дальше своего установленного радиуса');
+  return 0;
+}
+    // Создаём уведомления
     const notifications = await Promise.all(
-      nearbyUsers.map(async ({ user, distance }) => {
+      eligibleUsers.map(async ({ user, distance, userRadius }) => {
         try {
           const notification = await Notification.create({
             id: nanoid(),
@@ -85,10 +99,14 @@ export async function notifyNeighbors(
             createdAt: formatDate()
           });
 
-          console.log(`   ${user.name} (${user.phone}) - ${Math.round(distance)}м`);
+          console.log(
+            `   ✓ ${user.name || user.phone} - ${Math.round(distance)}м ` +
+            `(радиус: ${userRadius}м / ${(userRadius/1000).toFixed(1)}км)`
+          );
+          
           return notification;
         } catch (error) {
-          console.error(`   Ошибка для ${user.name}:`, error);
+          console.error(`   ✗ Ошибка для ${user.name}:`, error);
           return null;
         }
       })
@@ -96,19 +114,12 @@ export async function notifyNeighbors(
 
     const successCount = notifications.filter(n => n !== null).length;
 
-    console.log(`\n Отправлено уведомлений: ${successCount}`);
+    console.log(`\n ✓ Отправлено уведомлений: ${successCount}`);
     console.log(` === КОНЕЦ ОТПРАВКИ ===\n`);
 
     return successCount;
   } catch (error) {
-    console.error(' Ошибка отправки уведомлений:', error);
+    console.error(' ✗ Ошибка отправки уведомлений:', error);
     return 0;
   }
 }
-
-
-//ПЕРЕДЕЛАТЬ РАДИУС ЧТОБЫ УКАЗЫВАЛ ПОЛЬЗОВАТЕЛЬ
-
-// * **Фронт** — управляет радиусом.
-// * **Бэк** — получает его через тело запроса и использует в `notifyNeighbors`.
-// * Если фронт ничего не передал — используется **значение по умолчанию**.

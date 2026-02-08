@@ -1,0 +1,35 @@
+<div class="geolocation-widget" [class.active]="isLocationEnabled">
+  <div class="location-status">
+    @if (isLocationEnabled) {
+      <span class="status-icon active">📍</span>
+      <span class="status-text">Геолокация активна</span>
+    } @else if (isLoading) {
+      <span class="status-icon">⏳</span>
+      <span class="status-text">Получение локации...</span>
+    } @else if (error) {
+      <span class="status-icon error">❌</span>
+      <span class="status-text">{{ error }}</span>
+    } @else {
+      <span class="status-icon">📍</span>
+      <span class="status-text">Геолокация отключена</span>
+    }
+  </div>
+
+  @if (!isLocationEnabled && !error) {
+    <button class="enable-btn" (click)="enableLocation()" [disabled]="isLoading">
+      Включить геолокацию
+    </button>
+  }
+
+  @if (lastUpdate) {
+    <div class="last-update">
+      Обновлено: {{ lastUpdate }}
+    </div>
+  }
+
+  @if (isLocationEnabled) {
+    <button class="disable-btn" (click)="disableLocation()">
+      Отключить
+    </button>
+  }
+</div>

@@ -1,0 +1,100 @@
+.geolocation-widget {
+  background: white;
+  border-radius: 8px;
+  padding: 15px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  border-left: 4px solid #ccc;
+  transition: border-color 0.3s;
+
+  &.active {
+    border-left-color: #4caf50;
+  }
+
+  .location-status {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 10px;
+
+    .status-icon {
+      font-size: 20px;
+
+      &.active {
+        animation: pulse 2s infinite;
+      }
+
+      &.error {
+        animation: shake 0.5s;
+      }
+    }
+
+    .status-text {
+      font-size: 14px;
+      font-weight: 500;
+      color: #333;
+    }
+  }
+
+  .enable-btn,
+  .disable-btn {
+    width: 100%;
+    padding: 10px;
+    border: none;
+    border-radius: 6px;
+    font-size: 14px;
+    cursor: pointer;
+    margin: 5px 0;
+    transition: all 0.2s;
+  }
+
+  .enable-btn {
+    background-color: #4caf50;
+    color: white;
+
+    &:hover:not(:disabled) {
+      background-color: #45a049;
+    }
+
+    &:disabled {
+      background-color: #ccc;
+      cursor: not-allowed;
+    }
+  }
+
+  .disable-btn {
+    background-color: #f44336;
+    color: white;
+
+    &:hover {
+      background-color: #d32f2f;
+    }
+  }
+
+  .last-update {
+    font-size: 12px;
+    color: #666;
+    margin-top: 5px;
+    text-align: center;
+  }
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
+@keyframes shake {
+  0%, 100% {
+    transform: translateX(0);
+  }
+  25% {
+    transform: translateX(-5px);
+  }
+  75% {
+    transform: translateX(5px);
+  }
+}

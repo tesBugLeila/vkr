@@ -26,6 +26,7 @@ class User extends Model<IUser, UserCreationAttributes> implements IUser {
   public lastLat!: number | null;           
   public lastLon!: number | null;           
   public lastLocationUpdate!: string | null; 
+  public notificationRadius!: number; 
   public createdAt!: string;
 }
 
@@ -81,7 +82,12 @@ User.init(
       allowNull: true,
       comment: 'Время последнего обновления геолокации'
     },
-
+ notificationRadius: {
+      type: DataTypes.INTEGER,
+      defaultValue: 5000,
+      allowNull: false,
+      comment: 'Радиус уведомлений в метрах'
+    },
 
     createdAt: {
       type: DataTypes.STRING, //  для хранения формата "14.12.2025 15:30"

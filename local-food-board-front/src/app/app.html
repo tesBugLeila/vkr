@@ -14,6 +14,7 @@
       <br />
       @if (userService.currentUser$ | async; as user) {
         <div class="user-actions">
+          <app-notifications-badge></app-notifications-badge>
           <button [routerLink]="['/new']">Подать объявление</button>
           <button [routerLink]="['/profile']" class="profile-btn">Профиль</button>
         </div>

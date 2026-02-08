@@ -267,8 +267,7 @@
             border-radius: 8px;
             border: 2px solid transparent;
             transition: all 0.2s;
-            //width: 90%;
-        
+            
 
             &:hover {
               border-color: #d99064;
@@ -301,5 +300,30 @@
       flex-direction: column;
       gap: 0;
     }
+
+
+    // Контейнер настроек
+    .settings-container {
+      display: flex;
+      flex-direction: column;
+      gap: 30px;
+
+      .settings-section {
+        h3 {
+          margin: 0 0 10px 0;
+          font-size: 20px;
+          font-weight: 500;
+          color: #333;
+        }
+
+        .section-description {
+          margin: 0 0 15px 0;
+          font-size: 14px;
+          color: #666;
+          line-height: 1.5;
+        }
+      }
+    }
+
   }
 }

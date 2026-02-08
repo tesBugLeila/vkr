@@ -9,6 +9,7 @@ export interface IUser {
   lastLat?: number | null;       //  - последняя широта
   lastLon?: number | null;       //  - последняя долгота
   lastLocationUpdate?: string | null; // время последнего обновления геопозиции
+  notificationRadius: number;  
   createdAt: string;
 }
 
@@ -55,19 +56,20 @@ export interface IPost {
 }
 
 // Интерфейс для запроса на создание нового поста
-export interface IPostCreateRequest {
-  title: string;            // Заголовок поста
-  description?: string;     // Описание (необязательное)
-  price: number;           // Цена 
-  contact: string;          // Контактные данные автора
-  category?: string;        // Категория (необязательное)
-  district?: string;        // Район или локация (необязательное)
-  lat?: number;             // Широта (необязательное)
-  lon?: number;             // Долгота (необязательное)
-  notifyNeighbors?: boolean;// Уведомлять соседей (необязательное)
-  userId?: string;          // ID пользователя, который создаёт пост (берётся из токена)
-}
 
+export interface IPostCreateRequest {
+  title: string;
+  description?: string;
+  price: number;
+  contact: string;
+  category?: string;
+  district?: string;
+  lat?: number;
+  lon?: number;
+  notifyNeighbors?: boolean;
+  notificationRadius?: number;  
+  userId?: string;
+}
 // Интерфейс для обновления поста (все поля опциональны)
 export interface IPostUpdateRequest {
   title?: string;

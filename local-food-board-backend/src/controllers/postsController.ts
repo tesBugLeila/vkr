@@ -46,21 +46,21 @@ export const postsController = {
 
 
 //  ОТПРАВЛЯЕМ УВЕДОМЛЕНИЯ СОСЕДЯМ
-      if (post.notifyNeighbors && post.lat && post.lon) {
+    //  ОТПРАВЛЯЕМ УВЕДОМЛЕНИЯ СОСЕДЯМ
+if (post.notifyNeighbors && post.lat && post.lon) {
+  console.log('🔔 Отправка уведомлений соседям...');
   
-        notifyNeighbors(
-          post.id,
-          post.title,
-          post.lat,
-          post.lon,
-          req.user!.id
-        ).catch(err => {
-          console.error(' Ошибка отправки уведомлений:', err);
-        });
-      }
-
-
-
+  notifyNeighbors(
+    post.id,
+    post.title,
+    post.lat,
+    post.lon,
+    req.user!.id
+    // Радиус НЕ передаем - функция сама проверит радиус каждого пользователя
+  ).catch(err => {
+    console.error(' Ошибка отправки уведомлений:', err);
+  });
+}
 
       // Возвращаем созданный пост
    res.status(201).json({ post });
@@ -314,9 +314,20 @@ async update(req: AuthRequest, res: Response, next: NextFunction) {
       updateData.lon = isNaN(lonNum) ? null : lonNum;
     }
 
-    // 11. Обрабатываем флаг уведомления соседей
+      // 11. Обрабатываем флаг уведомления соседей
     if (body.notifyNeighbors !== undefined) {
-      updateData.notifyNeighbors = Boolean(body.notifyNeighbors);
+      const value = body.notifyNeighbors;
+      
+      if (typeof value === 'boolean') {
+        updateData.notifyNeighbors = value;
+      } else if (typeof value === 'string') {
+        // FormData передает как строку "true"/"false"
+        updateData.notifyNeighbors = value === 'true';
+      } else {
+        updateData.notifyNeighbors = Boolean(value);
+      }
+      
+      console.log('✓ notifyNeighbors обновлен:', updateData.notifyNeighbors);
     }
 
     // 12. Обрабатываем загруженные файлы (фотографии)

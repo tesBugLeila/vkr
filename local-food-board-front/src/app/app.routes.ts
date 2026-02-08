@@ -6,6 +6,7 @@ import { Health } from './components/health/health';
 import { Post } from './components/post/post';
 import { Admin } from './components/admin/admin';
 import { Profile } from './components/profile/profile';
+import { Notifications } from './components/notifications/notifications';
 
 export const routes: Routes = [
   {
@@ -40,6 +41,11 @@ export const routes: Routes = [
   {
     path: 'profile',
     component: Profile,
+  },
+
+   {
+    path: 'notifications',
+    component: Notifications,
   },
 
 

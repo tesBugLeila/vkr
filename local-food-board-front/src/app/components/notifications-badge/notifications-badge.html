@@ -1,0 +1,6 @@
+<a [routerLink]="['/notifications']" class="notifications-badge">
+  🔔
+  @if (unreadCount > 0) {
+    <span class="badge">{{ unreadCount > 99 ? '99+' : unreadCount }}</span>
+  }
+</a>

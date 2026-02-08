@@ -1,0 +1,95 @@
+<section class="notifications">
+  <div class="notifications-header">
+    <h2>Уведомления</h2>
+    <a [routerLink]="['/']" class="back-link">← На главную</a>
+  </div>
+
+  <div class="notifications-actions">
+    <button 
+      [class.active]="showOnlyUnread" 
+      (click)="toggleFilter()"
+      class="filter-btn"
+    >
+      {{ showOnlyUnread ? 'Все уведомления' : 'Только непрочитанные' }}
+    </button>
+
+    @if (hasUnreadNotifications) {
+      <button (click)="markAllAsRead()" class="mark-all-btn">
+        ✓ Отметить все как прочитанные
+      </button>
+    }
+  </div>
+
+  @if (loading) {
+    <app-loading></app-loading>
+  }
+
+  @if (!loading && notifications.length === 0) {
+    <div class="empty-state">
+      <div class="empty-icon">🔔</div>
+      <p>{{ showOnlyUnread ? 'Нет непрочитанных уведомлений' : 'У вас пока нет уведомлений' }}</p>
+      <p class="empty-hint">Уведомления появятся, когда рядом с вами кто-то разместит объявление</p>
+    </div>
+  }
+
+  @if (!loading && notifications.length > 0) {
+    <div class="notifications-list">
+      @for (notification of notifications; track notification.id) {
+        <div 
+          class="notification-card" 
+          [class.unread]="!notification.isRead"
+          (click)="markAsRead(notification)"
+        >
+          <div class="notification-content">
+            @if (!notification.isRead) {
+              <div class="unread-indicator"></div>
+            }
+
+            <div class="notification-icon">
+             @if (notification.post && notification.post.photos && notification.post.photos.length > 0) {
+  <img [src]="notification.post.photos[0]" [alt]="notification.postTitle" />
+}
+               @else {
+                <div class="icon-placeholder">🔔</div>
+              }
+            </div>
+
+            <div class="notification-body">
+              <div class="notification-title">
+                <strong>Новое объявление рядом с вами!</strong>
+              </div>
+              
+              <div class="notification-text">
+                <a [routerLink]="['/post', notification.postId]" class="post-link">
+                  {{ notification.postTitle }}
+                </a>
+              </div>
+
+              @if (notification.post) {
+                <div class="notification-details">
+                  <span class="category">{{ notification.post.category }}</span>
+                  <span class="price">{{ notification.post.price }} ₽</span>
+                </div>
+              }
+
+              <div class="notification-meta">
+                <span class="distance">📍 {{ formatDistance(notification.distance) }} от вас</span>
+                <span class="time">{{ notification.createdAt | parseDateTime | dateAgo }}</span>
+              </div>
+            </div>
+
+            <div class="notification-actions">
+              <button 
+                class="delete-btn" 
+                (click)="deleteNotification(notification.id); $event.stopPropagation()"
+                title="Удалить"
+              >
+                🗑️
+              </button>
+            </div>
+          </div>
+        </div>
+      }
+    </div>
+  }
+</section>
