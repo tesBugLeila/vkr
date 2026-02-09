@@ -63,15 +63,17 @@ export async function notifyNeighbors(
           user.lastLon!
         );
         
-        // Радиус пользователя (по умолчанию 5000, если не задан)
-        const userRadius = user.notificationRadius || 5000;
- 
-    // Если радиус = 0, значит пользователь отключил уведомления
+    // Радиус пользователя (по умолчанию 5000, если не задан)
+    const userRadius = user.notificationRadius || 5000;
+    
+    //  Проверяем что радиус > 0
     const isEnabled = userRadius > 0;
     const inRange = isEnabled && distance <= userRadius;
-        return { user, distance, userRadius, inRange: distance <= userRadius };
-      })
-     .filter(({ inRange }) => inRange) // Оставляем только тех, кто ВКЛЮЧИЛ уведомления и в радиусе
+    
+    // Используем уже созданную переменную inRange
+    return { user, distance, userRadius, isEnabled, inRange };
+  })
+  .filter(({ inRange }) => inRange) // Оставляем только тех, кто включил уведомления и в радиусе
   .sort((a, b) => a.distance - b.distance);
 
    console.log(` Пользователей, которые получат уведомление: ${eligibleUsers.length}`);

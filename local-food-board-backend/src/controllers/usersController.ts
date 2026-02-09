@@ -41,7 +41,8 @@ export const usersController = {
         phone,
         password: hashed,    // сохраняем хэш пароля
         name: name,
-        isBlocked: false,    // по умолчанию не заблокирован
+        isBlocked: false,  
+        notificationRadius: 5000,  
         createdAt: formatDate() // "14.12.2025 15:30"
       });
 
@@ -145,6 +146,58 @@ export const usersController = {
   },
 
 
+  /**
+ * PUT /api/users/notification-radius
+ * Обновить радиус уведомлений
+ */
+async updateNotificationRadius(req: AuthRequest, res: Response, next: NextFunction) {
+  try {
+    if (!req.user?.id) {
+      throw new AppError(401, 'Не авторизован');
+    }
+
+    const { radius } = req.body;
+
+    if (radius === undefined || radius === null) {
+      throw new AppError(400, 'Требуется поле radius');
+    }
+
+    const radiusNum = Number(radius);
+
+    if (isNaN(radiusNum)) {
+      throw new AppError(400, 'Радиус должен быть числом');
+    }
+
+    // Радиус может быть 0 (отключено) или от 500 до 50000 метров
+    if (radiusNum !== 0 && (radiusNum < 500 || radiusNum > 50000)) {
+      throw new AppError(400, 'Радиус должен быть 0 (отключено) или от 500 до 50000 метров');
+    }
+
+    const { User } = await import('../models');
+    const user = await User.findByPk(req.user.id);
+
+    if (!user) {
+      throw new AppError(404, 'Пользователь не найден');
+    }
+
+    user.notificationRadius = radiusNum;
+    await user.save();
+
+    if (radiusNum === 0) {
+      console.log(`📍 ${user.name || user.phone} отключил уведомления`);
+    } else {
+      console.log(`📍 ${user.name || user.phone} обновил радиус: ${radiusNum}м`);
+    }
+
+    res.json({
+      success: true,
+      message: radiusNum === 0 ? 'Уведомления отключены' : 'Радиус обновлен',
+      radius: user.notificationRadius
+    });
+  } catch (error) {
+    next(error);
+  }
+},
 
   
 

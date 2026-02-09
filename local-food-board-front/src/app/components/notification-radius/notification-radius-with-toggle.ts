@@ -1,8 +1,9 @@
-import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit, OnDestroy, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { UserService } from '../../services/user.service';
 import { HttpClient } from '@angular/common/http';
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-notification-radius',
@@ -11,13 +12,15 @@ import { HttpClient } from '@angular/common/http';
   templateUrl: './notification-radius-with-toggle.html', 
   styleUrl: './notification-radius.scss',   
 })
-export class NotificationRadius implements OnInit {
-  notificationsEnabled = true; // Включены ли уведомления
-  radius = 5000; // По умолчанию 5 км
+export class NotificationRadius implements OnInit, OnDestroy {
+  notificationsEnabled = true;
+  radius = 5000;
   saving = false;
   saved = false;
   error = '';
   private saveTimeout?: any;
+  private userSubscription?: Subscription;
+  private isManualUpdate = false; 
 
   constructor(
     private userService: UserService,
@@ -33,15 +36,19 @@ export class NotificationRadius implements OnInit {
   }
 
   ngOnInit() {
-    // Загружаем радиус из профиля пользователя
-    this.userService.currentUser$.subscribe(user => {
+    // Подписываемся на изменения пользователя
+    this.userSubscription = this.userService.currentUser$.subscribe(user => {
+
+      if (this.isManualUpdate) {
+        return;
+      }
+
       if (user && (user as any).notificationRadius !== undefined) {
         const userRadius = (user as any).notificationRadius;
         
-        // Если радиус = 0, значит уведомления отключены
         if (userRadius === 0) {
           this.notificationsEnabled = false;
-          this.radius = 5000; // Показываем 5км по умолчанию, но не активно
+          this.radius = 5000;
         } else {
           this.notificationsEnabled = true;
           this.radius = userRadius;
@@ -52,12 +59,17 @@ export class NotificationRadius implements OnInit {
     });
   }
 
+  ngOnDestroy() {
+    this.userSubscription?.unsubscribe();
+    if (this.saveTimeout) {
+      clearTimeout(this.saveTimeout);
+    }
+  }
+
   onNotificationsToggle() {
     if (this.notificationsEnabled) {
-      // Включаем уведомления - сохраняем текущий радиус
       this.saveRadius();
     } else {
-      // Отключаем уведомления - устанавливаем радиус 0
       this.saveRadiusValue(0);
     }
   }
@@ -76,7 +88,6 @@ export class NotificationRadius implements OnInit {
   }
 
   private saveRadius() {
-    // Сохраняем текущий радиус (если уведомления включены)
     this.saveRadiusValue(this.notificationsEnabled ? this.radius : 0);
   }
 
@@ -84,21 +95,22 @@ export class NotificationRadius implements OnInit {
     this.saving = true;
     this.saved = false;
     this.error = '';
+    this.isManualUpdate = true; 
     this.cdr.detectChanges();
 
-    // Отправляем на сервер
-    this.http.post('/api/notifications/update-location', { radius: radiusValue })
+    this.http.put('/api/users/notification-radius', { radius: radiusValue })
       .subscribe({
         next: () => {
           this.saving = false;
           this.saved = true;
-          
-          // Обновляем данные пользователя
-          this.userService.me();
+       
+          setTimeout(() => {
+            this.isManualUpdate = false; 
+            this.userService.me();
+          }, 500);
           
           this.cdr.detectChanges();
 
-          // Скрываем сообщение через 3 секунды
           if (this.saveTimeout) {
             clearTimeout(this.saveTimeout);
           }
@@ -110,9 +122,9 @@ export class NotificationRadius implements OnInit {
         error: (err) => {
           this.saving = false;
           this.error = err.error?.message || 'Ошибка сохранения';
+          this.isManualUpdate = false; 
           this.cdr.detectChanges();
           
-          // Скрываем ошибку через 5 секунд
           if (this.saveTimeout) {
             clearTimeout(this.saveTimeout);
           }

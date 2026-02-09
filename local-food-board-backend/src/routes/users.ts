@@ -64,4 +64,15 @@ router.get(
   usersController.getById
 );
 
+
+
+/**
+ * PUT /api/users/notification-radius
+ * Обновить радиус уведомлений
+ */
+router.put('/notification-radius', authMiddleware, usersController.updateNotificationRadius);
+
+
+
+
 export default router;
