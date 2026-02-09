@@ -215,7 +215,7 @@ async updateNotificationRadius(req: AuthRequest, res: Response, next: NextFuncti
       // 2. Получаем пользователя из базы данных по его ID
       // Возвращаем только необходимые поля
       const user = await User.findByPk(req.user.id, {
-        attributes: ['id', 'phone', 'name', 'createdAt', 'role', 'isBlocked']
+        attributes: ['id', 'phone', 'name', 'createdAt', 'role', 'isBlocked', 'notificationRadius']
       });
 
       // 3. Если пользователь не найден — возвращаем ошибку 404
