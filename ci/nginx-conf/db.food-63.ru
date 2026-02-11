@@ -1,6 +1,15 @@
 server {
     # Настройки по умолчанию
-    listen 80;
+    listen 443 ssl;
+    server_name example.com;
+
+    ssl_certificate /etc/letsencrypt/live/food-63.ru/fullchain.pem;
+    ssl_certificate_key /etc/letsencrypt/live/food-63.ru/privkey.pem;
+
+    # Рекомендуемые настройки безопасности
+    ssl_protocols TLSv1.2 TLSv1.3;
+    ssl_ciphers HIGH:!aNULL:!MD5;
+
     server_name db.food-63.ru;
 
     # Проксирование api bd SQLite GUI
