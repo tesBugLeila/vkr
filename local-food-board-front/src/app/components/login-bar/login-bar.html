@@ -9,6 +9,7 @@
     width="24"
     viewBox="0 0 20 20"
     xmlns="http://www.w3.org/2000/svg"
+    (click)="showMenu = !showMenu"
     (mouseenter)="showMenu = true"
     (mouseleave)="hideMenu()"
   >
@@ -51,7 +52,7 @@
               clip-rule="evenodd"
             ></path>
           </svg>
-          Ностройки профиля
+          Настройки профиля
         </li>
         <li (click)="logOut()">
           <svg width="20" height="20" viewBox="0 0 20 20" style="width: 20px; height: 20px">
