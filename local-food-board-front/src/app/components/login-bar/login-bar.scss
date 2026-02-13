@@ -1,4 +1,71 @@
-:host{
+:host {
   display: block;
   margin-bottom: 10px;
+  position: relative;
+
+  .profile-menu {
+    min-width: 220px;
+    position: absolute;
+    top: 30px;
+    right: -4px;
+    z-index: 9;
+    padding: 0;
+    box-shadow: 0px 5px 8px 6px rgba(0, 0, 0, 0.25);
+    border-radius: 5px;
+    background: #fefcf7;
+    &-name {
+      text-align: center;
+      h4 {
+        font-size: 16px;
+        margin: 10px 0 0;
+      }
+      font-size: 12px;
+    }
+    ul {
+      list-style-type: none;
+      padding: 4px 10px;
+      margin-bottom: 5px;
+      li {
+        cursor: pointer;
+        display: flex;
+        padding: 8px 12px;
+        & > svg {
+          margin-right: 5px;
+        }
+        &:hover {
+          background-color: #d99064;
+          color: white;
+          font-weight: 100;
+          border-radius: 6px;
+          & > svg {
+            fill: white;
+          }
+        }
+      }
+    }
+    &:after {
+      //Стрелочка вверх
+      height: 0px;
+      width: 0px;
+      content: ' ';
+      display: block;
+      position: absolute;
+      top: -5px;
+      right: 10px;
+      border-width: 0 5px 5px 5px;
+      border-style: solid;
+      border-color: transparent transparent #fefcf7 transparent;
+    }
+
+    transform-origin: top right;
+    animation: appear-from-corner 0.1s;
+  }
+}
+@keyframes appear-from-corner {
+  0% {
+    transform: scale(0.5); /* Start at normal size */
+  }
+  100% {
+    transform: scale(1); /* Grow to 1.5 times the size */
+  }
 }

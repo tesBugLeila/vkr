@@ -4,11 +4,10 @@ import { SearchBar } from './components/search-bar/search-bar';
 import { LoginBar } from './components/login-bar/login-bar';
 import { UserService } from './services/user.service';
 import { AsyncPipe, DatePipe } from '@angular/common';
-import { NotificationsBadge} from './components/notifications-badge/notifications-badge';
 
 @Component({
   selector: 'app-root',
-  imports: [SearchBar, RouterOutlet, RouterLink, LoginBar, AsyncPipe, DatePipe, NotificationsBadge ],
+  imports: [SearchBar, RouterOutlet, RouterLink, LoginBar, AsyncPipe, DatePipe],
   templateUrl: './app.html',
   standalone: true,
   styleUrl: './app.scss',
@@ -17,8 +16,7 @@ export class App implements OnInit {
   constructor(public userService: UserService) {}
   now = new Date();
 
- ngOnInit() {
-    this.userService.me()
+  ngOnInit() {
+    this.userService.me();
   }
-
 }
