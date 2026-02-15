@@ -7,8 +7,9 @@
     "dev": "npx ts-node-dev --respawn --transpile-only src/server.ts",
     "build": "tsc",
     "start": "node dist/server.js",
-    "init-db": "npx ts-node src/scripts/initDB.ts",
-    "create-admin": "npx ts-node src/scripts/createAdmin.ts"
+    "seed": "ts-node src/scripts/seed-production.ts"
+
+
   },
   "dependencies": {
     "bcryptjs": "^2.4.3",

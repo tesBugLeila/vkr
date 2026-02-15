@@ -39,4 +39,7 @@ router.delete('/:id', notificationsController.deleteNotification);
 router.post('/update-location', notificationsController.updateLocation);
 
 
+
+router.post('/clear-location', notificationsController.clearLocation);
+
 export default router;

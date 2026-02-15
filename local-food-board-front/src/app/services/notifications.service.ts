@@ -142,4 +142,20 @@ export class NotificationsService {
       return false;
     }
   }
+
+
+/**
+ * Обнулить геолокацию пользователя
+ */
+clearLocation(): Observable<any> {
+  return this.http.post('/api/notifications/clear-location', {});
+}
+
+
+
+
+
+
+
+
 }

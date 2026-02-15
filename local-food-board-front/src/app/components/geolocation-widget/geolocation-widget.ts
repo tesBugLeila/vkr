@@ -8,7 +8,7 @@ import { interval, Subscription } from 'rxjs';
   selector: 'app-geolocation-widget',
   standalone: true,
   imports: [CommonModule],
- templateUrl: './geolocation-widget.html',
+  templateUrl: './geolocation-widget.html',
   styleUrl: './geolocation-widget.scss'
 })
 export class GeolocationWidget implements OnInit, OnDestroy {
@@ -27,11 +27,28 @@ export class GeolocationWidget implements OnInit, OnDestroy {
   ) {}
 
   ngOnInit() {
-    // Проверяем, есть ли сохраненная геолокация
-    const savedLocation = localStorage.getItem('geolocation_enabled');
-    if (savedLocation === 'true') {
-      this.enableLocation();
-    }
+    // Проверяем текущего пользователя
+    this.userService.currentUser$.subscribe(user => {
+      if (user) {
+        const hasLocation = (user as any).lastLat !== null && (user as any).lastLon !== null;
+        
+        if (hasLocation) {
+          this.isLocationEnabled = true;
+          const lastUpdateTime = (user as any).lastLocationUpdate;
+          if (lastUpdateTime) {
+            this.lastUpdate = lastUpdateTime;
+          }
+          
+          // Запускаем автообновление, если геолокация включена
+          const savedLocation = localStorage.getItem('geolocation_enabled');
+          if (savedLocation === 'true') {
+            this.startAutoUpdate();
+          }
+        }
+        
+        this.cdr.detectChanges();
+      }
+    });
   }
 
   ngOnDestroy() {
@@ -52,11 +69,20 @@ export class GeolocationWidget implements OnInit, OnDestroy {
       
       // Успех!
       this.isLocationEnabled = true;
-      this.lastUpdate = new Date().toLocaleString('ru-RU');
+      this.lastUpdate = new Date().toLocaleString('ru-RU', {
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit',
+        hour: '2-digit',
+        minute: '2-digit'
+      });
       localStorage.setItem('geolocation_enabled', 'true');
       
       // Запускаем автоматическое обновление
       this.startAutoUpdate();
+      
+      // Обновляем данные пользователя
+      this.userService.me();
       
       this.isLoading = false;
       this.cdr.detectChanges();
@@ -79,12 +105,40 @@ export class GeolocationWidget implements OnInit, OnDestroy {
     }
   }
 
-  disableLocation() {
-    this.isLocationEnabled = false;
-    this.lastUpdate = '';
-    localStorage.removeItem('geolocation_enabled');
-    this.stopAutoUpdate();
+  async disableLocation() {
+    this.isLoading = true;
     this.cdr.detectChanges();
+
+    try {
+      // ОБНУЛЯЕМ ГЕОЛОКАЦИЮ НА СЕРВЕРЕ
+      await this.notificationsService.clearLocation().toPromise();
+      
+      // Успешно отключено
+      this.isLocationEnabled = false;
+      this.lastUpdate = '';
+      localStorage.removeItem('geolocation_enabled');
+      this.stopAutoUpdate();
+      
+      // Обновляем данные пользователя
+      this.userService.me();
+      
+      console.log('📍 Геолокация отключена и обнулена на сервере');
+      
+      this.isLoading = false;
+      this.cdr.detectChanges();
+    } catch (error) {
+      console.error('Ошибка при отключении геолокации:', error);
+      
+      // Даже если сервер вернул ошибку, отключаем локально
+      this.isLocationEnabled = false;
+      this.lastUpdate = '';
+      localStorage.removeItem('geolocation_enabled');
+      this.stopAutoUpdate();
+      
+      this.isLoading = false;
+      this.error = 'Ошибка отключения';
+      this.cdr.detectChanges();
+    }
   }
 
   private startAutoUpdate() {
@@ -96,7 +150,13 @@ export class GeolocationWidget implements OnInit, OnDestroy {
       try {
         const location = await this.notificationsService.getCurrentLocation();
         await this.notificationsService.updateLocation(location.lat, location.lon).toPromise();
-        this.lastUpdate = new Date().toLocaleString('ru-RU');
+        this.lastUpdate = new Date().toLocaleString('ru-RU', {
+          year: 'numeric',
+          month: '2-digit',
+          day: '2-digit',
+          hour: '2-digit',
+          minute: '2-digit'
+        });
         this.cdr.detectChanges();
         console.log('📍 Геолокация автоматически обновлена');
       } catch (error) {

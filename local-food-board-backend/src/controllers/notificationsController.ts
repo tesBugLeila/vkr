@@ -190,5 +190,41 @@ export const notificationsController = {
     } catch (error) {
       next(error);
     }
+  },
+
+async clearLocation(req: AuthRequest, res: Response, next: NextFunction) {
+  try {
+    const { User } = await import('../models');
+    const user = await User.findByPk(req.user!.id);
+
+    if (!user) {
+      throw new AppError(404, 'Пользователь не найден');
+    }
+
+    user.lastLat = null;
+    user.lastLon = null;
+    user.lastLocationUpdate = null;
+    await user.save();
+
+    console.log(`📍 Геолокация отключена: ${user.name || user.phone}`);
+
+    res.json({
+      success: true,
+      message: 'Геолокация отключена'
+    });
+  } catch (error) {
+    next(error);
   }
+}
+
+
+
+
+
+
+
+
+
+
+
 };

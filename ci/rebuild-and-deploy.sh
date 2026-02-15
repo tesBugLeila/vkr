@@ -23,7 +23,7 @@ pm2 start server
 
 # start food-63.ru/api
 cd /var/www/vkr/local-food-board-backend
-npm run create-admin
+npm run seed
 
 # start db.food-63.ru
 cd /var/www/vkr/local-food-board-db-tool
