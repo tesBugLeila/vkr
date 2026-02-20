@@ -13,7 +13,7 @@ cd /var/www/vkr/local-food-board-backend
 #npm i
 #cp -r node_modules ~/cache/back/
 ln -s ~/cache/back/node_modules/ ./node_modules
-cp ~/database-last-backup.sqlite /var/www/vkr/local-food-board-backend/dist/database.sqlite
+cp ~/database-last-backup.sqlite /var/www/vkr/local-food-board-backend/database.sqlite
 npm run seed
 npm run build
 mv database.sqlite dist/database.sqlite
