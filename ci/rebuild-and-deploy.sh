@@ -13,17 +13,18 @@ cd /var/www/vkr/local-food-board-backend
 #npm i
 #cp -r node_modules ~/cache/back/
 ln -s ~/cache/back/node_modules/ ./node_modules
+cp ~/database-last-backup.sqlite /var/www/vkr/local-food-board-backend/dist/database.sqlite
+npm run seed
 npm run build
 
 cd /var/www/vkr/local-food-board-backend/dist/
-cp ~/database-last-backup.sqlite /var/www/vkr/local-food-board-backend/dist/database.sqlite
+rm -rf uploads/
 cp -r ~/uploads-backup /var/www/vkr/local-food-board-backend/dist/uploads
 
 pm2 start server
 
 # start food-63.ru/api
 cd /var/www/vkr/local-food-board-backend
-npm run seed
 
 # start db.food-63.ru
 cd /var/www/vkr/local-food-board-db-tool
