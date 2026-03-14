@@ -52,7 +52,9 @@
         @if (isPostPage && data.contact) {
         <span class="contact-meta">
           <div class="contact-label">Контакты:</div>
-          <span class="contact-value">{{ data.contact }}</span>
+          <span class="contact-value">
+            <app-phone [data]="data" [autoLoad]="true"></app-phone>
+          </span>
         </span>
         }
         <div class="price">{{ data.price | currency: 'RUB' : '' : '.0-2' }}₽</div>
@@ -103,11 +105,11 @@
 
 <!-- МОДАЛКА ЖАЛОБЫ (рендерится когда открыта) -->
 @if (reportModalOpen && data && data.userId) {
-<app-report-modal 
-  [reportedUserId]="data.userId" 
-  [postId]="data.id" 
+<app-report-modal
+  [reportedUserId]="data.userId"
+  [postId]="data.id"
   [post]="{ id: data.id, title: data.title }"
-  (closed)="closeReportModal()" 
+  (closed)="closeReportModal()"
   (submitted)="onReportSubmitted()">
 </app-report-modal>
 }

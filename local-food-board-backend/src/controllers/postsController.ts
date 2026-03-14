@@ -158,9 +158,15 @@ async list(req: Request, res: Response, next: NextFunction) {
       });
     }
 
-    // 3. Возвращаем отсортированные посты
+    // 3. Скрываем номера телефонов
+    const resPosts = sortedPosts.map(p => {
+      p.contact = p.contact.slice(0, -4)+'XXXX'
+      return p
+    });
+
+    // 4. Возвращаем отсортированные посты
     res.json({
-      posts: sortedPosts,
+      posts: resPosts,
       pagination: {
         total: count,
         page: pageNum,
@@ -193,8 +199,30 @@ async getById(req: Request, res: Response, next: NextFunction) {
       if (!post) {
         throw new AppError(404, 'Пост не найден');
       }
+      // Скрываем контакты
+      post.contact = post.contact.slice(0, -4)+'XXXX'
 
       res.json({ post });
+    } catch (error) {
+      next(error);
+    }
+  },
+
+
+  /**
+   * Получение поста по ID
+   * @param req - Request, содержит params.id
+   * @param res - Response
+   */
+async getContactById(req: AuthRequest, res: Response, next: NextFunction) {
+    try {
+      const { id } = req.params;
+      const post = await Post.findByPk(id, );
+
+      if (!post) {
+        throw new AppError(404, 'Пост не найден');
+      }
+      res.json( post.contact );
     } catch (error) {
       next(error);
     }

@@ -22,7 +22,7 @@ export class PostService {
   ];
 
   public filterUpdated$ = new BehaviorSubject<boolean>(false);
-  
+
   public searchBar: IPostFilter = {
     lat: undefined,
     lon: undefined,
@@ -39,8 +39,8 @@ export class PostService {
     const filter = Object.fromEntries(
       Object.entries(this.searchBar).filter(([key, value]) => value !== undefined),
     );
-    return this.http.get<IList<IPost>>('/api/posts', { 
-      params: { ...filter, page: page.toString(), limit: limit.toString() } 
+    return this.http.get<IList<IPost>>('/api/posts', {
+      params: { ...filter, page: page.toString(), limit: limit.toString() }
     });
   }
 
@@ -57,6 +57,13 @@ export class PostService {
    */
   getById(postId: string): Observable<IPostWrapper> {
     return this.http.get<IPostWrapper>(`/api/posts/${postId}`);
+  }
+
+  /**
+   * Получение контактов поста по ID поста
+   */
+  getContactById(postId: string): Observable<string> {
+    return this.http.get<string>(`/api/posts/${postId}/contact`);
   }
 
   /**

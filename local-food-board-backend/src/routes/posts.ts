@@ -21,6 +21,13 @@ router.get('/', postsController.list);
  */
 router.get('/:id', postsController.getById);
 
+/**
+ * GET /:id/contact
+ * Получение контактов поста по идентификатору поста
+ * Требует авторизацию
+ */
+router.get('/:id/contact', authMiddleware, postsController.getContactById);
+
 
 /**
  * GET /user/my-posts

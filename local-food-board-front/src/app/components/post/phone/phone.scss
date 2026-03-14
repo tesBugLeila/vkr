@@ -9,9 +9,32 @@
     display: inline-block;
     cursor: pointer;
     color: #333333;
-    
     &:hover {
-      opacity: 0.8;
+    }
+    .blur-mask {
+      pointer-events: none;
+      & > div {
+        position: absolute;
+        display: inline-block;
+        height: 100%;
+        right: 0;
+        backdrop-filter: blur(2px);
+        mask: linear-gradient(to left, rgba(0, 0, 0, 1) 0%, rgba(0, 0, 0, 0) 100%);
+
+        &:nth-of-type(1) {
+          width: 90px;
+          z-index: 3;
+        }
+        &:nth-of-type(2) {
+          width: 60px;
+          z-index: 2;
+        }
+        &:nth-of-type(3) {
+          //backdrop-filter: blur(0.5px);
+
+          z-index: 1;
+        }
+      }
     }
   }
 
@@ -37,7 +60,7 @@
     visibility: visible;
     opacity: 1;
   }
-  
+
   // Анимация загрузки
   .loading-indicator {
     display: inline-block;
@@ -45,8 +68,18 @@
   }
 
   @keyframes pulse {
-    0% { opacity: 0.6; }
-    50% { opacity: 1; }
-    100% { opacity: 0.6; }
+    0% {
+      opacity: 0.6;
+    }
+    50% {
+      opacity: 1;
+    }
+    100% {
+      opacity: 0.6;
+    }
+  }
+  .error {
+    color: #d99064;
+    font-size: 11px;
   }
 }
