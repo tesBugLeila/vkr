@@ -55,10 +55,10 @@ User.init(
     },
       role: {                            
       type: DataTypes.STRING,
-      defaultValue: UserRole.USER,
+      defaultValue: UserRole.UNVERIFIED,
       allowNull: false,
       validate: {
-        isIn: [[UserRole.USER, UserRole.ADMIN]]
+        isIn: [[UserRole.UNVERIFIED, UserRole.USER, UserRole.ADMIN]]
       }
     },
     isBlocked: {                       

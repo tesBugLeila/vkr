@@ -32,6 +32,17 @@ router.post(
 );
 
 /**
+ * POST /login-by-sms
+ * 1. authLimiter — ограничивает количество попыток логина
+ * 2. usersController.login — выполняет сброс кода авторизации и отправку SMS
+ */
+router.post(
+  '/login-by-sms',
+  authLimiter,
+  usersController.loginBySms
+);
+
+/**
  * GET /me
  * 1. authMiddleware — проверяет JWT и добавляет user в req
  * 2. usersController.me — возвращает данные текущего пользователя

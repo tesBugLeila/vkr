@@ -5,7 +5,13 @@ import { Router } from '@angular/router';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { finalize } from 'rxjs';
 import { UserService } from '../../services/user.service';
-import { AdminService, IAdminStats, IAdminUser, IAdminReport } from '../../services/admin.service';
+import {
+  AdminService,
+  IAdminStats,
+  IAdminUser,
+  IAdminReport,
+  ISms,
+} from '../../services/admin.service';
 import { Loading } from '../loading/loading';
 
 @Component({
@@ -16,7 +22,7 @@ import { Loading } from '../loading/loading';
   styleUrl: './admin.scss',
 })
 export class Admin implements OnInit {
-  activeTab: 'stats' | 'users' | 'reports' = 'stats';
+  activeTab: 'stats' | 'users' | 'reports' | 'sms' = 'stats';
   loading = false;
 
   // Статистика
@@ -34,6 +40,12 @@ export class Admin implements OnInit {
   reportsTotalPages = 1;
   reportsStatusFilter = '';
 
+  // Sms
+  sms: ISms[] = [];
+  smsPage = 1;
+  smsTotalPages = 1;
+  smsPhoneFilter = '';
+
   // Модальные окна
   selectedUser: IAdminUser | null = null;
   selectedReport: IAdminReport | null = null;
@@ -49,10 +61,8 @@ export class Admin implements OnInit {
     private destroyRef: DestroyRef,
   ) {}
 
-ngOnInit() {
-  this.userService.currentUser$
-    .pipe(takeUntilDestroyed(this.destroyRef))
-    .subscribe((user) => {
+  ngOnInit() {
+    this.userService.currentUser$.pipe(takeUntilDestroyed(this.destroyRef)).subscribe((user) => {
       if (!user || user?.role !== 'admin') {
         this.router.navigate(['/']).then();
         return;
@@ -60,21 +70,26 @@ ngOnInit() {
 
       this.loadStats();
     });
-}
+  }
 
-
-  switchTab(tab: 'stats' | 'users' | 'reports') {
+  switchTab(tab: 'stats' | 'users' | 'reports' | 'sms') {
     this.activeTab = tab;
     if (tab === 'stats') this.loadStats();
     if (tab === 'users') this.loadUsers();
     if (tab === 'reports') this.loadReports();
+    if (tab === 'sms') this.loadSms();
   }
 
   loadStats() {
     this.loading = true;
     this.adminService
       .getStats()
-      .pipe(finalize(() => { this.loading = false; this.cdr.detectChanges(); }))
+      .pipe(
+        finalize(() => {
+          this.loading = false;
+          this.cdr.detectChanges();
+        }),
+      )
       .subscribe((data) => {
         this.stats = data.stats;
         this.cdr.detectChanges();
@@ -86,7 +101,12 @@ ngOnInit() {
     this.usersPage = page;
     this.adminService
       .listUsers(page, 20, this.usersSearch || undefined)
-      .pipe(finalize(() => { this.loading = false; this.cdr.detectChanges(); }))
+      .pipe(
+        finalize(() => {
+          this.loading = false;
+          this.cdr.detectChanges();
+        }),
+      )
       .subscribe((data) => {
         this.users = data.users;
         this.usersTotalPages = data.pagination.pages;
@@ -98,10 +118,10 @@ ngOnInit() {
     this.loadUsers(1);
   }
 
-clearUsersSearch() {
-  this.usersSearch = '';
-  this.loadUsers(1);
-}
+  clearUsersSearch() {
+    this.usersSearch = '';
+    this.loadUsers(1);
+  }
 
   openBlockModal(user: IAdminUser) {
     this.selectedUser = user;
@@ -131,7 +151,12 @@ clearUsersSearch() {
     this.reportsPage = page;
     this.adminService
       .listReports(page, 20, this.reportsStatusFilter || undefined)
-      .pipe(finalize(() => { this.loading = false; this.cdr.detectChanges(); }))
+      .pipe(
+        finalize(() => {
+          this.loading = false;
+          this.cdr.detectChanges();
+        }),
+      )
       .subscribe((data) => {
         this.reports = data.reports;
         this.reportsTotalPages = data.pagination.pages;
@@ -149,28 +174,73 @@ clearUsersSearch() {
     this.reportComment = report.adminComment || '';
   }
 
-updateReportStatus() {
-  if (!this.selectedReport) return;
-  
-  this.adminService
-    .updateReport(this.selectedReport.id, this.reportStatus, this.reportComment || undefined)
-    .subscribe({
-      next: () => {
-        // Закрываем модалку
-        this.selectedReport = null;
-        this.reportStatus = '';
-        this.reportComment = '';
-        // Перезагружаем список жалоб
-        this.loadReports(this.reportsPage);
-        // Обновляем представление
+  updateReportStatus() {
+    if (!this.selectedReport) return;
+
+    this.adminService
+      .updateReport(this.selectedReport.id, this.reportStatus, this.reportComment || undefined)
+      .subscribe({
+        next: () => {
+          // Закрываем модалку
+          this.selectedReport = null;
+          this.reportStatus = '';
+          this.reportComment = '';
+          // Перезагружаем список жалоб
+          this.loadReports(this.reportsPage);
+          // Обновляем представление
+          this.cdr.detectChanges();
+        },
+        error: (error) => {
+          console.error('Ошибка обновления жалобы:', error);
+          alert('Не удалось обновить жалобу: ' + (error.error?.message || error.message));
+        },
+      });
+  }
+
+  // Функция конвертирующая строку 'dd.mm.yyyy hh:mm' в дату
+  parseDate(s: string): number {
+    const [day, month, year, hour, minute] = s.split(/[\.\s:]/);
+    return new Date(Number(year),  Number(month)- 1, Number(day), Number(hour), Number(minute)).getTime();
+  }
+
+  lastSms(message: ISms): boolean {
+    if (!message || !this.sms?.length) {
+      return false;
+    }
+    const allForPhone = this.sms
+      .filter((m) => m.phone === message.phone)
+      .sort((a, b) => this.parseDate(b.sendAt) - this.parseDate(a.sendAt));
+    if(!allForPhone?.length){
+      return false
+    }
+    return message.text === allForPhone[0].text;
+  }
+
+  loadSms(page = 1) {
+    this.loading = true;
+    this.smsPage = page;
+    this.adminService
+      .listSms(page, 20, this.smsPhoneFilter || undefined)
+      .pipe(
+        finalize(() => {
+          this.loading = false;
+          this.cdr.detectChanges();
+        }),
+      )
+      .subscribe((data) => {
+        this.sms = data.smsLog;
+        this.smsTotalPages = data.pagination.pages;
         this.cdr.detectChanges();
-      },
-      error: (error) => {
-        console.error('Ошибка обновления жалобы:', error);
-        alert('Не удалось обновить жалобу: ' + (error.error?.message || error.message));
-      }
-    });
-}
+      });
+  }
+
+  searchSms() {
+    this.loadSms(1);
+  }
+  clearSmsSearch() {
+    this.smsPhoneFilter = '';
+    this.loadSms(1);
+  }
 
   get userPages(): number[] {
     return Array.from({ length: this.usersTotalPages }, (_, i) => i + 1);
@@ -178,5 +248,9 @@ updateReportStatus() {
 
   get reportPages(): number[] {
     return Array.from({ length: this.reportsTotalPages }, (_, i) => i + 1);
+  }
+
+  get smsPages(): number[] {
+    return Array.from({ length: this.smsTotalPages }, (_, i) => i + 1);
   }
 }

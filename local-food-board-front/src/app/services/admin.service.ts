@@ -40,6 +40,12 @@ export interface IAdminReport {
   post?: { id: string; title: string } | null;
 }
 
+export interface ISms {
+  phone: string;
+  text: string;
+  sendAt: string;
+}
+
 @Injectable({
   providedIn: 'root',
 })
@@ -78,6 +84,15 @@ export class AdminService {
     const params: any = { page: page.toString(), limit: limit.toString() };
     if (status) params.status = status;
     return this.http.get<any>('/api/admin/reports', { params });
+  }
+
+  listSms(page = 1, limit = 50, phone?: string): Observable<{
+    smsLog: ISms[];
+    pagination: { total: number; page: number; pages: number };
+  }> {
+    const params: any = { page: page.toString(), limit: limit.toString() };
+    if (phone) params.phone = phone;
+    return this.http.get<any>('/api/admin/sms-log', { params });
   }
 
   updateReport(id: string, status?: string, adminComment?: string): Observable<any> {

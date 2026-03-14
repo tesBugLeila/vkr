@@ -91,7 +91,8 @@
   }
 
   // Таблица пользователей
-  .users-table {
+  // И SMS
+  .table {
     background: white;
     border-radius: 8px;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
@@ -138,6 +139,9 @@
             &.actions {
               display: flex;
               gap: 8px;
+            }
+            & span.highlight {
+              background-color: yellow;
             }
           }
         }
@@ -295,9 +299,9 @@
       }
 
       &.active {
-        background: #007bff;
+        background: #d99064;
         color: white;
-        border-color: #007bff;
+        border-color: #d99064;
       }
     }
   }

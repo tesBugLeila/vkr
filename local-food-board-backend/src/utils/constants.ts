@@ -19,8 +19,9 @@ export const DEFAULT_LIMIT = 50;
 
 // Роли пользователей
 export enum UserRole {
-  USER = 'user',           // Обычный пользователь
-  ADMIN = 'admin'          // Администратор
+  USER = 'user',               // Обычный пользователь
+  ADMIN = 'admin',             // Администратор
+  UNVERIFIED  = 'unverified'  // Новый пользователь, в процессе регистрации, которому отправили SMS но он её ещё не подтвердил
 }
 
 export enum PostCategory {

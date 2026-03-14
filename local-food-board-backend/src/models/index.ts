@@ -2,6 +2,7 @@ import User from './User';
 import Post from './Post';
 import Report from './Report';
 import Notification from './Notification';
+import Sms from './Sms';
 
 
 // Связи User <-> Post
@@ -30,7 +31,7 @@ Notification.belongsTo(User, { foreignKey: 'userId', as: 'user' });
 Post.hasMany(Notification, { foreignKey: 'postId', as: 'notifications' });
 Notification.belongsTo(Post, { foreignKey: 'postId', as: 'post' });
 
-export { User, Post, Report, Notification };
+export { User, Post, Report, Notification, Sms };
 
 
 

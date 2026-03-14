@@ -21,4 +21,7 @@ router.patch('/reports/:id', adminController.updateReport);
 // Статистика
 router.get('/stats', adminController.getStats);
 
+// Лог отправоенних sms
+router.get('/sms-log', adminController.smsLog);
+
 export default router;

@@ -19,6 +19,13 @@ export class UserService {
   }
 
   /**
+   * Запрос пароля по SMS
+   */
+  loginBySms(phone: string): Observable<IUserResp> {
+    return this.http.post<IUserResp>('/api/users/login-by-sms', { phone });
+  }
+
+  /**
    * Вход в систему
    */
   login(phone: string, password: string): Observable<IUserResp> {

@@ -12,6 +12,8 @@ import { AuthRequest } from '../types/express';
 import { AppError } from '../utils/AppError';
 import { formatDate } from '../utils/dateFormatter';
 import dotenv from 'dotenv';
+import {sendCodeViaSms} from "../utils/smsService";
+import {UserRole} from "../utils/constants";
 dotenv.config();
 
 const JWT_SECRET = process.env.JWT_SECRET || 'change_this_secret_key';
@@ -80,6 +82,62 @@ export const usersController = {
   },
 
   /**
+   * Авторизация / регистрация нового пользователя через sms
+   * @param req - Request, тело запроса содержит phone, password и необязательное name
+   * @param res - Response
+   */
+  async loginBySms(req: Request, res: Response, next: NextFunction): Promise<void> {
+    try {
+      const { phone } = req.body as IUserRegisterRequest;
+
+      // Генерируем временный пароль для SMS (6 случайных цифр)
+      const password = Math.floor(100000 + Math.random() * 900000).toString();;
+      // Хэшируем пароль
+      const hashed = await bcrypt.hash(password, 10);
+      const smsTest = `Вход сайт food-63.ru, Никому не сообщайте код, его спрашивают только мошенники. Код: ${password}`;
+
+
+      // Проверяем, зарегистрирован ли уже пользователь с таким телефоном
+      const exists = await User.findOne({ where: { phone } });
+
+      // Пользователь найден подменяемому пароль
+      if (exists) {
+
+        //TODO: только для MVP
+        if(exists.role === 'admin'){
+          // если войти пытается админ, ему (для удобства отладки) пароль не меняем а просто отправляем дальше
+          res.status(200).json({success: true, admin: true});
+          return;
+        }
+
+        exists.password = hashed
+        await exists.save();
+        await sendCodeViaSms(phone, smsTest)
+        res.status(200).json({success: true});
+        return;
+      }
+
+      // Пользователь не найден регистрируем нового
+      const user = await User.create({
+        id: nanoid(),        // уникальный идентификатор
+        phone,
+        password: hashed,    // сохраняем хэш пароля
+        name: '',
+        role: UserRole.UNVERIFIED,
+        isBlocked: false,
+        notificationRadius: 5000,
+        createdAt: formatDate() // "14.12.2025 15:30"
+      });
+
+      await sendCodeViaSms(phone, smsTest)
+        res.status(200).json({success: true});
+    }
+    catch (error) {
+      next(error);
+    }
+  },
+
+  /**
    * Авторизация (логин) пользователя по номеру телефона и паролю.
    */
   async login(req: Request, res: Response, next: NextFunction) {
@@ -124,7 +182,13 @@ export const usersController = {
         { expiresIn: '7d' }
       );
 
-      // 8. Формируем объект ответа,
+      //8. Если пользователь успешно залогинился первый раз меняем его роль на подтверждённого пользователя
+      if(user.role === UserRole.UNVERIFIED){
+        user.role = UserRole.USER;
+        await user.save();
+      }
+
+      // 9. Формируем объект ответа,
       // содержащий токен и минимальную информацию о пользователе
       const response: IAuthResponse = {
         token,

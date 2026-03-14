@@ -1,6 +1,6 @@
 
 import { Request, Response, NextFunction } from 'express';
-import { User, Post, Report } from '../models';
+import { User, Post, Report, Sms } from '../models';
 import { AuthRequest } from '../types/express';
 import { AppError } from '../utils/AppError';
 import { Op } from 'sequelize';
@@ -258,6 +258,47 @@ export const adminController = {
           totalReports,
           pendingReports,
           blockedUsers
+        }
+      });
+    } catch (error) {
+      next(error);
+    }
+  },
+
+
+
+  /**
+   * Получить лог отправленных sms
+   * GET /api/admin/sms-log
+   */
+  async smsLog(req: AuthRequest, res: Response, next: NextFunction) {
+    try {
+      const { page = '1', limit = '50', phone } = req.query;
+
+      const pageNum = Number(page);
+      const limitNum = Math.min(Number(limit), 100);
+      const offset = (pageNum - 1) * limitNum;
+
+      const where: any = {};
+      if (phone){
+        where[Op.or] = [
+          { phone: { [Op.like]: `%${phone}%` } }
+        ];
+      }
+
+      const { count, rows: smsLog } = await Sms.findAndCountAll({
+        where,
+        order: [['sendAt', 'DESC']],
+        limit: limitNum,
+        offset
+      });
+
+      res.json({
+        smsLog,
+        pagination: {
+          total: count,
+          page: pageNum,
+          pages: Math.ceil(count / limitNum)
         }
       });
     } catch (error) {

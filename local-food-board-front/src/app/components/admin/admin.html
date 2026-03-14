@@ -3,24 +3,12 @@
 
   <!-- ТАБЫ -->
   <div class="tabs">
-    <button
-      [class.active]="activeTab === 'stats'"
-      (click)="switchTab('stats')"
-    >
-      Статистика
-    </button>
-    <button
-      [class.active]="activeTab === 'users'"
-      (click)="switchTab('users')"
-    >
+    <button [class.active]="activeTab === 'stats'" (click)="switchTab('stats')">Статистика</button>
+    <button [class.active]="activeTab === 'users'" (click)="switchTab('users')">
       Пользователи
     </button>
-    <button
-      [class.active]="activeTab === 'reports'"
-      (click)="switchTab('reports')"
-    >
-      Жалобы
-    </button>
+    <button [class.active]="activeTab === 'reports'" (click)="switchTab('reports')">Жалобы</button>
+    <button [class.active]="activeTab === 'sms'" (click)="switchTab('sms')">SMS</button>
   </div>
 
   @if (loading && !stats && !users.length && !reports.length) {
@@ -63,16 +51,10 @@
         (keyup.enter)="searchUsers()"
       />
       <button (click)="searchUsers()">Найти</button>
-      <button 
-    *ngIf="usersSearch" 
-    (click)="clearUsersSearch()"
-    class="clear-btn"
-  >
-    Очистить
-  </button>
+      <button *ngIf="usersSearch" (click)="clearUsersSearch()" class="clear-btn">Очистить</button>
     </div>
 
-    <div class="users-table">
+    <div class="table">
       <table>
         <thead>
           <tr>
@@ -91,7 +73,17 @@
               <td>{{ user.name || '—' }}</td>
               <td>
                 <span [class.badge]="user.role === 'admin'" class="role">
-                  {{ user.role === 'admin' ? '🔑 Админ' : 'Пользователь' }}
+                  @switch (user.role) {
+                    @case ('admin') {
+                      🔑 Админ
+                    }
+                    @case ('unverified') {
+                      Неподтверждённый
+                    }
+                    @default {
+                      Пользователь
+                    }
+                  }
                 </span>
               </td>
               <td>{{ user.createdAt }}</td>
@@ -103,18 +95,10 @@
                 }
               </td>
               <td class="actions">
-                <button
-                  class="btn-small"
-                  (click)="openBlockModal(user)"
-                >
+                <button class="btn-small" (click)="openBlockModal(user)">
                   {{ user.isBlocked ? '🔓' : '🔒' }}
                 </button>
-                <button
-                  class="btn-small delete"
-                  (click)="deleteUserConfirm(user)"
-                >
-                  🗑️
-                </button>
+                <button class="btn-small delete" (click)="deleteUserConfirm(user)">🗑️</button>
               </td>
             </tr>
           }
@@ -125,10 +109,55 @@
     @if (usersTotalPages > 1) {
       <div class="pagination">
         @for (page of userPages; track page) {
-          <span
-            [class.active]="page === usersPage"
-            (click)="loadUsers(page)"
-          >
+          <span [class.active]="page === usersPage" (click)="loadUsers(page)">
+            {{ page }}
+          </span>
+        }
+      </div>
+    }
+  }
+
+  <!-- SMS -->
+  @if (activeTab === 'sms') {
+    <div class="section-header">
+      <input
+        type="text"
+        placeholder="Поиск по телефону"
+        [(ngModel)]="smsPhoneFilter"
+        (keyup.enter)="searchSms()"
+      />
+      <button (click)="searchSms()">Найти</button>
+      <button (click)="searchSms()">Обновить</button>
+      <button *ngIf="smsPhoneFilter" (click)="clearSmsSearch()" class="clear-btn">Очистить</button>
+    </div>
+
+    <div class="table">
+      <table>
+        <thead>
+          <tr>
+            <th>Телефон</th>
+            <th style="width: 60%">Текст</th>
+            <th>Дата отправки</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (message of sms; track message.sendAt) {
+            <tr>
+              <td>{{ message.phone }}</td>
+              <td>
+                <span [class.highlight]="lastSms(message)">{{ message.text }}</span>
+              </td>
+              <td>{{ message.sendAt }}</td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+
+    @if (smsTotalPages > 1) {
+      <div class="pagination">
+        @for (page of smsPages; track page) {
+          <span [class.active]="page === smsPage" (click)="loadSms(page)">
             {{ page }}
           </span>
         }
@@ -142,9 +171,9 @@
       <select [(ngModel)]="reportsStatusFilter" (change)="filterReports()">
         <option value="">Все жалобы</option>
         <option value="В обработке">На рассмотрении</option>
-          <option value="Просмотрено">Просмотрено</option>
-          <option value="Решено">Решено</option>
-          <option value="Отклонено">Отклонено</option>
+        <option value="Просмотрено">Просмотрено</option>
+        <option value="Решено">Решено</option>
+        <option value="Отклонено">Отклонено</option>
       </select>
     </div>
 
@@ -159,8 +188,16 @@
           </div>
           <div class="report-body">
             <p><strong>Причина:</strong> {{ report.reason }}</p>
-            <p><strong>От:</strong> {{ report.reporter.phone }} ({{ report.reporter.name || 'Без имени' }})</p>
-            <p><strong>На:</strong> {{ report.reportedUser.phone }} ({{ report.reportedUser.name || 'Без имени' }})</p>
+            <p>
+              <strong>От:</strong> {{ report.reporter.phone }} ({{
+                report.reporter.name || 'Без имени'
+              }})
+            </p>
+            <p>
+              <strong>На:</strong> {{ report.reportedUser.phone }} ({{
+                report.reportedUser.name || 'Без имени'
+              }})
+            </p>
             @if (report.description) {
               <p><strong>Описание:</strong> {{ report.description }}</p>
             }
@@ -168,7 +205,9 @@
               <p><strong>Пост:</strong> {{ report.post.title }}</p>
             }
             @if (report.adminComment) {
-              <p class="admin-comment"><strong>Комментарий админа:</strong> {{ report.adminComment }}</p>
+              <p class="admin-comment">
+                <strong>Комментарий админа:</strong> {{ report.adminComment }}
+              </p>
             }
           </div>
           <div class="report-actions">
@@ -181,10 +220,7 @@
     @if (reportsTotalPages > 1) {
       <div class="pagination">
         @for (page of reportPages; track page) {
-          <span
-            [class.active]="page === reportsPage"
-            (click)="loadReports(page)"
-          >
+          <span [class.active]="page === reportsPage" (click)="loadReports(page)">
             {{ page }}
           </span>
         }
@@ -199,11 +235,7 @@
     <div class="modal-content" (click)="$event.stopPropagation()">
       <h3>{{ selectedUser.isBlocked ? 'Разблокировать' : 'Заблокировать' }} пользователя</h3>
       <p>{{ selectedUser.phone }} ({{ selectedUser.name || 'Без имени' }})</p>
-      <textarea
-        placeholder="Причина (необязательно)"
-        [(ngModel)]="blockReason"
-        rows="8"
-      ></textarea>
+      <textarea placeholder="Причина (необязательно)" [(ngModel)]="blockReason" rows="8"></textarea>
       <div class="modal-actions">
         <button (click)="selectedUser = null" class="btn-cancel">Отмена</button>
         <button (click)="toggleBlock()">Подтвердить</button>
@@ -220,7 +252,7 @@
       <div class="form-row">
         <label>Статус:</label>
         <select [(ngModel)]="reportStatus">
-     <option value="В обработке">На рассмотрении</option>
+          <option value="В обработке">На рассмотрении</option>
           <option value="Просмотрено">Просмотрено</option>
           <option value="Решено">Решено</option>
           <option value="Отклонено">Отклонено</option>

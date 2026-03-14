@@ -28,11 +28,46 @@ export class Login {
   ) {}
 
   sendPhone() {
+    // this.state = 'loading';
+    // setTimeout(() => {
+    //   this.state = 'code';
+    //   this.cdr.markForCheck();
+    // }, 1000);
     this.state = 'loading';
-    setTimeout(() => {
-      this.state = 'code';
-      this.cdr.markForCheck();
-    }, 1000);
+    this.cdr.markForCheck();
+
+    const phone = `+7${this.userPhoneNumber}`;
+
+    this.userService
+      .loginBySms(phone)
+      .pipe(
+        first(),
+        finalize(() => {
+          this.cdr.markForCheck();
+        }),
+      )
+      .subscribe(
+        () => {
+          this.state = 'code';
+          this.cdr.markForCheck();
+        },
+        (error) => {
+          this.state = 'failure';
+          this.errorMessage =
+            error?.error?.message ||
+            error?.error?.error ||
+            error?.message ||
+            'Не получилось, попробуйте ещё раз';
+          this.confirmationCode = '';
+
+          setTimeout(() => {
+            this.state = 'phone';
+            this.errorMessage = '';
+            this.isBlockedError = false;
+            this.cdr.markForCheck();
+          }, 1000);
+        },
+      );
   }
 
   sendCode() {
@@ -58,21 +93,25 @@ export class Login {
               document.cookie = `access-token=${resp.token}; path=/; max-age=604800`; // 7 дней
             }
             setTimeout(() => {
-              this.router.navigate(['/']).then();
+              this.router.navigate([resp.user?.name ? '/' : '/profile']).then();
             }, 800);
           }
         },
         (error) => {
           this.state = 'failure';
-          this.errorMessage = error?.error?.message || error?.error?.error || error?.message || 'Неверный код, попробуйте ещё раз';
+          this.errorMessage =
+            error?.error?.message ||
+            error?.error?.error ||
+            error?.message ||
+            'Неверный код, попробуйте ещё раз';
           this.confirmationCode = '';
-          
+
           // Проверяем, это ли ошибка блокировки
           this.isBlockedError = this.errorMessage.includes('заблокирован');
-          
+
           // Устанавливаем разное время показа в зависимости от типа ошибки
           const showTime = this.isBlockedError ? 10000 : 2000; // 10 сек для блокировки, 2 сек для остальных
-          
+
           setTimeout(() => {
             this.state = 'phone';
             this.errorMessage = '';

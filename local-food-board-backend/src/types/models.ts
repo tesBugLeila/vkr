@@ -107,3 +107,8 @@ export interface INotification {
   isRead: boolean;             // Прочитано ли
   createdAt: string;
 }
+export interface ISms {
+  phone: string;
+  text: string;
+  sendAt: string;
+}
