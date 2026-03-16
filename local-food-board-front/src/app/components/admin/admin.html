@@ -72,13 +72,16 @@
               <td>{{ user.phone }}</td>
               <td>{{ user.name || '—' }}</td>
               <td>
-                <span [class.badge]="user.role === 'admin'" class="role">
+                <span [class.badge]="user.role === 'admin' || user.role === 'debug'" class="role">
                   @switch (user.role) {
                     @case ('admin') {
                       🔑 Админ
                     }
                     @case ('unverified') {
                       Неподтверждённый
+                    }
+                    @case ('debug') {
+                      Тестеровщик
                     }
                     @default {
                       Пользователь

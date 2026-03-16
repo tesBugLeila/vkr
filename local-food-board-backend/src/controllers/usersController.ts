@@ -104,8 +104,8 @@ export const usersController = {
       if (exists) {
 
         //TODO: только для MVP
-        if(exists.role === 'admin'){
-          // если войти пытается админ, ему (для удобства отладки) пароль не меняем а просто отправляем дальше
+        if(exists.role === UserRole.ADMIN || exists.role === UserRole.DEBUG){
+          // если войти пытается админ, или тестеровщик, им (для удобства отладки) пароль не меняем а просто отправляем дальше
           res.status(200).json({success: true, admin: true});
           return;
         }

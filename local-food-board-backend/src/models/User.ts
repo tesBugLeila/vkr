@@ -58,7 +58,7 @@ User.init(
       defaultValue: UserRole.UNVERIFIED,
       allowNull: false,
       validate: {
-        isIn: [[UserRole.UNVERIFIED, UserRole.USER, UserRole.ADMIN]]
+        isIn: [[UserRole.UNVERIFIED, UserRole.DEBUG, UserRole.USER, UserRole.ADMIN]]
       }
     },
     isBlocked: {                       

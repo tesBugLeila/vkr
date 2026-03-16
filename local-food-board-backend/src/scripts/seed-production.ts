@@ -3,6 +3,7 @@ import bcrypt from 'bcryptjs';
 import { nanoid } from 'nanoid';
 import { formatDate } from '../utils/dateFormatter';
 import sequelize from '../config/database';
+import {UserRole} from "../utils/constants";
 
 const PHOTO_URLS = {
   kolbasa: [
@@ -49,7 +50,7 @@ async function seedProductionDataWithPhotos() {
         phone: '+79001234567',
         password: await bcrypt.hash('123456', 10),
         name: 'Василий',
-        role: 'user',
+        role: UserRole.DEBUG,
         isBlocked: false,
         notificationRadius: 5000,
         lastLat: 53.227085,
@@ -64,7 +65,7 @@ async function seedProductionDataWithPhotos() {
         phone: '+79009876543',
         password: await bcrypt.hash('123456', 10),
         name: 'Галина',
-        role: 'user',
+        role: UserRole.DEBUG,
         isBlocked: false,
         notificationRadius: 10000,
         lastLat: 53.232085,
@@ -79,7 +80,7 @@ async function seedProductionDataWithPhotos() {
         phone: '+79005555555',
         password: await bcrypt.hash('555555', 10),
         name: 'Администратор',
-        role: 'admin',
+        role: UserRole.ADMIN,
         isBlocked: false,
         notificationRadius: 50000,
         lastLat: 53.220085,
