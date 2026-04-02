@@ -1,0 +1,25 @@
+{
+  "name": "cypress",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "cypress:open": "cypress open",
+    "cypress:run": "cypress run",
+    "cy:visual": "cypress run --spec 'cypress/e2e/visual/**/*.cy.ts'",
+    "cy:visual:update": "cypress run --spec 'cypress/e2e/visual/**/*.cy.ts' --env updateSnapshots=true",
+    "cy:open:visual": "cypress open --e2e --browser chrome"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "devDependencies": {
+    "cypress": "^15.10.0",
+    "cypress-xpath": "^2.0.1",
+    "typescript": "^5.9.3"
+  },
+  "dependencies": {
+    "dotenv": "^17.4.0"
+  }
+}

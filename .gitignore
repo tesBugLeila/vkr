@@ -1,3 +1,4 @@
 local-food-board-backend/dist/
 local-food-board-backend/.idea/
 .idea/
+.env

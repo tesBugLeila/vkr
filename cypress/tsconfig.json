@@ -1,0 +1,8 @@
+{
+    "compilerOptions": {
+      "target": "es5",
+      "lib": ["es5", "dom"],
+      "types": ["cypress","cypress-xpath", "node"]
+    },
+    "include": ["**/*.ts", "cypress/support/e2e.js", "cypress/e2e/components/interfax-links/.cy.ts"]
+  }
