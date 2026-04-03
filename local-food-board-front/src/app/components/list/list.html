@@ -1,3 +1,9 @@
+<!-- <div class="list-header">
+  <button class="sort-btn" (click)="toggleSort()">
+    {{ sortDesc ? '↓ Сначала новые' : '↑ Сначала старые' }}
+  </button>
+</div> -->
+
 @for (item of posts; track item.id) {
   <app-post [data]="item"></app-post>
 } @empty {
@@ -5,14 +11,30 @@
     @if (loading) {
       <app-loading></app-loading>
     } @else {
-      <h3>Ничего не найдено в вашем населённом пункте Попробуйте поискать в других местах</h3>
+      <h3>Ничего не найдено. Попробуйте поискать в других местах</h3>
     }
   </div>
 }
-<div class="pagination">
-  @for (pageNumber of pages; track pageNumber) {
-    <span (click)="loadPage(pageNumber)" [class.active]="pageNumber === currentPage" ]>{{
-      pageNumber
-    }}</span>
-  }
-</div>
+
+@if (pages.length > 0) {
+  <div class="pagination">
+    <span
+      class="nav-btn"
+      [class.disabled]="currentPage === 1"
+      (click)="currentPage > 1 && loadPage(currentPage - 1)"
+    >‹</span>
+
+    @for (pageNumber of pages; track pageNumber) {
+      <span
+        (click)="loadPage(pageNumber)"
+        [class.active]="pageNumber === currentPage"
+      >{{ pageNumber }}</span>
+    }
+
+    <span
+      class="nav-btn"
+      [class.disabled]="currentPage === totalPages"
+      (click)="currentPage < totalPages && loadPage(currentPage + 1)"
+    >›</span>
+  </div>
+}

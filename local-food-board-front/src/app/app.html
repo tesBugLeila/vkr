@@ -1,17 +1,15 @@
 <header>
   <div class="title">
-    <div>
-      <h1 [routerLink]="['/']" class="link">СОСЕДИ</h1>
-      Доска объявлений еды <br />
-      домашнего производства
+    <div class="logo">
+      <h1 [routerLink]="['/']" class="link">
+        <span class="logo-icon">🏡</span>
+        <span class="logo-text">СОСЕДИ</span>
+      </h1>
+      <p class="logo-sub">Доска объявлений еды<br/>домашнего производства</p>
     </div>
-
+ 
     <div class="slogan">
       <app-login-bar></app-login-bar>
-      <span class="text">
-        Поддержите локальный вкус, находите и покупайте продукты питания у фермеров вашего края.
-      </span>
-      <br />
       @if (userService.currentUser$ | async; as user) {
         <div class="user-actions">
           <button [routerLink]="['/new']">Подать объявление</button>
@@ -19,11 +17,48 @@
       }
     </div>
   </div>
+
+  
+  @if (!(userService.currentUser$ | async)) {
+    <div class="hero">
+
+      <div class="hero-audience">
+        <div class="hero-card">
+          <span class="hero-card-icon">🧑‍🌾</span>
+          <span class="hero-card-title">Вы производитель?</span>
+          <span class="hero-card-desc">Разместите объявление о своей продукции - молоке, мясе, выпечке или овощах. Бесплатно.</span>
+          <button [routerLink]="['/login']" class="hero-btn-outline">Войти и подать объявление →</button>
+        </div>
+        <div class="hero-divider">или</div>
+        <div class="hero-card">
+          <span class="hero-card-icon">🛒</span>
+          <span class="hero-card-title">Ищете домашнюю еду?</span>
+          <span class="hero-card-desc">Найдите свежую продукцию от местных производителей рядом с вами по геолокации.</span>
+          <button [routerLink]="['/login']" class="hero-btn-outline">Войти и смотреть контакты →</button>
+        </div>
+      </div>
+
+    </div>
+  }
+  
   <app-search-bar></app-search-bar>
 </header>
+@if (userService.currentUser$ | async; as user) {
+  @if (!user.lastLat && user.notificationRadius === 0 && !hintDismissed) {
+    <div class="setup-hint">
+      <span class="setup-hint-icon">🔔</span>
+      <span class="setup-hint-text">
+        Включите геолокацию и настройте радиус уведомлений - и вы будете первыми узнавать о новых объявлениях рядом.
+      </span>
+      <a [routerLink]="['/profile']" [queryParams]="{tab: 'settings'}" class="setup-hint-link">Настроить в профиле</a>
+      <span class="setup-hint-close" (click)="dismissHint()">✕</span>
+    </div>
+  }
+}
+
 <section class="main-content">
   <router-outlet />
 </section>
 <footer>
-  <p>&copy;Создатель: Лейла Старостина, для ВКР 2025 - {{ now | date: 'yyyy' }}</p>
+  <p>&copy;Создатель: Лейла Старостина</p>
 </footer>

@@ -17,7 +17,7 @@ describe('Аутентификация пользователя', () => {
     cy.get('button').contains('Отправить код').should('not.be.disabled').click();
  
     cy.get('input.code').should('be.visible').type('123456');
-    cy.get('button').contains('Войти').click();
+    cy.xpath("(//button[contains(text(),'Войти')])[3]").click();
     cy.url().should('match', /\/(profile)?$/);
   });
 
@@ -32,7 +32,7 @@ describe('Аутентификация пользователя', () => {
 
     cy.getSmsCode(uniquePhone).then((code) => {
       cy.get('input.code').should('be.visible').type(code);
-      cy.get('button').contains('Войти').click();
+      cy.xpath("(//button[contains(text(),'Войти')])[3]").click();
       cy.url().should('include', '/profile');
     });
   });
@@ -45,7 +45,7 @@ describe('Аутентификация пользователя', () => {
     cy.get('button').contains('Отправить код').should('not.be.disabled').click();
  
     cy.get('input.code').should('be.visible').type('123456');
-    cy.get('button').contains('Войти').click();
+    cy.xpath("(//button[contains(text(),'Войти')])[3]").click();
  
     cy.url().should('match', /\/(profile)?$/).then(() => {
       cy.getCookie('access-token')
@@ -95,7 +95,7 @@ describe('Аутентификация пользователя', () => {
     cy.get('button').contains('Отправить код').click();
  
     cy.get('input.code').should('be.visible').type('123456');
-    cy.get('button').contains('Войти').click();
+     cy.xpath("(//button[contains(text(),'Войти')])[3]").click();
     cy.get('section h3').should('contain', 'заблокирован');
   });
 

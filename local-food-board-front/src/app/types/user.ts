@@ -1,14 +1,19 @@
 export interface IUser {
-  id: string; // Уникальный идентификатор пользователя
-  phone: string; // Телефон (логин)
-  password: string | null; // Хэш пароля (может быть null)
-  name: string | null; // Имя пользователя (может быть null)
-  verified: boolean; // Флаг подтверждения учетной записи
-  role: 'user' | 'admin'; // Роли пользователей;
+  id: string;
+  phone: string;
+  password: string | null;
+  name: string | null;
+  verified: boolean;
+  role: 'user' | 'admin';
   isBlocked: boolean;
-  notificationRadius: number; 
+  notificationRadius: number;
+  
+  lastLat: number | null;
+  lastLon: number | null;
+  lastLocationUpdate: string | null;
   createdAt: string;
 }
+
 export interface IUserResp {
   token?: string;
   user: IUser;

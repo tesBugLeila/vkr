@@ -34,6 +34,11 @@ export interface IAuthResponse {
     name: string | null;
     role: string;
     isBlocked: boolean;     // Добавлено поле isBlocked
+    notificationRadius: number;   
+    lastLat: number | null;       
+    lastLon: number | null;       
+    lastLocationUpdate: string | null;
+    createdAt: string;           
   };
   token: string;            // JWT токен для последующих запросов
 }

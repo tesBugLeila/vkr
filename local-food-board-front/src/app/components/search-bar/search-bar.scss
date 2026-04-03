@@ -3,19 +3,64 @@
   nav {
     display: flex;
     justify-content: space-between;
+    align-items: center;
+    gap: 8px;
+
     @media screen and (max-width: 900px) {
       display: block;
       input {
         margin-top: 5px;
         width: calc(90% - 25px);
       }
-      & select {
+      select {
         width: 90%;
         display: block;
         margin-top: 5px;
         &:not(:first-child) {
           margin-left: 0;
         }
+      }
+    }
+
+    .filters {
+      display: flex;
+      align-items: center;
+
+      @media screen and (max-width: 900px) {
+        flex-direction: column;
+        align-items: stretch;
+      }
+    }
+
+    // Кнопка сортировки стилизована как select
+    .sort-btn {
+      font-size: 16px;
+      font-family: sans-serif;
+      color: #555555;
+      background-color: transparent;
+      border: 1px solid rgba(0, 0, 0, 0.1);
+      border-radius: 8px;
+      padding: 8px 12px;
+      margin: 0 6px;
+      cursor: pointer;
+      white-space: nowrap;
+
+      &:hover {
+        border-color: rgba(0, 0, 0, 0.25);
+        background-color: transparent;
+        background-size: unset;
+      }
+
+      &:active {
+        background-color: transparent;
+        background-size: unset;
+        transition: none;
+      }
+
+      @media screen and (max-width: 900px) {
+        width: 90%;
+        display: block;
+        margin: 5px 0 0;
       }
     }
   }

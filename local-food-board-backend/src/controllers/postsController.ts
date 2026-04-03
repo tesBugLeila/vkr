@@ -6,29 +6,19 @@ import { Op } from 'sequelize';
 import { IPostCreateRequest, IPostUpdateRequest } from '../types/models';
 import { AuthRequest } from '../types/express';
 import { AppError } from '../utils/AppError';
-import {DEFAULT_SEARCH_RADIUS, DEFAULT_LIMIT, UserRole} from '../utils/constants';
-import { formatDate } from '../utils/dateFormatter';
+import { DEFAULT_SEARCH_RADIUS, DEFAULT_LIMIT, UserRole } from '../utils/constants';
+import { formatDate, parseDate } from '../utils/dateFormatter';
 import { notifyNeighbors } from '../utils/notificationService';
-import { parseDate } from '../utils/dateFormatter'; // ← Импортируйте вашу функцию
 
 export const postsController = {
-  /**
-   * Создание нового поста
-   * @param req - AuthRequest, содержит тело запроса и объект user из authMiddleware
-   * @param res - Response
-   */
+
   async create(req: AuthRequest, res: Response, next: NextFunction) {
     try {
-      // Берем данные из тела запроса и приводим к типу IPostCreateRequest
       const body = req.body as IPostCreateRequest;
-
-      // Получаем загруженные файлы через multer
       const files = (req.files as Express.Multer.File[] | undefined) || [];
-      // Преобразуем их в массив путей для хранения в БД
       const photos = files.map(f => `/uploads/${f.filename}`);
 
-      // Создаем пост в БД
-     const post = await Post.create({
+      const post = await Post.create({
         id: nanoid(),
         title: body.title,
         description: body.description || '',
@@ -41,383 +31,233 @@ export const postsController = {
         lon: body.lon ? Number(body.lon) : null,
         notifyNeighbors: Boolean(body.notifyNeighbors),
         userId: req.user?.id,
-        createdAt: formatDate() // Теперь "14.12.2025 15:30" 
+        createdAt: formatDate()
       });
 
+      if (post.notifyNeighbors && post.lat && post.lon) {
+        notifyNeighbors(post.id, post.title, post.lat, post.lon, req.user!.id)
+          .catch(err => console.error('Ошибка отправки уведомлений:', err));
+      }
 
-//  ОТПРАВЛЯЕМ УВЕДОМЛЕНИЯ СОСЕДЯМ
-    //  ОТПРАВЛЯЕМ УВЕДОМЛЕНИЯ СОСЕДЯМ
-if (post.notifyNeighbors && post.lat && post.lon) {
-  console.log('🔔 Отправка уведомлений соседям...');
-  
-  notifyNeighbors(
-    post.id,
-    post.title,
-    post.lat,
-    post.lon,
-    req.user!.id
-    // Радиус НЕ передаем - функция сама проверит радиус каждого пользователя
-  ).catch(err => {
-    console.error(' Ошибка отправки уведомлений:', err);
-  });
-}
-
-      // Возвращаем созданный пост
-   res.status(201).json({ post });
+      res.status(201).json({ post });
     } catch (error) {
       next(error);
     }
   },
 
+  async list(req: Request, res: Response, next: NextFunction) {
+    try {
+      const {
+        category, district, q, lat, lon,
+        radius = String(DEFAULT_SEARCH_RADIUS),
+        limit = String(DEFAULT_LIMIT),
+        page = '1',
+        sort = 'desc', // ← новый параметр сортировки: 'desc' | 'asc'
+        userId
+      } = req.query;
 
-  /**
-   * Получение списка постов с фильтрацией
-   * @param req - Request, query-параметры для фильтрации
-   * @param res - Response
-   */
- 
- // postsController.ts - метод list
-async list(req: Request, res: Response, next: NextFunction) {
-  try {
-    const {
-      category,
-      district,
-      q,
-      lat,
-      lon,
-      radius = String(DEFAULT_SEARCH_RADIUS),
-      limit = String(DEFAULT_LIMIT),
-      page = '1',
-      userId // Добавляем поддержку userId
-    } = req.query;
-
-    const where: any = {};
-
-    if (category) where.category = category;
-    if (district) where.district = district;
-    if (userId) where.userId = userId; // Фильтрация по пользователю
-    
-    if (q) {
-      const sanitized = String(q).replace(/[%_]/g, '\\$&');
-      where[Op.or] = [
-        { title: { [Op.like]: `%${sanitized}%` } },
-        { description: { [Op.like]: `%${sanitized}%` } }
-      ];
-    }
-
-    const limitNum = Math.min(Number(limit), 100);
-    const pageNum = Number(page);
-    const offset = (pageNum - 1) * limitNum;
-
-    // 1. Получаем посты БЕЗ сортировки
-    const { count, rows: unsortedPosts } = await Post.findAndCountAll({
-      where,
-      limit: limitNum,
-      offset
-    });
-
-    // 2. Сортируем посты вручную с помощью parseDate()
-    const sortedPosts = unsortedPosts.sort((a, b) => {
-      try {
-        const timeA = parseDate(a.createdAt);
-        const timeB = parseDate(b.createdAt);
-        return timeB - timeA; // Новые первыми (DESC)
-      } catch (error) {
-        console.error('Ошибка сортировки даты:', error);
-        return 0;
+      const where: any = {};
+      if (category) where.category = category;
+      if (district) where.district = district;
+      if (userId) where.userId = userId;
+      if (q) {
+        const sanitized = String(q).replace(/[%_]/g, '\\$&');
+        where[Op.or] = [
+          { title: { [Op.like]: `%${sanitized}%` } },
+          { description: { [Op.like]: `%${sanitized}%` } }
+        ];
       }
-    });
 
-    // Геофильтрация (только если указаны координаты)
-    if (lat && lon && !userId) { // Не применяем геофильтрацию при поиске по userId
-      const latNum = Number(lat);
-      const lonNum = Number(lon);
-      const r = Number(radius);
+      const limitNum = Math.min(Number(limit), 100);
+      const pageNum = Number(page);
+      const sortDesc = String(sort) !== 'asc';
 
-      const filtered = sortedPosts
-        .map((p) => {
-          const plat = p.lat ?? 0;
-          const plon = p.lon ?? 0;
-          const dist =
-            plat && plon
-              ? haversineDistance(latNum, lonNum, plat, plon)
-              : Infinity;
-          return { post: p, distance: dist };
-        })
-        .filter((x) => x.distance <= r)
-        .sort((a, b) => a.distance - b.distance)
-        .map((x) => ({ ...x.post.get(), distance: x.distance }));
+      // ИСПРАВЛЕНИЕ: получаем ВСЕ посты без limit/offset,
+      // сортируем глобально, потом нарезаем страницу вручную
+      const allPosts = await Post.findAll({ where });
 
-      return res.json({
-        posts: filtered,
-        pagination: {
-          total: filtered.length,
-          page: pageNum,
-          pages: Math.ceil(filtered.length / limitNum)
+      // Глобальная сортировка по дате
+      const sorted = allPosts.sort((a, b) => {
+        try {
+          const timeA = parseDate(a.createdAt);
+          const timeB = parseDate(b.createdAt);
+          return sortDesc ? timeB - timeA : timeA - timeB;
+        } catch {
+          return 0;
         }
       });
-    }
 
-    // 3. Скрываем номера телефонов
-    const resPosts = sortedPosts.map(p => {
-      p.contact = p.contact.slice(0, -4)+'XXXX'
-      return p
-    });
+      // Геофильтрация — применяем до пагинации
+      if (lat && lon && !userId) {
+        const latNum = Number(lat);
+        const lonNum = Number(lon);
+        const r = Number(radius);
 
-    // 4. Возвращаем отсортированные посты
-    res.json({
-      posts: resPosts,
-      pagination: {
-        total: count,
-        page: pageNum,
-        pages: Math.ceil(count / limitNum)
+        const filtered = sorted
+          .map((p) => {
+            const plat = p.lat ?? 0;
+            const plon = p.lon ?? 0;
+            const dist = plat && plon
+              ? haversineDistance(latNum, lonNum, plat, plon)
+              : Infinity;
+            return { post: p, distance: dist };
+          })
+          .filter((x) => x.distance <= r)
+          .sort((a, b) => a.distance - b.distance);
+
+        const total = filtered.length;
+        const offset = (pageNum - 1) * limitNum;
+        const page_items = filtered
+          .slice(offset, offset + limitNum)
+          .map((x) => ({ ...x.post.get(), distance: x.distance }));
+
+        return res.json({
+          posts: page_items,
+          pagination: {
+            total,
+            page: pageNum,
+            pages: Math.ceil(total / limitNum)
+          }
+        });
       }
-    });
-  } catch (error) {
-    next(error);
-  }
-},
 
-  /**
-   * Получение поста по ID
-   * @param req - Request, содержит params.id
-   * @param res - Response
-   */
-async getById(req: Request, res: Response, next: NextFunction) {
+      // Пагинация после глобальной сортировки
+      const total = sorted.length;
+      const offset = (pageNum - 1) * limitNum;
+      const pagePosts = sorted.slice(offset, offset + limitNum);
+
+      // Скрываем контакты
+      const resPosts = pagePosts.map(p => {
+        const obj = p.get() as any;
+        obj.contact = obj.contact?.slice(0, -4) + 'XXXX';
+        return obj;
+      });
+
+      res.json({
+        posts: resPosts,
+        pagination: {
+          total,
+          page: pageNum,
+          pages: Math.ceil(total / limitNum)
+        }
+      });
+    } catch (error) {
+      next(error);
+    }
+  },
+
+  async getById(req: Request, res: Response, next: NextFunction) {
     try {
       const { id } = req.params;
       const post = await Post.findByPk(id, {
-        include: [
-          {
-            model: User,
-            as: 'user',
-            attributes: ['id', 'phone', 'name']
-          }
-        ]
+        include: [{ model: User, as: 'user', attributes: ['id', 'phone', 'name'] }]
       });
-
-      if (!post) {
-        throw new AppError(404, 'Пост не найден');
-      }
-      // Скрываем контакты
-      post.contact = post.contact.slice(0, -4)+'XXXX'
-
+      if (!post) throw new AppError(404, 'Пост не найден');
+      post.contact = post.contact.slice(0, -4) + 'XXXX';
       res.json({ post });
     } catch (error) {
       next(error);
     }
   },
 
-
-  /**
-   * Получение поста по ID
-   * @param req - Request, содержит params.id
-   * @param res - Response
-   */
-async getContactById(req: AuthRequest, res: Response, next: NextFunction) {
+  async getContactById(req: AuthRequest, res: Response, next: NextFunction) {
     try {
       const { id } = req.params;
-      const post = await Post.findByPk(id, );
-
-      if (!post) {
-        throw new AppError(404, 'Пост не найден');
-      }
-      res.json( post.contact );
+      const post = await Post.findByPk(id);
+      if (!post) throw new AppError(404, 'Пост не найден');
+      res.json(post.contact);
     } catch (error) {
       next(error);
     }
   },
 
- /**
-   * Получить все посты пользователя (без пагинации, с фильтром по userId)
-   */
+  async getUserPosts(req: AuthRequest, res: Response, next: NextFunction) {
+    try {
+      const userId = req.user?.id;
+      if (!userId) throw new AppError(401, 'Требуется авторизация');
 
-async getUserPosts(req: AuthRequest, res: Response, next: NextFunction) {
-  try {
-    const userId = req.user?.id;
-    
-    if (!userId) {
-      throw new AppError(401, 'Требуется авторизация');
+      const posts = await Post.findAll({
+        where: { userId },
+        include: [{ model: User, as: 'user', attributes: ['id', 'phone', 'name'] }]
+      });
+
+      const sortedPosts = posts.sort((a, b) => {
+        try { return parseDate(b.createdAt) - parseDate(a.createdAt); }
+        catch { return 0; }
+      });
+
+      res.json({ posts: sortedPosts });
+    } catch (error) {
+      next(error);
     }
+  },
 
-    // Получаем все посты пользователя
-    const posts = await Post.findAll({
-      where: { userId },
-      include: [
-        {
-          model: User,
-          as: 'user',
-          attributes: ['id', 'phone', 'name']
-        }
-      ]
-    });
+  async update(req: AuthRequest, res: Response, next: NextFunction) {
+    try {
+      const { id } = req.params;
+      const body = req.body as IPostUpdateRequest;
+      const post = await Post.findByPk(id);
+      if (!post) throw new AppError(404, 'Пост не найден');
 
-    // Сортируем посты вручную с помощью parseDate()
-    const sortedPosts = posts.sort((a, b) => {
-      try {
-        const timeA = parseDate(a.createdAt);
-        const timeB = parseDate(b.createdAt);
-        return timeB - timeA; // Новые первыми (DESC)
-      } catch (error) {
-        console.error('Ошибка сортировки даты:', error);
-        return 0;
+      if (post.userId && req.user?.id && post.userId !== req.user.id && req.user?.role !== UserRole.ADMIN) {
+        throw new AppError(403, 'Можно редактировать только свои посты');
       }
-    });
 
-    res.json({ posts: sortedPosts });
-  } catch (error) {
-    next(error);
-  }
-},
-
-
-/**
- * Обновление существующего поста.
- *
- * @param req  - AuthRequest, содержит params.id, тело запроса и user из authMiddleware
- * @param res  - HTTP Response
- * @param next - Функция передачи ошибки в middleware
- */
-async update(req: AuthRequest, res: Response, next: NextFunction) {
-  try {
-    // 1. Извлекаем идентификатор поста из параметров URL
-    const { id } = req.params;
-
-    // 2. Извлекаем тело запроса с данными для обновления поста
-    const body = req.body as IPostUpdateRequest;
-
-    // 3. Загружаем пост из базы данных по его ID
-    const post = await Post.findByPk(id);
-
-    // 4. Если пост не найден — возвращаем ошибку 404
-    if (!post) {
-      throw new AppError(404, 'Пост не найден');
-    }
-
-    // 5. Проверяем право на редактирование поста:
-    // редактировать может только автор поста
-    if (post.userId && req.user?.id && post.userId !== req.user.id && req.user?.role !== UserRole.ADMIN) {
-      throw new AppError(403, 'Можно редактировать только свои посты');
-    }
-
-    // 6. Создаём объект для хранения обновляемых данных
-    const updateData: any = {};
-
-    // 7. Обновляем текстовые поля, если они переданы в запросе
-    if (body.title !== undefined) {
-      updateData.title = body.title;
-    }
-
-    if (body.description !== undefined) {
-      updateData.description = body.description || '';
-    }
-
-    if (body.contact !== undefined) {
-      updateData.contact = body.contact;
-    }
-
-    if (body.category !== undefined) {
-      updateData.category = body.category || '';
-    }
-
-    if (body.district !== undefined) {
-      updateData.district = body.district || '';
-    }
-
-    // 8. Обрабатываем цену: приводим к числу, при ошибке используем 0
-    if (body.price !== undefined) {
-      const priceNum = Number(body.price);
-      updateData.price = isNaN(priceNum) ? 0 : priceNum;
-    }
-
-    // 9. Обрабатываем координаты широты
-    if (body.lat !== undefined) {
-      const latNum = Number(body.lat);
-      updateData.lat = isNaN(latNum) ? null : latNum;
-    }
-
-    // 10. Обрабатываем координаты долготы
-    if (body.lon !== undefined) {
-      const lonNum = Number(body.lon);
-      updateData.lon = isNaN(lonNum) ? null : lonNum;
-    }
-
-      // 11. Обрабатываем флаг уведомления соседей
-    if (body.notifyNeighbors !== undefined) {
-      const value = body.notifyNeighbors;
-      
-      if (typeof value === 'boolean') {
-        updateData.notifyNeighbors = value;
-      } else if (typeof value === 'string') {
-        // FormData передает как строку "true"/"false"
-        updateData.notifyNeighbors = value === 'true';
-      } else {
-        updateData.notifyNeighbors = Boolean(value);
+      const updateData: any = {};
+      if (body.title !== undefined) updateData.title = body.title;
+      if (body.description !== undefined) updateData.description = body.description || '';
+      if (body.contact !== undefined) updateData.contact = body.contact;
+      if (body.category !== undefined) updateData.category = body.category || '';
+      if (body.district !== undefined) updateData.district = body.district || '';
+      if (body.price !== undefined) {
+        const p = Number(body.price);
+        updateData.price = isNaN(p) ? 0 : p;
       }
-      
-      console.log('✓ notifyNeighbors обновлен:', updateData.notifyNeighbors);
-    }
-
-    // 12. Обрабатываем загруженные файлы (фотографии)
-    const files = (req.files as Express.Multer.File[] | undefined) || [];
-
-    // Если загружены новые файлы — формируем новый список фотографий
-    if (files.length > 0) {
-      const newPhotos = files.map((file) => `/uploads/${file.filename}`);
-      updateData.photos = newPhotos;
-    }
-    // Если файлы не загружены, но photos переданы в теле запроса —
-    // обновляем список фотографий из body
-    else if (body.photos !== undefined) {
-      if (typeof body.photos === 'string') {
-        try {
-          // Пытаемся распарсить строку JSON
-          updateData.photos = JSON.parse(body.photos);
-        } catch {
-          // При ошибке парсинга устанавливаем пустой массив
-          updateData.photos = [];
-        }
-      } else if (Array.isArray(body.photos)) {
-        updateData.photos = body.photos;
+      if (body.lat !== undefined) {
+        const l = Number(body.lat);
+        updateData.lat = isNaN(l) ? null : l;
       }
+      if (body.lon !== undefined) {
+        const l = Number(body.lon);
+        updateData.lon = isNaN(l) ? null : l;
+      }
+      if (body.notifyNeighbors !== undefined) {
+        updateData.notifyNeighbors = typeof body.notifyNeighbors === 'string'
+          ? body.notifyNeighbors === 'true'
+          : Boolean(body.notifyNeighbors);
+      }
+
+      const files = (req.files as Express.Multer.File[] | undefined) || [];
+      if (files.length > 0) {
+        updateData.photos = files.map(f => `/uploads/${f.filename}`);
+      } else if (body.photos !== undefined) {
+        updateData.photos = typeof body.photos === 'string'
+          ? (() => { try { return JSON.parse(body.photos as string); } catch { return []; } })()
+          : Array.isArray(body.photos) ? body.photos : [];
+      }
+
+      if (Object.keys(updateData).length > 0) {
+        await post.update(updateData);
+        await post.reload();
+      }
+
+      res.json({ post, message: 'Пост обновлен' });
+    } catch (error) {
+      next(error);
     }
+  },
 
-    // 13. Если есть данные для обновления —
-    // выполняем обновление поста и перечитываем его из базы
-    if (Object.keys(updateData).length > 0) {
-      await post.update(updateData);
-      await post.reload();
-    }
-
-    // 14. Отправляем клиенту обновлённый пост и сообщение об успехе
-    res.json({
-      post,
-      message: 'Пост обновлен'
-    });
-  } catch (error) {
-    // 15. Передаём ошибку в централизованный обработчик
-    next(error);
-  }
-}
-,
-
-  /**
-   * Удаление поста
-   * @param req - AuthRequest, содержит params.id и user из authMiddleware
-   * @param res - Response
-   */
   async remove(req: AuthRequest, res: Response, next: NextFunction) {
     try {
       const { id } = req.params;
       const post = await Post.findByPk(id);
+      if (!post) throw new AppError(404, 'Пост не найден');
 
-      if (!post) {
-        throw new AppError(404, 'Пост не найден');
-      }
+   
+    if (post.userId && req.user?.id && post.userId !== req.user.id && req.user?.role !== UserRole.ADMIN) {
+      throw new AppError(403, 'Можно удалять только свои посты');
+    }
 
-      if (post.userId && req.user?.id && post.userId !== req.user.id) {
-        throw new AppError(403, 'Можно удалять только свои посты');
-      }
 
       await post.destroy();
       res.json({ ok: true, message: 'Пост удален' });
@@ -425,4 +265,4 @@ async update(req: AuthRequest, res: Response, next: NextFunction) {
       next(error);
     }
   }
-}
+};

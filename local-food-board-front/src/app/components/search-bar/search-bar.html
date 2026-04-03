@@ -23,5 +23,9 @@
         </option>
       }
     </select>
+
+    <button class="sort-btn" (click)="toggleSort()">
+      {{ postService.sortOrder === 'desc' ? '↓ Новые' : '↑ Старые' }}
+    </button>
   </div>
 </nav>

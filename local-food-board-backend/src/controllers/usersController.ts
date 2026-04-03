@@ -69,7 +69,13 @@ export const usersController = {
           phone: user.phone, 
           name: user.name,
           role: user.role,
-          isBlocked: user.isBlocked 
+          isBlocked: user.isBlocked,
+              notificationRadius: user.notificationRadius,  
+    lastLat: user.lastLat,                        
+    lastLon: user.lastLon,                       
+    lastLocationUpdate: user.lastLocationUpdate,   
+    createdAt: user.createdAt,                     
+          
         }, 
         token 
       };
@@ -197,7 +203,12 @@ export const usersController = {
           phone: user.phone,
           name: user.name,
           role: user.role,
-          isBlocked: user.isBlocked 
+          isBlocked: user.isBlocked,
+          notificationRadius: user.notificationRadius, 
+    lastLat: user.lastLat,                        
+    lastLon: user.lastLon,                        
+    lastLocationUpdate: user.lastLocationUpdate,   
+    createdAt: user.createdAt,                     
         }
       };
 
@@ -279,7 +290,7 @@ async updateNotificationRadius(req: AuthRequest, res: Response, next: NextFuncti
       // 2. Получаем пользователя из базы данных по его ID
       // Возвращаем только необходимые поля
       const user = await User.findByPk(req.user.id, {
-        attributes: ['id', 'phone', 'name', 'createdAt', 'role', 'isBlocked', 'notificationRadius', 'lastLat', 'lastLon']
+        attributes: ['id', 'phone', 'name', 'createdAt', 'role', 'isBlocked', 'notificationRadius', 'lastLat', 'lastLon', 'lastLocationUpdate' ]
       });
 
       // 3. Если пользователь не найден — возвращаем ошибку 404

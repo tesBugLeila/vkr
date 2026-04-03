@@ -16,7 +16,16 @@ export class App implements OnInit {
   constructor(public userService: UserService) {}
   now = new Date();
 
+  // true — пользователь закрыл подсказку, больше не показываем
+  hintDismissed = false;
+
   ngOnInit() {
     this.userService.me();
+    this.hintDismissed = localStorage.getItem('setup-hint-dismissed') === 'true';
+  }
+
+  dismissHint(): void {
+    this.hintDismissed = true;
+    localStorage.setItem('setup-hint-dismissed', 'true');
   }
 }

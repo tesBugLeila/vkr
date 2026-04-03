@@ -17,7 +17,6 @@ export class SearchBar {
     { name: 'Кинель', value: { lat: 53.2211, lon: 50.6257, radius: 5000 } },
     { name: 'Усть-Кинельский', value: { lat: 53.2700, lon: 50.5830, radius: 3000 } },
     { name: 'Алексеевка', value: { lat: 53.2536, lon: 50.4920, radius: 5000 } },
-//    { name: 'Томск', value: { lat: 56.4728, lon: 85.0458, radius: 10000 } },
     { name: 'Москва', value: { lat: 55.7530, lon: 37.6221, radius: 25000 } },
     { name: 'Самара', value: { lat: 53.2066, lon: 50.1354, radius: 15000 } },
     { name: 'Казань', value: { lat: 55.7973, lon: 49.1037, radius: 20000 } },
@@ -26,6 +25,11 @@ export class SearchBar {
   constructor(public postService: PostService) {}
 
   listReload(): void {
+    this.postService.filterUpdated$.next(true);
+  }
+
+  toggleSort(): void {
+    this.postService.sortOrder = this.postService.sortOrder === 'desc' ? 'asc' : 'desc';
     this.postService.filterUpdated$.next(true);
   }
 

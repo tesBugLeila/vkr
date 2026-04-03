@@ -32,15 +32,22 @@ export class PostService {
     q: undefined,
   };
 
+  public sortOrder: 'desc' | 'asc' = 'desc';
+
   /**
    * Получить список постов с фильтрацией
    */
-  list(page: number, limit: number): Observable<IList<IPost>> {
+list(page: number, limit: number): Observable<IList<IPost>> {
     const filter = Object.fromEntries(
-      Object.entries(this.searchBar).filter(([key, value]) => value !== undefined),
+      Object.entries(this.searchBar).filter(([, value]) => value !== undefined),
     );
     return this.http.get<IList<IPost>>('/api/posts', {
-      params: { ...filter, page: page.toString(), limit: limit.toString() }
+      params: {
+        ...filter,
+        page: page.toString(),
+        limit: limit.toString(),
+        sort: this.sortOrder  
+      }
     });
   }
 
