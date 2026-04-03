@@ -1,20 +1,18 @@
 name: Cypress E2E
 
 on:
-  push:
-    branches: [ "main" ]
   workflow_dispatch:
 
 jobs:
   cypress:
-    runs-on: self-hosted
+    runs-on: ubuntu-latest  #  виртуальная машина GitHub
     steps:
       - uses: actions/checkout@v4
 
       - name: Run Cypress tests
         working-directory: cypress
         env:
-          BASE_URL: https://food-63.ru
+          BASE_URL: https://food-63.ru  
         run: |
           npm install
           npx cypress run --headless
